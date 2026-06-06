@@ -1,48 +1,45 @@
-// arvind_party_web/lib/modules/dashboard/controllers/dashboard_controller.dart
+import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../core/network/admin_api.dart';
+import 'package:http/http.dart' as http;
+import 'package:get_storage/get_storage.dart';
+import '../../../core/constants/api_constants.dart';
 
 class DashboardController extends GetxController {
-  final isLoading    = true.obs;
-  final totalUsers   = 0.obs;
-  final onlineUsers  = 0.obs;
-  final activeRooms  = 0.obs;
-  final blockedUsers = 0.obs;
-  final newToday     = 0.obs;
-  final rooms        = <dynamic>[].obs;
+  var isLoading = true.obs;
+  var totalUsers = 0.obs;
+  var activeRooms = 0.obs;
+  var totalRevenue = 0.obs;
 
   @override
   void onInit() {
     super.onInit();
-    loadData();
+    fetchStats();
   }
 
-  Future<void> loadData() async {
-    isLoading.value = true;
+  Future<void> fetchStats() async {
     try {
-      final api = AdminApi.to;
-      final results = await Future.wait([
-        api.getDashboardStats(),
-        api.getActiveRooms(),
-      ]);
+      isLoading.value = true;
+      final token = GetStorage().read('staff_token');
 
-      final stats = results[0] as Map<String, dynamic>;
-      if (stats['success'] == true) {
-        final s = stats['stats'] as Map<String, dynamic>;
-        totalUsers.value   = (s['total']    as int?) ?? 0;
-        onlineUsers.value  = (s['online']   as int?) ?? 0;
-        blockedUsers.value = (s['blocked']  as int?) ?? 0;
-        newToday.value     = (s['newToday'] as int?) ?? 0;
+      final response = await http.get(
+        Uri.parse('${ApiConstants.apiBaseUrl}/admin/stats'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      final data = jsonDecode(response.body);
+      if (response.statusCode == 200 && data['success'] == true) {
+        totalUsers.value = data['data']['totalUsers'] ?? 0;
+        activeRooms.value = data['data']['activeRooms'] ?? 0;
+        totalRevenue.value = data['data']['totalRevenue'] ?? 0;
       }
-
-      rooms.value      = results[1] as List<dynamic>;
-      activeRooms.value = rooms.length;
     } catch (e) {
-      // Offline fallback with dummy data
-      totalUsers.value  = 1240;
-      onlineUsers.value = 87;
-      activeRooms.value = 23;
-      newToday.value    = 14;
+      Get.snackbar(
+        'Error',
+        'Failed to load dashboard stats',
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
     } finally {
       isLoading.value = false;
     }

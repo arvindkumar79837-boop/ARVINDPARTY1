@@ -1,124 +1,75 @@
-const Room = require('../models/Room');
-const RoomMessage = require('../models/RoomMessage');
-const crypto = require('crypto');
+const Room = require('../../Room');
 
-// Create a Room
+// Fetch active live rooms for the HomeScreen Discovery Feed
+exports.getLiveRooms = async (req, res) => {
+  try {
+    const rooms = await Room.find({ status: 'live' })
+      .populate('ownerId', 'name avatar') // Join with user to get owner details
+      .sort({ activeUsers: -1 })          // Most active rooms at the top
+      .limit(50);                         // Pagination limit
+      
+    res.status(200).json(rooms);
+  } catch (error) {
+    console.error('Fetch Live Rooms Error:', error);
+    res.status(500).json({ error: 'Failed to fetch live rooms' });
+  }
+};
+
+// Process new room creation from CreateRoomScreen
 exports.createRoom = async (req, res) => {
   try {
-    const { title, description, coverImage, tags, language, roomType, password } = req.body;
+    const { name, coverImage, tags, maxUsers } = req.body;
+    const ownerId = req.user.userId;
     
-    // Optional: limit to 1 active room per user
-    let existingRoom = await Room.findOne({ ownerId: req.user.id, status: 'active' });
-    if (existingRoom) {
-       return res.status(400).json({ success: false, message: 'You already have an active room.', room: existingRoom });
-    }
-
-    const roomId = crypto.randomInt(100000, 999999).toString();
-
-    const room = await Room.create({
-      roomId,
-      ownerId: req.user.id,
-      title: title || 'My Voice Room',
-      description: description || '',
-      coverImage: coverImage || '',
-      tags: tags || [],
-      language: language || 'English',
-      roomType: roomType || 'public',
-      password: password || ''
-    });
-
-    return res.status(201).json({
-      success: true,
-      room
-    });
-  } catch (error) {
-    return res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-// Get List of Active Rooms
-exports.getRooms = async (req, res) => {
-  try {
-    const rooms = await Room.find({ status: 'active', roomType: 'public' })
-      .populate('ownerId', 'name avatar userId level')
-      .sort({ activeUsers: -1, createdAt: -1 });
-
-    return res.json({
-      success: true,
-      rooms
-    });
-  } catch (error) {
-    return res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-// Get Room Details
-exports.getRoomDetails = async (req, res) => {
-  try {
-    const { roomId } = req.params;
-    const room = await Room.findOne({ roomId })
-      .populate('ownerId', 'name avatar userId level')
-      .populate('seats.userId', 'name avatar userId level');
-
-    if (!room) {
-      return res.status(404).json({ success: false, message: 'Room not found' });
-    }
-
-    return res.json({
-      success: true,
-      room
-    });
-  } catch (error) {
-    return res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-// Join Room Verification
-exports.joinRoom = async (req, res) => {
-  try {
-    const { roomId } = req.params;
-    const { password } = req.body;
-
-    const room = await Room.findOne({ roomId, status: 'active' });
-    if (!room) {
-      return res.status(404).json({ success: false, message: 'Room not found or inactive' });
-    }
-
-    if (room.roomType === 'private' && room.password !== password) {
-      return res.status(401).json({ success: false, message: 'Invalid password' });
-    }
-
-    return res.json({
-      success: true,
-      message: 'Allowed to join room',
-      room
-    });
-  } catch (error) {
-    return res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-// Get Room Messages
-exports.getRoomMessages = async (req, res) => {
-  try {
-    const { roomId } = req.params;
+    const room = new Room({ name, ownerId, coverImage, tags, maxUsers });
+    await room.save();
     
-    // Find the room to get its Object ID
-    const room = await Room.findOne({ roomId });
+    res.status(201).json({ message: 'Room created successfully', room });
+  } catch (error) {
+    console.error('Create Room Error:', error);
+    res.status(500).json({ error: 'Failed to create room' });
+  }
+};
+
+// Search for rooms by name or tags
+exports.searchRooms = async (req, res) => {
+  try {
+    const { q } = req.query;
+    const rooms = await Room.find({ 
+      status: 'live',
+      name: { $regex: q, $options: 'i' } // Case-insensitive partial match
+    })
+    .populate('ownerId', 'name avatar')
+    .limit(20);
+    
+    res.status(200).json(rooms);
+  } catch (error) {
+    console.error('Search Rooms Error:', error);
+    res.status(500).json({ error: 'Failed to search rooms' });
+  }
+};
+
+// Update room settings
+exports.updateRoomSettings = async (req, res) => {
+  try {
+    const { roomId } = req.params;
+    const updateData = req.body;
+    const userId = req.user.userId;
+
+    // Verify room exists and user is owner
+    const room = await Room.findOneAndUpdate(
+      { _id: roomId, ownerId: userId },
+      { $set: updateData },
+      { new: true }
+    );
+
     if (!room) {
-      return res.status(404).json({ success: false, message: 'Room not found' });
+      return res.status(404).json({ message: 'Room not found or unauthorized' });
     }
 
-    // Get latest 50 messages
-    const messages = await RoomMessage.find({ roomId: room._id })
-      .sort({ createdAt: -1 })
-      .limit(50);
-
-    return res.json({
-      success: true,
-      messages: messages.reverse() // Return in chronological order
-    });
+    res.status(200).json({ message: 'Room settings updated successfully', room });
   } catch (error) {
-    return res.status(500).json({ success: false, message: error.message });
+    console.error('Update Room Settings Error:', error);
+    res.status(500).json({ message: 'Failed to update room settings' });
   }
 };

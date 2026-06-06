@@ -1,73 +1,46 @@
 const User = require('../models/User');
 const Gift = require('../models/Gift');
-const GiftTransaction = require('../models/GiftTransaction');
 
 module.exports = (io) => {
-    io.on('connection', (socket) => {
-        socket.on('send_gift', async (data) => {
-            try {
-                const { roomId, senderId, receiverId, giftId, quantity } = data;
+  io.on('connection', (socket) => {
+    
+    // User sends a gift in a live room
+    socket.on('send_gift', async (data) => {
+      try {
+        const { roomId, senderId, receiverId, giftId, quantity = 1 } = data;
+        
+        // Fetch gift details
+        const gift = await Gift.findById(giftId);
+        if (!gift) return socket.emit('gift_error', { message: 'Gift not found' });
 
-                // Validate inputs
-                if (!roomId || !senderId || !receiverId || !giftId || !quantity) {
-                    return socket.emit('gift_error', { message: 'Missing required fields' });
-                }
+        // Fetch users
+        const sender = await User.findById(senderId);
+        const receiver = await User.findById(receiverId);
+        const totalCost = gift.price * quantity;
 
-                // Retrieve entities
-                const sender = await User.findById(senderId);
-                const receiver = await User.findById(receiverId);
-                const gift = await Gift.findById(giftId);
+        // Verify balance
+        if (!sender || sender.diamonds < totalCost) {
+          return socket.emit('gift_error', { message: 'Insufficient diamonds! Please recharge.' });
+        }
+        if (!receiver) return socket.emit('gift_error', { message: 'Receiver not found' });
 
-                if (!sender || !receiver || !gift) {
-                    return socket.emit('gift_error', { message: 'Invalid user or gift' });
-                }
+        // Transaction: Deduct from sender, reward receiver
+        sender.diamonds -= totalCost;
+        receiver.coins += totalCost; 
+        await sender.save();
+        await receiver.save();
 
-                // Calculate cost and income
-                const totalCoins = gift.price * quantity;
-                const diamondsEarned = Math.floor(totalCoins * 0.6); // Host gets 60%
-
-                // Check wallet balance
-                if (sender.coins < totalCoins) {
-                    return socket.emit('gift_error', { message: 'Insufficient coins' });
-                }
-
-                // Deduct coins & add diamonds
-                sender.coins -= totalCoins;
-                receiver.diamonds += diamondsEarned;
-
-                await sender.save();
-                await receiver.save();
-
-                // Record transaction
-                await GiftTransaction.create({
-                    roomId,
-                    senderId,
-                    receiverId,
-                    giftId,
-                    quantity,
-                    totalCoins,
-                    diamondsEarned
-                });
-
-                // Broadcast animation
-                io.to(roomId).emit('gift_animation', {
-                    senderId: sender._id,
-                    senderName: sender.name || sender.userId,
-                    receiverId: receiver._id,
-                    receiverName: receiver.name || receiver.userId,
-                    giftId: gift._id,
-                    giftName: gift.name,
-                    giftImage: gift.image,
-                    price: gift.price,
-                    quantity: quantity,
-                    animationType: gift.animationType,
-                    combo: quantity // Simplified combo representing total sent this time
-                });
-
-            } catch (error) {
-                console.error('Gift sending error:', error);
-                socket.emit('gift_error', { message: 'Internal server error' });
-            }
+        // Broadcast the gift animation to everyone in the room!
+        io.to(roomId).emit('gift_animation', {
+          giftId: gift._id,
+          giftImageUrl: gift.iconUrl || `https://arvind-party-cdn.com/gifts/${giftId}.svga`, 
+          senderName: sender.name,
+          quantity
         });
+      } catch (error) {
+        console.error('Gift socket error:', error);
+        socket.emit('gift_error', { message: 'An error occurred while processing the gift.' });
+      }
     });
+  });
 };

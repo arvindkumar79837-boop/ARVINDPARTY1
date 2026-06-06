@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { loginWithFirebase } = require('../controllers/authController');
+const authController = require('../controllers/authController');
 
-router.post('/firebase-login', loginWithFirebase);
+router.post('/login', authController.login);
 
 module.exports = router;

@@ -10,7 +10,6 @@ import '../widgets/room_banner_widget.dart';
 import '../widgets/seat_grid_widget.dart';
 import '../widgets/room_chat_widget.dart';
 import '../widgets/room_bottom_bar_widget.dart';
-import '../widgets/raise_hand_sheet.dart';
 
 class RoomScreen extends StatelessWidget {
   const RoomScreen({super.key});

@@ -1,158 +1,97 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../models/family_model.dart';
-import '../models/family_member_model.dart';
+import 'package:get_storage/get_storage.dart';
+import '../../../core/network/api_client.dart';
 
 class FamilyController extends GetxController {
-  final currentFamily = Rxn<FamilyModel>();
-  final familyMembersList = <FamilyMemberModel>[].obs;
-  final globalFamilyRankings = <FamilyModel>[].obs;
+  final familyNameController = TextEditingController();
+  final joinFamilyIdController = TextEditingController();
 
-  final isLoading = false.obs;
-  final selectedRankingTimeline = "Daily".obs; // Daily, Weekly, Monthly
+  var isLoading = false.obs;
+  var currentFamilyId = ''.obs;
 
   @override
   void onInit() {
     super.onInit();
-    loadUserFamilyDetails();
-    loadFamilyRankings("Daily");
+    // Load existing family if available in local storage
+    currentFamilyId.value = GetStorage().read('family_id') ?? '';
   }
 
-  // 1. Fetch Target User Family Framework Snapshots
-  Future<void> loadUserFamilyDetails() async {
+  Future<void> createFamily() async {
+    final name = familyNameController.text.trim();
+    if (name.isEmpty) return;
+
+    isLoading.value = true;
     try {
-      isLoading.value = true;
-      await Future.delayed(
-          const Duration(milliseconds: 600)); // Network simulation
+      final userId = GetStorage().read('user_id');
+      final data = await ApiClient().post('/family/create', {
+        'userId': userId,
+        'name': name,
+        'avatar':
+            'https://via.placeholder.com/150', // Replace with real asset later
+      });
 
-      currentFamily.value = const FamilyModel(
-        id: "fam_arvind_01",
-        name: "Lucknow Warriors",
-        logo:
-            "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&q=80",
-        banner:
-            "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=600&q=80",
-        description:
-            "Coding giants and non-stop voice chat streams powerhouse.",
-        notice:
-            "Family War is scheduled for Sunday! Everyone collect free coins badges 🚀",
-        level: 12,
-        points: 84500,
-        currentExp: 4500,
-        nextLevelExp: 10000,
-        membersCount: 42,
-        maxMembersLimit: 150,
-        ownerId: "me_123",
-        ownerName: "Arvind Kumar",
-      );
-
-      // Populate member array mocks
-      familyMembersList.assignAll([
-        FamilyMemberModel(
-          userId: "me_123",
-          name: "Arvind Kumar",
-          avatar: "https://picsum.photos/150",
-          userLevel: 45,
-          role: FamilyRole.owner,
-          dynamicContribution: 25000,
-          todayContribution: 450,
-          joinedAt: DateTime.now().subtract(const Duration(days: 30)),
-          isOnline: true,
-        ),
-        FamilyMemberModel(
-          userId: "user_dev_99",
-          name: "Rohan Alpha",
-          avatar: "https://picsum.photos/151",
-          userLevel: 32,
-          role: FamilyRole.coOwner,
-          dynamicContribution: 18000,
-          todayContribution: 120,
-          joinedAt: DateTime.now().subtract(const Duration(days: 20)),
-          isOnline: true,
-        ),
-      ]);
-    } catch (e) {
-      Get.snackbar("Family Error", "Failed to compile family node values: $e");
+      if (data['success'] == true) {
+        Get.snackbar('Success', 'Family created successfully!',
+            backgroundColor: Colors.green, colorText: Colors.white);
+        currentFamilyId.value = data['data']['familyId'];
+        GetStorage().write('family_id', currentFamilyId.value);
+        familyNameController.clear();
+      } else {
+        Get.snackbar('Error', data['message'] ?? 'Failed to create family',
+            backgroundColor: Colors.redAccent, colorText: Colors.white);
+      }
     } finally {
       isLoading.value = false;
     }
   }
 
-  // 2. Dynamic Rankings Catalog Filter Loader
-  void loadFamilyRankings(String timeline) {
-    selectedRankingTimeline.value = timeline;
-    // Mock mapping datasets representing high-speed memory lookups (Redis cache mimics)
-    globalFamilyRankings.assignAll([
-      const FamilyModel(
-          id: "f_1",
-          name: "Lucknow Warriors",
-          logo: "https://picsum.photos/60",
-          banner: "",
-          description: "",
-          notice: "",
-          level: 12,
-          points: 84500,
-          currentExp: 0,
-          nextLevelExp: 0,
-          membersCount: 42,
-          maxMembersLimit: 100,
-          ownerId: "1",
-          ownerName: "Arvind"),
-      const FamilyModel(
-          id: "f_2",
-          name: "Cyber Kings",
-          logo: "https://picsum.photos/61",
-          banner: "",
-          description: "",
-          notice: "",
-          level: 10,
-          points: 72000,
-          currentExp: 0,
-          nextLevelExp: 0,
-          membersCount: 65,
-          maxMembersLimit: 100,
-          ownerId: "2",
-          ownerName: "Rahul"),
-      const FamilyModel(
-          id: "f_3",
-          name: "UP Tigers",
-          logo: "https://picsum.photos/62",
-          banner: "",
-          description: "",
-          notice: "",
-          level: 8,
-          points: 51000,
-          currentExp: 0,
-          nextLevelExp: 0,
-          membersCount: 30,
-          maxMembersLimit: 100,
-          ownerId: "3",
-          ownerName: "Amit"),
-    ]);
-  }
+  Future<void> joinFamily() async {
+    final familyId = joinFamilyIdController.text.trim();
+    if (familyId.isEmpty) return;
 
-  // 3. Structural Mutations Administration Functions
-  Future<void> createNewFamily(
-      {required String name, required String desc}) async {
     isLoading.value = true;
-    await Future.delayed(const Duration(milliseconds: 1000));
-    Get.snackbar("Family Registry", "New Family Core Hub generated safely! 👑");
-    isLoading.value = false;
-    Get.back();
-  }
+    try {
+      final userId = GetStorage().read('user_id');
+      final data = await ApiClient().post('/family/join', {
+        'userId': userId,
+        'familyId': familyId,
+      });
 
-  void updateFamilySettings(String notice, String description) {
-    if (currentFamily.value != null) {
-      currentFamily.value = currentFamily.value!.copyWith(
-        notice: notice,
-        description: description,
-      );
-      Get.snackbar("Vault Sync", "Family operational protocols distributed.");
+      if (data['success'] == true) {
+        Get.snackbar('Success', 'Joined family successfully!',
+            backgroundColor: Colors.green, colorText: Colors.white);
+        currentFamilyId.value = familyId;
+        GetStorage().write('family_id', currentFamilyId.value);
+        joinFamilyIdController.clear();
+      } else {
+        Get.snackbar('Error', data['message'] ?? 'Failed to join family',
+            backgroundColor: Colors.redAccent, colorText: Colors.white);
+      }
+    } finally {
+      isLoading.value = false;
     }
   }
 
-  void kickMember(String uid) {
-    familyMembersList.removeWhere((element) => element.userId == uid);
-    Get.snackbar(
-        "Enforcement", "User identifiers token removed from family arrays.");
+  Future<void> leaveFamily() async {
+    isLoading.value = true;
+    try {
+      final userId = GetStorage().read('user_id');
+      final data = await ApiClient().post('/family/leave', {
+        'userId': userId,
+      });
+
+      if (data['success'] == true) {
+        Get.snackbar('Success', 'You have left the family.',
+            backgroundColor: Colors.green, colorText: Colors.white);
+        currentFamilyId.value = '';
+        GetStorage().remove('family_id');
+      } else {
+        Get.snackbar('Error', data['message'] ?? 'Failed to leave family',
+            backgroundColor: Colors.redAccent, colorText: Colors.white);
+      }
+    } finally {
+      isLoading.value = false;
+    }
   }
 }

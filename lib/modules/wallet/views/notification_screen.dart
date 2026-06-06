@@ -110,7 +110,7 @@ class NotificationScreen extends StatelessWidget {
                                               : FontWeight.bold,
                                           fontSize: 16))),
                               Text(_timeAgo(notif.timestamp),
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                       color: Colors.white38, fontSize: 12)),
                             ],
                           ),

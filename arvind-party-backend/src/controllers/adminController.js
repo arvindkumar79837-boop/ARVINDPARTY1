@@ -1,198 +1,195 @@
-const User = require('../models/User');
-const Room = require('../models/Room');
-const Gift = require('../models/Gift');
-const GiftTransaction = require('../models/GiftTransaction');
-const RoomMessage = require('../models/RoomMessage');
-const Ranking = require('../models/Ranking');
+const mongoose = require('mongoose');
+const User = require('../models/User'); // User model aapke pas already hai
+const TreasuryLog = require('../models/TreasuryLog');
+const Agency = require('../models/Agency');
+const GlobalSetting = require('../models/GlobalSetting');
+const Withdrawal = require('../models/Withdrawal');
 
-// ─── DASHBOARD STATS ──────────────────────────────────────────────────────
-
-exports.getDashboard = async (req, res) => {
+exports.getAllUsers = async (req, res) => {
   try {
-    const [
-      totalUsers, activeRooms, totalRooms,
-      todayUsers, blockedUsers, totalGiftTx
-    ] = await Promise.all([
-      User.countDocuments(),
-      Room.countDocuments({ status: 'active' }),
-      Room.countDocuments(),
-      User.countDocuments({ createdAt: { $gte: new Date(new Date().setHours(0,0,0,0)) } }),
-      User.countDocuments({ isBlocked: true }),
-      GiftTransaction.countDocuments()
-    ]);
+    // Saare users fetch karega, bas unke passwords hide kar dega security ke liye
+    const users = await User.find({}, { password: 0 }).sort({ createdAt: -1 });
+    
+    return res.status(200).json({ success: true, data: users });
+  } catch (error) {
+    console.error('Fetch Users Error:', error);
+    return res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+};
 
-    const onlineUsers = await User.countDocuments({ isOnline: true });
+// ─── WITHDRAWAL MANAGEMENT ──────────────────────────────────────────────────
+exports.getWithdrawals = async (req, res) => {
+  try {
+    const withdrawals = await Withdrawal.find().populate('userId', 'name uid avatar').sort({ createdAt: -1 });
+    return res.status(200).json({ success: true, data: withdrawals });
+  } catch (error) {
+    console.error('Fetch Withdrawals Error:', error);
+    return res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+};
 
-    const recentUsers = await User.find()
-      .sort({ createdAt: -1 }).limit(5)
-      .select('name userId avatar level createdAt');
+exports.processWithdrawal = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body; // 'APPROVED' or 'REJECTED'
+    
+    const withdrawal = await Withdrawal.findById(id);
+    if (!withdrawal) return res.status(404).json({ success: false, message: 'Withdrawal request not found' });
+    if (withdrawal.status !== 'PENDING') return res.status(400).json({ success: false, message: 'Request already processed' });
 
-    const recentRooms = await Room.find()
-      .sort({ createdAt: -1 }).limit(5)
-      .populate('ownerId', 'name avatar')
-      .select('roomId title activeUsers status createdAt');
+    if (status === 'REJECTED') {
+      const user = await User.findById(withdrawal.userId);
+      if (user) { user.coins += withdrawal.coinsDeducted; await user.save(); } // Refund on rejection
+    }
 
-    return res.json({
+    withdrawal.status = status;
+    await withdrawal.save();
+    return res.status(200).json({ success: true, message: `Withdrawal successfully ${status}` });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+};
+
+// ─── SYSTEM SETTINGS ────────────────────────────────────────────────────────
+exports.getSettings = async (req, res) => {
+  try {
+    let settings = await GlobalSetting.findOne();
+    if (!settings) settings = await GlobalSetting.create({}); // Create default if not exists
+    return res.status(200).json({ success: true, data: settings });
+  } catch (error) {
+    console.error('Get Settings Error:', error);
+    return res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+};
+
+exports.updateSettings = async (req, res) => {
+  try {
+    let settings = await GlobalSetting.findOne();
+    if (!settings) settings = new GlobalSetting();
+
+    if (req.body.giftCommission !== undefined) settings.giftCommission = req.body.giftCommission;
+    if (req.body.withdrawalFee !== undefined) settings.withdrawalFee = req.body.withdrawalFee;
+    if (req.body.minWithdrawal !== undefined) settings.minWithdrawal = req.body.minWithdrawal;
+
+    await settings.save();
+    return res.status(200).json({ success: true, message: 'Settings updated successfully', data: settings });
+  } catch (error) {
+    console.error('Update Settings Error:', error);
+    return res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+};
+
+// ─── AGENCY CONTROL ─────────────────────────────────────────────────────────
+exports.getAgencies = async (req, res) => {
+  try {
+    const agencies = await Agency.find().sort({ createdAt: -1 });
+    return res.status(200).json({ success: true, data: agencies });
+  } catch (error) {
+    console.error('Get Agencies Error:', error);
+    return res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+};
+
+exports.createAgency = async (req, res) => {
+  try {
+    const { name, ownerUid } = req.body;
+    if (!name || !ownerUid) return res.status(400).json({ success: false, message: 'Agency Name and Owner UID are required' });
+
+    const existing = await Agency.findOne({ ownerUid });
+    if (existing) return res.status(400).json({ success: false, message: 'Owner UID already has an agency' });
+
+    const newAgency = new Agency({ name, ownerUid });
+    await newAgency.save();
+    return res.status(200).json({ success: true, message: 'Agency created successfully', data: newAgency });
+  } catch (error) {
+    console.error('Create Agency Error:', error);
+    return res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+};
+
+exports.getStats = async (req, res) => {
+  try {
+    const totalUsers = await User.countDocuments();
+    
+    // Sum total generated coins for revenue/treasury
+    const logs = await TreasuryLog.find();
+    const totalRevenue = logs.reduce((sum, log) => sum + (log.amount || 0), 0);
+
+    // Fallback if Room model is structured differently
+    let activeRooms = 0;
+    if (mongoose.models.Room) {
+      activeRooms = await mongoose.models.Room.countDocuments({ isActive: true });
+    }
+
+    return res.status(200).json({
       success: true,
-      stats: {
-        totalUsers, activeRooms, totalRooms,
-        todayUsers, blockedUsers, onlineUsers, totalGiftTx
-      },
-      recentUsers,
-      recentRooms
+      data: { totalUsers, activeRooms, totalRevenue }
     });
-  } catch (e) {
-    return res.status(500).json({ success: false, message: e.message });
+  } catch (error) {
+    console.error('Fetch Stats Error:', error);
+    return res.status(500).json({ success: false, message: 'Internal Server Error' });
   }
 };
 
-// ─── USER MANAGEMENT ─────────────────────────────────────────────────────
-
-exports.getUsers = async (req, res) => {
+exports.getAllRooms = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 20;
-    const search = req.query.search || '';
-    const filter = {};
-    if (search) filter.$or = [
-      { name: { $regex: search, $options: 'i' } },
-      { userId: { $regex: search, $options: 'i' } },
-      { phone: { $regex: search, $options: 'i' } }
-    ];
-    if (req.query.blocked === 'true') filter.isBlocked = true;
-
-    const users = await User.find(filter)
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * limit).limit(limit);
-    const total = await User.countDocuments(filter);
-
-    return res.json({ success: true, users, total, page, pages: Math.ceil(total / limit) });
-  } catch (e) {
-    return res.status(500).json({ success: false, message: e.message });
-  }
-};
-
-exports.blockUser = async (req, res) => {
-  try {
-    await User.findByIdAndUpdate(req.params.id, { isBlocked: true });
-    return res.json({ success: true, message: 'User blocked' });
-  } catch (e) {
-    return res.status(500).json({ success: false, message: e.message });
-  }
-};
-
-exports.unblockUser = async (req, res) => {
-  try {
-    await User.findByIdAndUpdate(req.params.id, { isBlocked: false });
-    return res.json({ success: true, message: 'User unblocked' });
-  } catch (e) {
-    return res.status(500).json({ success: false, message: e.message });
-  }
-};
-
-exports.addCoinsToUser = async (req, res) => {
-  try {
-    const { amount } = req.body;
-    const user = await User.findByIdAndUpdate(
-      req.params.id,
-      { $inc: { coins: amount } },
-      { new: true }
-    );
-    return res.json({ success: true, message: `${amount} coins added`, user });
-  } catch (e) {
-    return res.status(500).json({ success: false, message: e.message });
-  }
-};
-
-// ─── ROOM MANAGEMENT ─────────────────────────────────────────────────────
-
-exports.getRooms = async (req, res) => {
-  try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 20;
-    const filter = {};
-    if (req.query.status) filter.status = req.query.status;
-
-    const rooms = await Room.find(filter)
-      .populate('ownerId', 'name avatar userId')
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * limit).limit(limit);
-    const total = await Room.countDocuments(filter);
-
-    return res.json({ success: true, rooms, total, page, pages: Math.ceil(total / limit) });
-  } catch (e) {
-    return res.status(500).json({ success: false, message: e.message });
-  }
-};
-
-exports.banRoom = async (req, res) => {
-  try {
-    await Room.findByIdAndUpdate(req.params.id, { status: 'banned' });
-    return res.json({ success: true, message: 'Room banned' });
-  } catch (e) {
-    return res.status(500).json({ success: false, message: e.message });
+    let rooms = [];
+    if (mongoose.models.Room) {
+      rooms = await mongoose.models.Room.find().sort({ createdAt: -1 });
+    }
+    return res.status(200).json({ success: true, data: rooms });
+  } catch (error) {
+    console.error('Fetch Rooms Error:', error);
+    return res.status(500).json({ success: false, message: 'Internal Server Error' });
   }
 };
 
 exports.closeRoom = async (req, res) => {
   try {
-    await Room.findByIdAndUpdate(req.params.id, { status: 'inactive' });
-    return res.json({ success: true, message: 'Room closed' });
-  } catch (e) {
-    return res.status(500).json({ success: false, message: e.message });
+    const { id } = req.params;
+    if (!mongoose.models.Room) return res.status(404).json({ success: false, message: 'Room Data not configured yet' });
+    
+    const room = await mongoose.models.Room.findById(id);
+    if (!room) return res.status(404).json({ success: false, message: 'Room not found' });
+    
+    room.isActive = false;
+    await room.save();
+
+    return res.status(200).json({ success: true, message: 'Room forcefully closed by Admin', isActive: false });
+  } catch (error) {
+    console.error('Close Room Error:', error);
+    return res.status(500).json({ success: false, message: 'Internal Server Error' });
   }
 };
 
-// ─── GIFT MANAGEMENT ─────────────────────────────────────────────────────
-
-exports.getGifts = async (req, res) => {
+exports.toggleBlockUser = async (req, res) => {
   try {
-    const gifts = await Gift.find().sort({ price: 1 });
-    return res.json({ success: true, gifts });
-  } catch (e) {
-    return res.status(500).json({ success: false, message: e.message });
+    const { id } = req.params;
+    const user = await User.findById(id);
+    
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    user.isBlocked = !user.isBlocked;
+    await user.save();
+
+    const action = user.isBlocked ? 'banned' : 'unbanned';
+    return res.status(200).json({ success: true, message: `User successfully ${action}`, isBlocked: user.isBlocked });
+  } catch (error) {
+    console.error('Toggle Block User Error:', error);
+    return res.status(500).json({ success: false, message: 'Internal Server Error' });
   }
 };
 
-exports.createGift = async (req, res) => {
+exports.getAgencyHosts = async (req, res) => {
   try {
-    const gift = await Gift.create(req.body);
-    return res.status(201).json({ success: true, gift });
-  } catch (e) {
-    return res.status(500).json({ success: false, message: e.message });
+    const { id } = req.params;
+    // Fetch all users that belong to this agency's ID
+    const hosts = await User.find({ agencyId: id }, { password: 0 });
+    return res.status(200).json({ success: true, data: hosts });
+  } catch (error) {
+    console.error('Get Agency Hosts Error:', error);
+    return res.status(500).json({ success: false, message: 'Internal Server Error' });
   }
-};
-
-exports.updateGift = async (req, res) => {
-  try {
-    const gift = await Gift.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    return res.json({ success: true, gift });
-  } catch (e) {
-    return res.status(500).json({ success: false, message: e.message });
-  }
-};
-
-exports.deleteGift = async (req, res) => {
-  try {
-    await Gift.findByIdAndUpdate(req.params.id, { isActive: false });
-    return res.json({ success: true, message: 'Gift deactivated' });
-  } catch (e) {
-    return res.status(500).json({ success: false, message: e.message });
-  }
-};
-
-// ─── ANNOUNCEMENT ─────────────────────────────────────────────────────────
-
-// Announcement global state (in-memory, production mein Redis mein rakhna)
-let globalAnnouncement = '';
-
-exports.setAnnouncement = async (req, res) => {
-  globalAnnouncement = req.body.message || '';
-  // Socket se sab users ko broadcast karo
-  req.app.get('io')?.emit('global_announcement', { message: globalAnnouncement });
-  return res.json({ success: true, message: 'Announcement sent' });
-};
-
-exports.getAnnouncement = async (req, res) => {
-  return res.json({ success: true, announcement: globalAnnouncement });
 };

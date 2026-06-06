@@ -24,6 +24,11 @@ import '../modules/room/views/room_screen.dart';
 import '../modules/room/views/create_room_screen.dart';
 import '../modules/room/bindings/room_binding.dart';
 
+// Newly separated modules
+import '../modules/shop/views/shop_screen.dart';
+import '../modules/shop/bindings/shop_binding.dart';
+import '../modules/pk_battle/bindings/pk_battle_binding.dart';
+
 import 'app_routes.dart';
 
 class AppPages {
@@ -70,6 +75,11 @@ class AppPages {
       page: () => const CreateRoomScreen(),
       binding: CreateRoomBinding(),
       transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: AppRoutes.shop,
+      page: () => const ShopScreen(),
+      binding: ShopBinding(),
     ),
   ];
 }

@@ -63,14 +63,14 @@ class _AgencySettingsScreenState extends State<AgencySettingsScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                        const Column(
+                      const Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text("Public Recruitment Status",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 13,
-                              fontWeight: FontWeight.bold)),
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold)),
                           SizedBox(height: 2),
                           Text(
                               "Allow external anchors to submit contract sheets",
@@ -80,7 +80,7 @@ class _AgencySettingsScreenState extends State<AgencySettingsScreen> {
                       ),
                       Obx(() => Switch(
                             value: _recruitmentToggle.value,
-                            activeColor: Colors.cyan,
+                            activeThumbColor: Colors.cyan,
                             onChanged: (val) {
                               _recruitmentToggle.value = val;
                               controller.patchRecruitmentStatus(val);

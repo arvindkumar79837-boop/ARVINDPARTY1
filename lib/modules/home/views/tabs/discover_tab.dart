@@ -35,7 +35,7 @@ class DiscoverTab extends StatelessWidget {
             Expanded(
               child: Obx(() {
                 if (ctrl.discoverRooms.isEmpty) {
-                  return _EmptyState(
+                  return const _EmptyState(
                     icon: Icons.search_off,
                     title: 'No rooms found',
                     subtitle: 'Try a different search or category',

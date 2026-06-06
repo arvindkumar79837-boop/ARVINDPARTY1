@@ -1,36 +1,35 @@
 const express = require('express');
 const router = express.Router();
-const adminAuth = require('../middlewares/adminMiddleware');
-const ctrl = require('../controllers/adminController');
+const { requirePermission, verifyStaff, verifyOwner } = require('../middlewares/adminMiddleware');
+const adminController = require('../controllers/adminController');
 
-// Admin Login
-router.post('/login', require('../controllers/adminAuthController').login);
+// 👥 GET ALL APP USERS (Requires 'USER_VIEW' Permission)
+// Only Owner OR Staff with USER_VIEW can access this
+router.get('/users', requirePermission('USER_VIEW'), adminController.getAllUsers);
 
-// All below routes need admin auth
-router.use(adminAuth);
+// 🚫 BAN/UNBAN USER (Requires 'USER_BAN' Permission)
+router.post('/users/block/:id', requirePermission('USER_BAN'), adminController.toggleBlockUser);
 
-// Dashboard
-router.get('/dashboard', ctrl.getDashboard);
+// 📊 GET DASHBOARD STATS (Any Staff can view)
+router.get('/stats', verifyStaff, adminController.getStats);
 
-// Users
-router.get('/users', ctrl.getUsers);
-router.patch('/users/:id/block', ctrl.blockUser);
-router.patch('/users/:id/unblock', ctrl.unblockUser);
-router.post('/users/:id/coins', ctrl.addCoinsToUser);
+// 🏠 ROOM MANAGEMENT
+router.get('/rooms', requirePermission('ROOM_VIEW'), adminController.getAllRooms);
 
-// Rooms
-router.get('/rooms', ctrl.getRooms);
-router.patch('/rooms/:id/ban', ctrl.banRoom);
-router.patch('/rooms/:id/close', ctrl.closeRoom);
+// 🚫 FORCE CLOSE ROOM (Requires 'ROOM_CLOSE' Permission)
+router.post('/rooms/close/:id', requirePermission('ROOM_CLOSE'), adminController.closeRoom);
 
-// Gifts
-router.get('/gifts', ctrl.getGifts);
-router.post('/gifts', ctrl.createGift);
-router.put('/gifts/:id', ctrl.updateGift);
-router.delete('/gifts/:id', ctrl.deleteGift);
+// ⚙️ SYSTEM SETTINGS (Owner Only for updates)
+router.get('/settings', verifyStaff, adminController.getSettings);
+router.post('/settings', verifyOwner, adminController.updateSettings);
 
-// Announcement
-router.post('/announcement', ctrl.setAnnouncement);
-router.get('/announcement', ctrl.getAnnouncement);
+// 🏢 AGENCY CONTROL
+router.get('/agencies', verifyStaff, adminController.getAgencies);
+router.post('/agencies', verifyOwner, adminController.createAgency);
+router.get('/agencies/:id/hosts', verifyStaff, adminController.getAgencyHosts);
+
+// 💸 WITHDRAWALS (Owner Only)
+router.get('/withdrawals', verifyStaff, adminController.getWithdrawals);
+router.post('/withdrawals/:id/process', verifyOwner, adminController.processWithdrawal);
 
 module.exports = router;

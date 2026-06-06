@@ -40,22 +40,22 @@ class RoomSettingsScreen extends StatelessWidget {
             child: Column(
               children: [
                 // 1. Scrollable Control Parameter Panel Deck Cards
-                Expanded(
+                const Expanded(
                   child: SingleChildScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    padding: const EdgeInsets.all(16.0),
+                    physics: BouncingScrollPhysics(),
+                    padding: EdgeInsets.all(16.0),
                     child: Column(
                       children: [
-                        const RoomInfoCard(),
-                        const SizedBox(height: 14),
-                        const RoomSecurityCard(),
-                        const SizedBox(height: 14),
-                        const RoomSeatCard(),
-                        const SizedBox(height: 14),
-                        const RoomWelcomeCard(),
-                        const SizedBox(height: 14),
-                        const RoomAnnouncementCard(),
-                        const SizedBox(height: 20),
+                        RoomInfoCard(),
+                        SizedBox(height: 14),
+                        RoomSecurityCard(),
+                        SizedBox(height: 14),
+                        RoomSeatCard(),
+                        SizedBox(height: 14),
+                        RoomWelcomeCard(),
+                        SizedBox(height: 14),
+                        RoomAnnouncementCard(),
+                        SizedBox(height: 20),
                       ],
                     ),
                   ),

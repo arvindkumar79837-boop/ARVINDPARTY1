@@ -133,7 +133,7 @@ class _RoomsHeader extends StatelessWidget {
           ),
           const Spacer(),
           // Grid/List toggle (future)
-          Icon(Icons.tune, color: Colors.white38, size: 20),
+          const Icon(Icons.tune, color: Colors.white38, size: 20),
         ],
       ),
     );
@@ -210,7 +210,7 @@ class _EmptyRooms extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.mic_none, color: Colors.white12, size: 64),
+          const Icon(Icons.mic_none, color: Colors.white12, size: 64),
           const SizedBox(height: 16),
           const Text('No live rooms right now',
               style: TextStyle(

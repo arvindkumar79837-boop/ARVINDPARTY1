@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'mini_games_controller.dart';
+import '../controllers/mini_games_controller.dart';
 
 class MiniGamesBottomSheet extends StatelessWidget {
   const MiniGamesBottomSheet({super.key});
@@ -11,7 +11,7 @@ class MiniGamesBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(MiniGamesController());
+    final controller = Get.find<MiniGamesController>();
 
     return Container(
       height: Get.height * 0.5,

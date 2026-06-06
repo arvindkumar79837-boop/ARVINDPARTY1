@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../models/withdrawal_method_model.dart';
+import '../../auth/views/api_service.dart';
 
 class WithdrawalController extends GetxController {
+  final ApiService _apiService = Get.find<ApiService>();
   final isLoading = false.obs;
 
   // Earning balance (e.g., Beans / Coins earned from gifts)
@@ -27,52 +29,40 @@ class WithdrawalController extends GetxController {
   void _loadWithdrawalData() async {
     isLoading.value = true;
 
-    // TODO: Replace with Real Backend API Call (e.g., apiService.getWithdrawalInfo())
-    await Future.delayed(const Duration(milliseconds: 1000));
+    try {
+      var response = await _apiService.get('wallet/withdrawal-info');
+      if (response.statusCode == 200) {
+        beansBalance.value = response.data['beansBalance'] ?? 0;
 
-    // Dummy data for now
-    beansBalance.value = 15450;
+        var methods = (response.data['methods'] as List)
+            .map((m) => WithdrawalMethod(
+                  id: m['id'],
+                  name: m['name'],
+                  icon: m['icon'],
+                  minWithdrawalUsd: (m['minWithdrawalUsd'] ?? 0).toDouble(),
+                  feePercentage: (m['feePercentage'] ?? 0).toDouble(),
+                  processingTime: m['processingTime'] ?? 'Standard',
+                ))
+            .toList();
 
-    withdrawalMethods.assignAll([
-      WithdrawalMethod(
-        id: 'payoneer',
-        name: 'Payoneer',
-        icon:
-            'assets/images/payoneer.png', // Ensure this image exists later or use icons
-        minWithdrawalUsd: 50.0,
-        feePercentage: 1.5,
-        processingTime: '1-3 Business Days',
-      ),
-      WithdrawalMethod(
-        id: 'bank_transfer',
-        name: 'Bank Transfer',
-        icon: 'assets/images/bank.png',
-        minWithdrawalUsd: 100.0,
-        feePercentage: 2.0,
-        processingTime: '3-5 Business Days',
-      ),
-      WithdrawalMethod(
-        id: 'epay',
-        name: 'Epay',
-        icon: 'assets/images/epay.png',
-        minWithdrawalUsd: 10.0,
-        feePercentage: 1.0,
-        processingTime: 'Instant',
-      ),
-    ]);
-
-    if (withdrawalMethods.isNotEmpty) {
-      selectedMethod.value = withdrawalMethods.first;
+        withdrawalMethods.assignAll(methods);
+        if (withdrawalMethods.isNotEmpty) {
+          selectedMethod.value = withdrawalMethods.first;
+        }
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to fetch wallet info.',
+          backgroundColor: Colors.redAccent, colorText: Colors.white);
+    } finally {
+      isLoading.value = false;
     }
-
-    isLoading.value = false;
   }
 
   void selectMethod(WithdrawalMethod method) {
     selectedMethod.value = method;
   }
 
-  void submitWithdrawal() {
+  void submitWithdrawal() async {
     final amountStr = amountController.text.trim();
     if (amountStr.isEmpty) {
       Get.snackbar('Error', 'Please enter an amount to withdraw',
@@ -88,11 +78,25 @@ class WithdrawalController extends GetxController {
       return;
     }
 
-    // TODO: Send withdrawal request to real backend
-    Get.snackbar('Success',
-        'Withdrawal request for \$${amount.toStringAsFixed(2)} submitted successfully. It will be processed soon.',
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-        duration: const Duration(seconds: 4));
+    isLoading.value = true;
+    try {
+      var response = await _apiService.post('wallet/withdraw', {
+        'methodId': selectedMethod.value?.id,
+        'amount': amount,
+      });
+      if (response.statusCode == 200) {
+        Get.snackbar('Success',
+            'Withdrawal request for \$${amount.toStringAsFixed(2)} submitted.',
+            backgroundColor: Colors.green,
+            colorText: Colors.white,
+            duration: const Duration(seconds: 4));
+        _loadWithdrawalData(); // Refresh balance after success
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Withdrawal failed. Please try again.',
+          backgroundColor: Colors.redAccent, colorText: Colors.white);
+    } finally {
+      isLoading.value = false;
+    }
   }
 }

@@ -7,7 +7,7 @@ class PkBattleWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(PkBattleController());
+    final controller = Get.find<PkBattleController>();
 
     return Obx(() {
       final battle = controller.activeBattle.value;
@@ -94,7 +94,8 @@ class PkBattleWidget extends StatelessWidget {
               )
             else
               ElevatedButton(
-                  onPressed: controller.startDummyBattle,
+                  onPressed: () =>
+                      controller.requestStartPk('opponent_room_id_123'),
                   style:
                       ElevatedButton.styleFrom(backgroundColor: Colors.green),
                   child: const Text('Restart PK')),

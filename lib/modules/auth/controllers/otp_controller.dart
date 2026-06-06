@@ -9,12 +9,14 @@
 import 'dart:async';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import '../../auth/views/api_service.dart';
 import '../../../routes/app_routes.dart';
 
 // OTP Screen States
 enum OtpScreenState { phoneInput, otpInput, profileSetup }
 
 class OtpController extends GetxController {
+  final ApiService _apiService = Get.find<ApiService>();
   // ─── SCREEN STATE ─────────────────────────────────────────────────────────
   final screenState = OtpScreenState.phoneInput.obs;
 
@@ -108,32 +110,14 @@ class OtpController extends GetxController {
     try {
       _setLoading('Sending OTP...');
 
-      // ── TODO: Real Firebase/Backend OTP ──────────────────────────────────
-      // Option A — Firebase Phone Auth:
-      //   await FirebaseAuth.instance.verifyPhoneNumber(
-      //     phoneNumber: fullPhone,
-      //     verificationCompleted: (PhoneAuthCredential credential) async {
-      //       await FirebaseAuth.instance.signInWithCredential(credential);
-      //       _onOtpVerified();
-      //     },
-      //     verificationFailed: (FirebaseAuthException e) {
-      //       _setError('Failed: ${e.message}');
-      //     },
-      //     codeSent: (String verificationId, int? resendToken) {
-      //       _verificationId = verificationId;
-      //       _transitionToOtpInput();
-      //     },
-      //     codeAutoRetrievalTimeout: (String verificationId) {},
-      //   );
-      //
-      // Option B — Custom Backend:
-      //   final res = await ApiService.post('/auth/send-otp', {'phone': fullPhone});
-      //   if (res['success']) _transitionToOtpInput();
-      // ─────────────────────────────────────────────────────────────────────
+      final res = await _apiService.post('auth/send-otp', {'phone': fullPhone});
 
-      await Future.delayed(const Duration(milliseconds: 1200)); // mock
-      _clearLoading();
-      _transitionToOtpInput();
+      if (res.statusCode == 200) {
+        _clearLoading();
+        _transitionToOtpInput();
+      } else {
+        _setError(res.data['message'] ?? 'Failed to send OTP.');
+      }
     } catch (e) {
       _setError('Failed to send OTP. Try again.');
     }
@@ -164,41 +148,25 @@ class OtpController extends GetxController {
     try {
       _setLoading('Verifying OTP...');
 
-      // ── TODO: Real OTP Verification ───────────────────────────────────────
-      // Option A — Firebase:
-      //   final credential = PhoneAuthProvider.credential(
-      //     verificationId: _verificationId,
-      //     smsCode: otpCode.value,
-      //   );
-      //   final userCredential =
-      //       await FirebaseAuth.instance.signInWithCredential(credential);
-      //   isNewUser.value = userCredential.additionalUserInfo?.isNewUser ?? false;
-      //
-      // Option B — Backend:
-      //   final res = await ApiService.post('/auth/verify-otp', {
-      //     'phone': fullPhone, 'otp': otpCode.value
-      //   });
-      //   isNewUser.value = res['isNewUser'];
-      //   _storage.write('token', res['token']);
-      // ─────────────────────────────────────────────────────────────────────
+      final res = await _apiService
+          .post('auth/verify-otp', {'phone': fullPhone, 'otp': otpCode.value});
 
-      await Future.delayed(const Duration(milliseconds: 1000)); // mock
+      if (res.statusCode == 200) {
+        isNewUser.value = res.data['isNewUser'] ?? false;
+        _storage.write('token', res.data['token']);
+        _apiService.saveToken(res.data['token']); // Persist in Dio
 
-      // Mock: OTP 123456 sahi, baki galat
-      if (otpCode.value != '123456') {
-        _setError('Incorrect OTP. Please try again.');
-        return;
-      }
+        isOtpVerified.value = true;
+        _clearLoading();
+        _stopResendTimer();
 
-      isOtpVerified.value = true;
-      _clearLoading();
-      _stopResendTimer();
-
-      // Naya user hai toh profile setup, purana hai toh seedha home
-      if (isNewUser.value) {
-        screenState.value = OtpScreenState.profileSetup;
+        if (isNewUser.value) {
+          screenState.value = OtpScreenState.profileSetup;
+        } else {
+          _saveSessionAndGoHome();
+        }
       } else {
-        _saveSessionAndGoHome();
+        _setError(res.data['message'] ?? 'Incorrect OTP. Please try again.');
       }
     } catch (e) {
       _setError('Verification failed. Please try again.');
@@ -262,18 +230,18 @@ class OtpController extends GetxController {
     try {
       _setLoading('Setting up your profile...');
 
-      // ── TODO: Backend profile create ──────────────────────────────────────
-      // await ApiService.post('/auth/complete-profile', {
-      //   'phone': fullPhone,
-      //   'name': displayName.value,
-      //   'gender': selectedGender.value,
-      //   'dob': selectedDob.value?.toIso8601String(),
-      // });
-      // ─────────────────────────────────────────────────────────────────────
+      final res = await _apiService.post('users/complete-profile', {
+        'name': displayName.value,
+        'gender': selectedGender.value,
+        'dob': selectedDob.value?.toIso8601String(),
+      });
 
-      await Future.delayed(const Duration(milliseconds: 1000)); // mock
-      _clearLoading();
-      _saveSessionAndGoHome();
+      if (res.statusCode == 200) {
+        _clearLoading();
+        _saveSessionAndGoHome();
+      } else {
+        _setError('Could not complete profile. Try again.');
+      }
     } catch (e) {
       _setError('Profile setup failed. Try again.');
     }

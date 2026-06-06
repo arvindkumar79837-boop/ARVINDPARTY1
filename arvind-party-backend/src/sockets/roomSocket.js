@@ -1,69 +1,32 @@
 const Room = require('../models/Room');
-const roomOnlineUsers = {}; // roomId → Set of socketIds
 
 module.exports = (io) => {
   io.on('connection', (socket) => {
-
-    socket.on('join_room', async (data) => {
-      const { roomId, userId, userName } = data;
-      if (!roomId) return;
-
+    
+    // User joins a live voice room
+    socket.on('join_room', async ({ roomId, userId, userProfile }) => {
       socket.join(roomId);
-      socket.roomId = roomId;
-      socket.userId = userId;
-
-      if (!roomOnlineUsers[roomId]) roomOnlineUsers[roomId] = new Set();
-      roomOnlineUsers[roomId].add(socket.id);
-
-      // DB mein activeUsers update karo
-      await Room.findOneAndUpdate({ roomId }, { activeUsers: roomOnlineUsers[roomId].size });
-
-      io.to(roomId).emit('room_message', {
-        type: 'join', userName, message: `${userName} joined`
-      });
-
-      // KEY FIX: 'onlineUsers' key use karo (Flutter controller isi key se read karta hai)
-      io.to(roomId).emit('room_online_update', {
-        onlineUsers: roomOnlineUsers[roomId].size
-      });
+      
+      // Increment active users in the MongoDB database
+      await Room.findByIdAndUpdate(roomId, { $inc: { activeUsers: 1 } });
+      
+      // Notify others in the room
+      socket.to(roomId).emit('user_joined', { userId, userProfile, message: `${userProfile?.name || 'A user'} entered the room` });
     });
 
-    socket.on('leave_room', async (data) => {
-      const { roomId, userId, userName } = data;
-      if (!roomId) return;
-
+    // User leaves a voice room
+    socket.on('leave_room', async ({ roomId, userId, userProfile }) => {
       socket.leave(roomId);
-      if (roomOnlineUsers[roomId]) {
-        roomOnlineUsers[roomId].delete(socket.id);
-        if (roomOnlineUsers[roomId].size === 0) delete roomOnlineUsers[roomId];
-      }
-
-      await Room.findOneAndUpdate(
-        { roomId },
-        { activeUsers: roomOnlineUsers[roomId]?.size || 0 }
-      );
-
-      io.to(roomId).emit('room_message', {
-        type: 'leave', userName: userName || 'User', message: 'Left room'
-      });
-
-      io.to(roomId).emit('room_online_update', {
-        onlineUsers: roomOnlineUsers[roomId]?.size || 0
-      });
+      
+      // Decrement active users in the database
+      await Room.findByIdAndUpdate(roomId, { $inc: { activeUsers: -1 } });
+      
+      socket.to(roomId).emit('user_left', { userId, userProfile, message: `${userProfile?.name || 'A user'} left the room` });
     });
-
-    socket.on('disconnect', async () => {
-      const roomId = socket.roomId;
-      if (roomId && roomOnlineUsers[roomId]) {
-        roomOnlineUsers[roomId].delete(socket.id);
-        io.to(roomId).emit('room_online_update', {
-          onlineUsers: roomOnlineUsers[roomId].size
-        });
-        await Room.findOneAndUpdate(
-          { roomId },
-          { activeUsers: roomOnlineUsers[roomId].size }
-        );
-      }
+    
+    // Mic status toggle (mute/unmute)
+    socket.on('toggle_mic', ({ roomId, userId, isMuted }) => {
+      io.to(roomId).emit('mic_status_changed', { userId, isMuted });
     });
   });
 };

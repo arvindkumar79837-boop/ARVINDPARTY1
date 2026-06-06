@@ -15,6 +15,9 @@ const app = express();
 const server = http.createServer(app);
 const io = initializeSocket(server);
 
+// Make `io` accessible globally inside controllers
+app.set('io', io);
+
 // Middleware
 app.use(cors({
   origin: '*',

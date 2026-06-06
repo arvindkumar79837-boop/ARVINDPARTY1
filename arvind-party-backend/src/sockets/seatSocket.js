@@ -1,118 +1,49 @@
-const RoomSeat = require('../models/RoomSeat');
-const RaiseHand = require('../models/RaiseHand');
+const Room = require('../models/Room');
 
 module.exports = (io) => {
-    io.on('connection', (socket) => {
+  io.on('connection', (socket) => {
+    
+    // User attempts to claim a mic seat
+    socket.on('claim_seat', async (data) => {
+      try {
+        const { roomId, userId, userName, userAvatar, seatIndex } = data;
+        
+        // Construct the new seat payload
+        const updatedSeat = {
+          seatIndex,
+          userId,
+          userName,
+          userAvatar,
+          isMuted: false,
+          isLocked: false
+        };
 
-        // Raise Hand
-        socket.on('raise_hand', async (data) => {
-            try {
-                const request = await RaiseHand.create({
-                    roomId: data.roomId,
-                    userId: data.userId,
-                    userName: data.userName
-                });
+        // Validate room exists
+        const room = await Room.findById(roomId);
+        if (!room) {
+          return socket.emit('seat_error', { message: 'Room not found.' });
+        }
 
-                // Notify host/admins
-                io.to(data.roomId).emit('new_raise_hand', request);
-            } catch (error) {
-                console.error('Raise hand error:', error);
-            }
-        });
+        // Remove user from any existing seat first to prevent duplicate seating
+        await Room.updateOne(
+          { _id: roomId },
+          { $pull: { seats: { userId: userId } } }
+        );
+        
+        // Update MongoDB to officially reserve this seat for the user
+        await Room.updateOne(
+          { _id: roomId },
+          { $push: { seats: updatedSeat } }
+        );
 
-        // Approve Raise Hand (Host Action)
-        socket.on('approve_raise_hand', async (data) => {
-            try {
-                await RaiseHand.findByIdAndUpdate(data.requestId, { status: 'approved' });
-                io.to(data.roomId).emit('raise_hand_approved', { userId: data.userId });
-            } catch (error) {
-                console.error('Approve raise hand error:', error);
-            }
-        });
-
-        // Join Seat
-        socket.on('join_seat', async (data) => {
-            try {
-                const seat = await RoomSeat.findOneAndUpdate(
-                    { roomId: data.roomId, seatNumber: data.seatNumber },
-                    { userId: data.userId, userName: data.userName },
-                    { new: true, upsert: true }
-                );
-                io.to(data.roomId).emit('seat_updated', seat);
-            } catch (error) {
-                console.error('Join seat error:', error);
-            }
-        });
-
-        // Leave Seat
-        socket.on('leave_seat', async (data) => {
-            try {
-                const seat = await RoomSeat.findOneAndUpdate(
-                    { roomId: data.roomId, seatNumber: data.seatNumber },
-                    { userId: null, userName: '' },
-                    { new: true }
-                );
-                io.to(data.roomId).emit('seat_updated', seat);
-            } catch (error) {
-                console.error('Leave seat error:', error);
-            }
-        });
-
-        // Lock Seat
-        socket.on('lock_seat', async (data) => {
-            try {
-                const seat = await RoomSeat.findOneAndUpdate(
-                    { roomId: data.roomId, seatNumber: data.seatNumber },
-                    { isLocked: true },
-                    { new: true }
-                );
-                io.to(data.roomId).emit('seat_updated', seat);
-            } catch (error) {
-                console.error('Lock seat error:', error);
-            }
-        });
-
-        // Unlock Seat
-        socket.on('unlock_seat', async (data) => {
-            try {
-                const seat = await RoomSeat.findOneAndUpdate(
-                    { roomId: data.roomId, seatNumber: data.seatNumber },
-                    { isLocked: false },
-                    { new: true }
-                );
-                io.to(data.roomId).emit('seat_updated', seat);
-            } catch (error) {
-                console.error('Unlock seat error:', error);
-            }
-        });
-
-        // Mute Seat
-        socket.on('mute_seat', async (data) => {
-            try {
-                const seat = await RoomSeat.findOneAndUpdate(
-                    { roomId: data.roomId, seatNumber: data.seatNumber },
-                    { isMuted: true },
-                    { new: true }
-                );
-                io.to(data.roomId).emit('seat_updated', seat);
-            } catch (error) {
-                console.error('Mute seat error:', error);
-            }
-        });
-
-        // Unmute Seat
-        socket.on('unmute_seat', async (data) => {
-            try {
-                const seat = await RoomSeat.findOneAndUpdate(
-                    { roomId: data.roomId, seatNumber: data.seatNumber },
-                    { isMuted: false },
-                    { new: true }
-                );
-                io.to(data.roomId).emit('seat_updated', seat);
-            } catch (error) {
-                console.error('Unmute seat error:', error);
-            }
-        });
-
+        // Broadcast the newly taken seat to everyone in the room!
+        io.to(roomId).emit('seat_updated', updatedSeat);
+        
+      } catch (error) {
+        console.error('Claim Seat Error:', error);
+        socket.emit('seat_error', { message: 'Failed to claim the seat.' });
+      }
     });
+
+  });
 };

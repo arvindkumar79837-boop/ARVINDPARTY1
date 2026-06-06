@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middlewares/authMiddleware');
+const agencyController = require('../controllers/agencyController');
 
-router.get('/mine', auth, async (req, res) => {
-  return res.json({ success: true, agency: null });
-});
+router.get('/mine', auth, agencyController.getMyAgency);
+router.post('/apply', auth, agencyController.applyForAgency);
 
 module.exports = router;

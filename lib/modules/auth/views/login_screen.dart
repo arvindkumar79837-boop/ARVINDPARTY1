@@ -147,21 +147,16 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Column(
           children: [
             SizedBox(height: size.height * 0.06),
-
             _buildLogo()
                 .animate()
                 .fadeIn(delay: 300.ms, duration: 600.ms)
                 .slideY(begin: -0.2, end: 0),
-
             SizedBox(height: size.height * 0.28),
-
             _buildAppName()
                 .animate()
                 .fadeIn(delay: 500.ms, duration: 600.ms)
                 .slideY(begin: 0.3, end: 0),
-
             const SizedBox(height: 32),
-
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: _buildLoginButtons()
@@ -169,26 +164,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   .fadeIn(delay: 700.ms, duration: 600.ms)
                   .slideY(begin: 0.3, end: 0),
             ),
-
             const SizedBox(height: 24),
-
             _buildMoreWaysSection()
                 .animate()
                 .fadeIn(delay: 900.ms, duration: 600.ms),
-
             const SizedBox(height: 24),
-
             _buildTermsSection()
                 .animate()
                 .fadeIn(delay: 1100.ms, duration: 600.ms),
-
-            const SizedBox(height: 16),
-
-            // ⚠️ DEMO BUTTON - Production se remove karna!
-            _buildDemoButton()
-                .animate()
-                .fadeIn(delay: 1200.ms, duration: 400.ms),
-
             const SizedBox(height: 32),
           ],
         ),
@@ -464,58 +447,6 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
         ));
-  }
-
-  // ─── DEMO BUTTON ─────────────────────────────────────────────────────────
-  // ⚠️ PRODUCTION SE REMOVE KARNA!
-
-  Widget _buildDemoButton() {
-    return Column(
-      children: [
-        Container(
-          margin: const EdgeInsets.symmetric(horizontal: 40),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          decoration: BoxDecoration(
-            color: Colors.amber.withOpacity(0.15),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.amber.withOpacity(0.4)),
-          ),
-          child: const Text(
-            '⚠️  TESTING ONLY  —  Remove before launch',
-            style: TextStyle(
-                color: Colors.amber, fontSize: 10, letterSpacing: 0.5),
-          ),
-        ),
-        const SizedBox(height: 8),
-        TextButton(
-          onPressed: controller.loginAsDemo,
-          style: TextButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-            backgroundColor: Colors.amber.withOpacity(0.1),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
-              side: const BorderSide(color: Colors.amber, width: 1.5),
-            ),
-          ),
-          child: const Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.play_circle_outline, color: Colors.amber, size: 18),
-              SizedBox(width: 8),
-              Text(
-                'Enter Demo Mode',
-                style: TextStyle(
-                  color: Colors.amber,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                  letterSpacing: 0.5,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
   }
 
   // ─── LOADING OVERLAY ─────────────────────────────────────────────────────

@@ -1,8 +1,10 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'blind_date_model.dart';
+import '../../auth/views/api_service.dart';
 
 class BlindDateController extends GetxController {
+  final ApiService _apiService = Get.find<ApiService>();
   final isSearching = false.obs;
   final currentMatch = Rxn<BlindDateMatch>();
 
@@ -12,29 +14,37 @@ class BlindDateController extends GetxController {
     isSearching.value = true;
     currentMatch.value = null;
 
-    // TODO: Connect with Real Socket/Backend for matchmaking queue
-    // Fake delay to simulate radar search
-    await Future.delayed(const Duration(seconds: 4));
+    try {
+      var response = await _apiService.post('matchmaking/search', {});
 
-    isSearching.value = false;
-
-    // Fake Match Result
-    currentMatch.value = BlindDateMatch(
-      userId: 'user_99',
-      name: 'Priya',
-      avatar: 'https://picsum.photos/seed/priya/200',
-      age: 22,
-      gender: 'Female',
-    );
-
-    Get.snackbar(
-        'Match Found! 🎉', 'Connecting you to ${currentMatch.value!.name}...',
-        backgroundColor: Colors.pinkAccent, colorText: Colors.white);
+      if (response.statusCode == 200 && response.data['match'] != null) {
+        var matchData = response.data['match'];
+        currentMatch.value = BlindDateMatch(
+          userId: matchData['userId'] ?? '',
+          name: matchData['name'] ?? 'Unknown',
+          avatar: matchData['avatar'] ?? '',
+          age: matchData['age'] ?? 18,
+          gender: matchData['gender'] ?? 'Unknown',
+        );
+        Get.snackbar('Match Found! 🎉',
+            'Connecting you to ${currentMatch.value!.name}...',
+            backgroundColor: Colors.pinkAccent, colorText: Colors.white);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to connect to matchmaking server.',
+          backgroundColor: Colors.redAccent, colorText: Colors.white);
+    } finally {
+      isSearching.value = false;
+    }
   }
 
-  void stopSearch() {
+  void stopSearch() async {
     isSearching.value = false;
-    // TODO: Send leave queue event to backend
+    try {
+      await _apiService.post('matchmaking/stop', {});
+    } catch (e) {
+      // Silently handle leave queue errors
+    }
     Get.snackbar('Search Stopped', 'You have left the matchmaking queue.',
         backgroundColor: Colors.black54, colorText: Colors.white);
   }

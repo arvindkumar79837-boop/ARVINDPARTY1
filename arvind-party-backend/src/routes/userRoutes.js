@@ -1,11 +1,10 @@
-// userRoutes.js
 const express = require('express');
 const router = express.Router();
-const auth = require('../middlewares/authMiddleware');
-const ctrl = require('../controllers/userController');
+const userController = require('../controllers/userController');
+const auth = require('../../authMiddleware');
 
-router.get('/me', auth, ctrl.getMe);
-router.put('/me', auth, ctrl.updateMe);
-router.get('/:userId', auth, ctrl.getUser);
+router.post('/complete-profile', auth, userController.updateProfile);
+router.get('/center', auth, userController.getUserCenter);
+router.post('/equip-frame', auth, userController.equipFrame);
 
 module.exports = router;

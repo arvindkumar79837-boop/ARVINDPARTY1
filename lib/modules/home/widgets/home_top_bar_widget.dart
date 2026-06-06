@@ -27,9 +27,9 @@ class HomeTopBarWidget extends StatelessWidget {
                   children: [
                     Container(
                       padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         shape: BoxShape.circle,
-                        gradient: const LinearGradient(
+                        gradient: LinearGradient(
                           colors: [Color(0xFFFF8906), Color(0xFFFFB347)],
                         ),
                       ),

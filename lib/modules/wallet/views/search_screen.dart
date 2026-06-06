@@ -48,13 +48,15 @@ class GlobalSearchScreen extends StatelessWidget {
           // Results
           Expanded(
             child: Obx(() {
-              if (controller.isLoading.value)
+              if (controller.isLoading.value) {
                 return const Center(
                     child: CircularProgressIndicator(color: Color(0xFFFF8906)));
-              if (controller.results.isEmpty)
+              }
+              if (controller.results.isEmpty) {
                 return const Center(
                     child: Text('No results found',
                         style: TextStyle(color: Colors.white54)));
+              }
 
               return ListView.builder(
                 itemCount: controller.results.length,

@@ -23,6 +23,8 @@ dependencies:
   flutter_facebook_auth: ^6.2.0
   google_sign_in: ^6.2.1
   sign_in_with_apple: ^6.1.1
+  firebase_core: ^2.24.0
+  firebase_auth: ^4.15.0
 
   # UI
   flutter_svg: 2.2.1
@@ -42,6 +44,10 @@ dependencies:
   get_storage: ^2.1.1
   socket_io_client: ^3.1.4
   intl: ^0.20.2
+  
+  # Database
+  sqflite: ^2.3.0
+  path: ^1.9.0
 
 dev_dependencies:
   flutter_test:

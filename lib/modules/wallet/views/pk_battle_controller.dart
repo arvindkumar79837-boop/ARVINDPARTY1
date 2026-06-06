@@ -1,74 +1,82 @@
-import 'dart:async';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import '../models/pk_battle_model.dart';
+import '../../room/controllers/live_room_controller.dart';
 
 class PkBattleController extends GetxController {
   final activeBattle = Rxn<PkBattleModel>();
-  Timer? _timer;
+  LiveRoomController? _roomController;
 
   @override
-  void onClose() {
-    _timer?.cancel();
-    super.onClose();
+  void onInit() {
+    super.onInit();
+    _initSocketListeners();
   }
 
-  void startDummyBattle() {
+  void _initSocketListeners() {
+    if (Get.isRegistered<LiveRoomController>()) {
+      _roomController = Get.find<LiveRoomController>();
+      final socket = _roomController?.socket;
+
+      if (socket != null) {
+        socket.on('pk_started', _onPkStarted);
+        socket.on('pk_update', _onPkUpdate);
+        socket.on('pk_ended', _onPkEnded);
+      }
+    }
+  }
+
+  void _onPkStarted(dynamic data) {
     activeBattle.value = PkBattleModel(
-      battleId: 'pk_123',
-      host1Id: 'host_1',
-      host1Name: 'Arvind',
-      host1Avatar: 'https://picsum.photos/seed/h1/100',
-      host2Id: 'host_2',
-      host2Name: 'Rival',
-      host2Avatar: 'https://picsum.photos/seed/h2/100',
-      remainingSeconds: 180, // 3 mins
+      battleId: data['battleId'],
+      host1Id: data['host1Id'],
+      host1Name: data['host1Name'],
+      host1Avatar: data['host1Avatar'],
+      host2Id: data['host2Id'],
+      host2Name: data['host2Name'],
+      host2Avatar: data['host2Avatar'],
+      remainingSeconds: data['duration'] ?? 180,
+      host1Score: 0,
+      host2Score: 0,
     );
-    _startTimer();
-    Get.snackbar('⚔️ PK Started',
-        'The battle has begun! Send gifts to support your host.',
+    Get.snackbar('⚔️ PK Started', 'The battle has begun!',
         backgroundColor: Colors.orangeAccent, colorText: Colors.white);
   }
 
-  void _startTimer() {
-    _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (activeBattle.value != null &&
-          activeBattle.value!.remainingSeconds > 0) {
-        activeBattle.value = activeBattle.value!.copyWith(
-          remainingSeconds: activeBattle.value!.remainingSeconds - 1,
-          // Simulate random scoring for demo
-          host1Score: activeBattle.value!.host1Score +
-              (DateTime.now().second % 3 == 0 ? 10 : 0),
-          host2Score: activeBattle.value!.host2Score +
-              (DateTime.now().second % 4 == 0 ? 15 : 0),
-        );
-      } else {
-        endBattle();
-      }
-    });
-  }
-
-  void sendGiftToHost(int hostNumber, int giftValue) {
-    // TODO: Connect with Socket / Backend to register gift in PK
-    if (activeBattle.value == null || !activeBattle.value!.isActive) return;
-
-    if (hostNumber == 1) {
-      activeBattle.value = activeBattle.value!
-          .copyWith(host1Score: activeBattle.value!.host1Score + giftValue);
-    } else {
-      activeBattle.value = activeBattle.value!
-          .copyWith(host2Score: activeBattle.value!.host2Score + giftValue);
+  void _onPkUpdate(dynamic data) {
+    if (activeBattle.value != null) {
+      activeBattle.value = activeBattle.value!.copyWith(
+        remainingSeconds: data['remainingSeconds'],
+        host1Score: data['host1Score'],
+        host2Score: data['host2Score'],
+      );
     }
   }
 
-  void endBattle() {
-    _timer?.cancel();
+  void _onPkEnded(dynamic data) {
     if (activeBattle.value != null) {
       activeBattle.value =
           activeBattle.value!.copyWith(isActive: false, remainingSeconds: 0);
-      Get.snackbar('🏁 PK Ended', 'The battle is over!',
+      final winnerName = data['winnerName'] ?? 'Tie';
+      Get.snackbar('🏁 PK Ended', 'Winner: $winnerName!',
           backgroundColor: Colors.redAccent, colorText: Colors.white);
     }
+  }
+
+  // Action triggered by the actual Gifts UI
+  void sendGiftToHost(int hostNumber, int giftValue) {
+    if (activeBattle.value == null || !activeBattle.value!.isActive) return;
+
+    _roomController?.socket?.emit('pk_send_gift', {
+      'battleId': activeBattle.value!.battleId,
+      'hostNumber': hostNumber,
+      'giftValue': giftValue,
+    });
+  }
+
+  // Start request
+  void requestStartPk(String opponentRoomId) {
+    _roomController?.socket
+        ?.emit('request_pk', {'targetRoomId': opponentRoomId});
   }
 }

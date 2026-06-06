@@ -1,13 +1,13 @@
-import 'package:flutter/material.dart';
+nextimport 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'shop_controller.dart';
+import '../controllers/shop_controller.dart';
 
 class ShopScreen extends StatelessWidget {
   const ShopScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(ShopController());
+    final controller = Get.find<ShopController>();
 
     return Scaffold(
       backgroundColor: const Color(0xFF0F0E17),
@@ -39,13 +39,15 @@ class ShopScreen extends StatelessWidget {
           // Items Grid
           Expanded(
             child: Obx(() {
-              if (controller.isLoading.value)
+              if (controller.isLoading.value) {
                 return const Center(
                     child: CircularProgressIndicator(color: Color(0xFFFF8906)));
-              if (controller.filteredItems.isEmpty)
+              }
+              if (controller.filteredItems.isEmpty) {
                 return const Center(
                     child: Text('No items available',
                         style: TextStyle(color: Colors.white54)));
+              }
 
               return GridView.builder(
                 padding: const EdgeInsets.all(16),

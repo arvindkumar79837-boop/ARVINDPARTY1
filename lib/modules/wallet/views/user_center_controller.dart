@@ -1,8 +1,10 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import '../models/user_center_models.dart';
+import '../../auth/views/api_service.dart';
 
 class UserCenterController extends GetxController {
+  final ApiService _apiService = Get.find<ApiService>();
   final isLoading = false.obs;
 
   final levelInfo = Rxn<UserLevelInfo>();
@@ -18,56 +20,45 @@ class UserCenterController extends GetxController {
   Future<void> _loadUserCenterData() async {
     isLoading.value = true;
 
-    // TODO: Real Backend API Call (e.g., apiService.getUserCenterInfo())
-    await Future.delayed(const Duration(milliseconds: 1000));
+    try {
+      var response = await _apiService.get('users/center');
+      if (response.statusCode == 200 && response.data != null) {
+        var data = response.data;
 
-    levelInfo.value =
-        UserLevelInfo(currentLevel: 14, currentExp: 8500, nextLevelExp: 10000);
+        levelInfo.value = UserLevelInfo(
+          currentLevel: data['levelInfo']?['currentLevel'] ?? 1,
+          currentExp: data['levelInfo']?['currentExp'] ?? 0,
+          nextLevelExp: data['levelInfo']?['nextLevelExp'] ?? 100,
+        );
 
-    badges.assignAll([
-      AppBadge(
-          id: 'b1',
-          name: 'Top Gifter',
-          description: 'Gifted over 10k diamonds',
-          iconPath: '💎',
-          isUnlocked: true),
-      AppBadge(
-          id: 'b2',
-          name: 'Social Butterfly',
-          description: 'Followed 100 people',
-          iconPath: '🦋',
-          isUnlocked: true),
-      AppBadge(
-          id: 'b3',
-          name: 'Room Star',
-          description: 'Reach 10k room audience',
-          iconPath: '⭐',
-          isUnlocked: false),
-      AppBadge(
-          id: 'b4',
-          name: 'VIP',
-          description: 'Subscribed to VIP',
-          iconPath: '👑',
-          isUnlocked: false),
-    ]);
+        if (data['badges'] != null) {
+          badges.assignAll((data['badges'] as List)
+              .map((b) => AppBadge(
+                    id: b['id'],
+                    name: b['name'],
+                    description: b['description'],
+                    iconPath: b['iconPath'],
+                    isUnlocked: b['isUnlocked'] ?? false,
+                  ))
+              .toList());
+        }
 
-    frames.assignAll([
-      AvatarFrame(
-          id: 'f1',
-          name: 'Default Ring',
-          imagePath: 'ring',
-          isUnlocked: true,
-          isEquipped: true),
-      AvatarFrame(
-          id: 'f2', name: 'Golden Wings', imagePath: 'wings', isUnlocked: true),
-      AvatarFrame(
-          id: 'f3',
-          name: 'Dragon Fire',
-          imagePath: 'dragon',
-          isUnlocked: false),
-      AvatarFrame(
-          id: 'f4', name: 'Neon Vibes', imagePath: 'neon', isUnlocked: false),
-    ]);
+        if (data['frames'] != null) {
+          frames.assignAll((data['frames'] as List)
+              .map((f) => AvatarFrame(
+                    id: f['id'],
+                    name: f['name'],
+                    imagePath: f['imagePath'],
+                    isUnlocked: f['isUnlocked'] ?? false,
+                    isEquipped: f['isEquipped'] ?? false,
+                  ))
+              .toList());
+        }
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to load user center data',
+          backgroundColor: Colors.redAccent, colorText: Colors.white);
+    }
 
     isLoading.value = false;
   }
@@ -76,12 +67,18 @@ class UserCenterController extends GetxController {
     final frame = frames.firstWhereOrNull((f) => f.id == frameId);
     if (frame == null) return;
 
-    // Backend call to save equipped frame goes here...
-
-    final updatedList =
-        frames.map((f) => f.copyWith(isEquipped: f.id == frameId)).toList();
-    frames.assignAll(updatedList);
-    Get.snackbar('Equipped', '${frame.name} frame equipped successfully!',
-        backgroundColor: Colors.green, colorText: Colors.white);
+    _apiService
+        .post('users/equip-frame', {'frameId': frameId}).then((response) {
+      if (response.statusCode == 200) {
+        final updatedList =
+            frames.map((f) => f.copyWith(isEquipped: f.id == frameId)).toList();
+        frames.assignAll(updatedList);
+        Get.snackbar('Equipped', '${frame.name} frame equipped successfully!',
+            backgroundColor: Colors.green, colorText: Colors.white);
+      }
+    }).catchError((error) {
+      Get.snackbar('Error', 'Failed to equip frame',
+          backgroundColor: Colors.redAccent, colorText: Colors.white);
+    });
   }
 }

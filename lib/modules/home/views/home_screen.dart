@@ -1,81 +1,157 @@
-// ═══════════════════════════════════════════════════════════════════════════
-// FILE: lib/modules/home/views/home_screen.dart
-// ═══════════════════════════════════════════════════════════════════════════
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../controllers/home_controller.dart';
-import 'tabs/discover_tab.dart';
-import 'tabs/rooms_tab.dart';
-import 'tabs/messages_tab.dart';
-import 'tabs/profile_tab.dart';
+import '../../room/views/create_room_screen.dart';
+import '../../room/views/live_room_screen.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  final HomeController controller = Get.put(HomeController());
+
+  HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Get.find — HomeBinding ne inject kiya hai
-    final ctrl = Get.find<HomeController>();
-
-    final tabs = const [
-      DiscoverTab(),
-      RoomsTab(),
-      MessagesTab(),
-      ProfileTab(),
-    ];
-
     return Scaffold(
-      backgroundColor: const Color(0xFF0F0E17),
-      body: Obx(() => tabs[ctrl.currentIndex.value]),
-      bottomNavigationBar: Obx(
-        () => Container(
-          decoration: const BoxDecoration(
-            color: Color(0xFF15141F),
-            border: Border(
-              top: BorderSide(color: Color(0xFF2A2838), width: 1),
+      backgroundColor: Colors.black,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight),
+        child: Obx(() => AppBar(
+              title: controller.isSearching.value
+                  ? TextField(
+                      controller: controller.searchController,
+                      style: const TextStyle(color: Colors.white),
+                      autofocus: true,
+                      decoration: const InputDecoration(
+                        hintText: 'Search for rooms or tags...',
+                        hintStyle: TextStyle(color: Colors.white54),
+                        border: InputBorder.none,
+                      ),
+                      onSubmitted: (value) => controller.searchRooms(value),
+                    )
+                  : const Text('Discover Rooms',
+                      style: TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold)),
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              actions: [
+                IconButton(
+                  icon: Icon(
+                    controller.isSearching.value ? Icons.close : Icons.search,
+                    color: Colors.white,
+                  ),
+                  onPressed: () {
+                    controller.toggleSearch();
+                  },
+                )
+              ],
+            )),
+      ),
+      body: Obx(() {
+        if (controller.isLoading.value) {
+          return const Center(
+              child: CircularProgressIndicator(color: Color(0xFFFFC107)));
+        }
+
+        if (controller.liveRooms.isEmpty) {
+          return const Center(
+            child: Text(
+                'No live rooms right now.\nBe the first to start a party!',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.white54, fontSize: 16)),
+          );
+        }
+
+        return RefreshIndicator(
+          onRefresh: controller.fetchLiveRooms,
+          color: const Color(0xFFFFC107),
+          backgroundColor: Colors.black87,
+          child: GridView.builder(
+            padding: const EdgeInsets.all(16),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 16,
+              childAspectRatio: 0.85,
             ),
+            itemCount: controller.liveRooms.length,
+            itemBuilder: (context, index) {
+              var room = controller.liveRooms[index];
+              return _buildRoomCard(room);
+            },
           ),
-          child: BottomNavigationBar(
-            currentIndex: ctrl.currentIndex.value,
-            onTap: ctrl.changeTab,
-            type: BottomNavigationBarType.fixed,
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            selectedItemColor: const Color(0xFFFF8906),
-            unselectedItemColor: Colors.white24,
-            selectedLabelStyle: const TextStyle(
-              fontFamily: 'Poppins',
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
+        );
+      }),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: const Color(0xFFFFC107),
+        onPressed: () {
+          Get.to(() => CreateRoomScreen());
+        },
+        child: const Icon(Icons.add, color: Colors.black),
+      ),
+    );
+  }
+
+  Widget _buildRoomCard(Map<String, dynamic> room) {
+    return GestureDetector(
+      onTap: () {
+        Get.to(() => LiveRoomScreen(room: room));
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          color: Colors.white.withOpacity(0.05),
+          border: Border.all(color: Colors.white12),
+        ),
+        clipBehavior: Clip.hardEdge,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            // Cover Image
+            CachedNetworkImage(
+              imageUrl:
+                  (room['coverImage'] != null && room['coverImage'].isNotEmpty)
+                      ? room['coverImage']
+                      : 'https://via.placeholder.com/300x300.png?text=Party',
+              fit: BoxFit.cover,
             ),
-            unselectedLabelStyle: const TextStyle(
-              fontFamily: 'Poppins',
-              fontSize: 10,
+            // Gradient overlay for text readability
+            Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.transparent, Colors.black87],
+                ),
+              ),
             ),
-            items: const [
-              BottomNavigationBarItem(
-                icon: Icon(Icons.explore_outlined),
-                activeIcon: Icon(Icons.explore),
-                label: 'Discover',
+            // Room Details
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(room['name'] ?? 'Party Room',
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis),
+                  const SizedBox(height: 4),
+                  Row(children: [
+                    const Icon(Icons.headset_mic,
+                        color: Color(0xFFFFC107), size: 14),
+                    const SizedBox(width: 4),
+                    Text('${room['activeUsers'] ?? 0} partying',
+                        style: const TextStyle(
+                            color: Colors.white70, fontSize: 12))
+                  ]),
+                ],
               ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.mic_none),
-                activeIcon: Icon(Icons.mic),
-                label: 'Rooms',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.chat_bubble_outline),
-                activeIcon: Icon(Icons.chat_bubble),
-                label: 'Messages',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.person_outline),
-                activeIcon: Icon(Icons.person),
-                label: 'Profile',
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

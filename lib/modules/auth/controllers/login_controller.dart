@@ -1,141 +1,129 @@
-// ═══════════════════════════════════════════════════════════════════════════
-// FILE: lib/modules/auth/controllers/login_controller.dart
-// ═══════════════════════════════════════════════════════════════════════════
-
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
-import '../../../routes/app_routes.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import '../../../services/api_service.dart';
 
 class LoginController extends GetxController {
-  final isLoading = false.obs;
-  final loadingMessage = 'Signing in...'.obs;
-  final isTermsAccepted = false.obs;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final ApiService _apiService = Get.find<ApiService>();
 
-  final _storage = GetStorage();
+  var isLoading = false.obs;
+  var loadingMessage = ''.obs;
+  var isTermsAccepted = false.obs;
 
-  // ─── TERMS ────────────────────────────────────────────────────────────────
-  void toggleTerms() => isTermsAccepted.toggle();
+  void toggleTerms() {
+    isTermsAccepted.value = !isTermsAccepted.value;
+  }
 
   bool _checkTerms() {
     if (!isTermsAccepted.value) {
       Get.snackbar(
-        'Terms Required',
-        'Please accept Terms of Use and Privacy Policy to continue.',
+        'Terms & Conditions',
+        'Please accept the Terms of Use and Privacy Policy first.',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color(0xFF1A1A2E),
-        colorText: Colors.white,
-        icon: const Icon(Icons.warning_amber_rounded, color: Colors.amber),
-        margin: const EdgeInsets.all(16),
       );
       return false;
     }
     return true;
   }
 
-  // ─── PHONE AUTH — navigates to PhoneAuthScreen ────────────────────────────
-  void goToPhoneAuth() {
-    if (!_checkTerms()) return;
-    Get.toNamed(AppRoutes.phoneAuth); // ✅ Fixed — PhoneAuthScreen pe jaata hai
-  }
-
-  // ─── SOCIAL LOGINS ────────────────────────────────────────────────────────
-  Future<void> loginWithFacebook() async {
-    if (!_checkTerms()) return;
-    await _startLogin('Connecting with Facebook...');
-    try {
-      // REAL IMPLEMENTATION STRUCTURE (Waiting for backend)
-      // final result = await FacebookAuth.instance.login();
-      // final userData = await FacebookAuth.instance.getUserData();
-      // final token = result.accessToken!.tokenString;
-
-      // TODO: Call your real backend API here -> apiService.login('facebook', token);
-      throw Exception("Backend API not connected for Facebook Sign In yet.");
-    } catch (e) {
-      _handleError(e.toString());
-    }
-  }
-
+  // ==========================================
+  // 1. REAL GOOGLE LOGIN
+  // ==========================================
   Future<void> loginWithGoogle() async {
     if (!_checkTerms()) return;
-    await _startLogin('Connecting with Google...');
+
     try {
-      // REAL IMPLEMENTATION STRUCTURE
-      throw Exception("Backend API not connected for Google Sign In yet.");
+      isLoading(true);
+      loadingMessage('Connecting to Google...');
+
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) {
+        isLoading(false); // User canceled
+        return;
+      }
+
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      loadingMessage('Authenticating...');
+      UserCredential userCredential =
+          await _auth.signInWithCredential(credential);
+
+      // Send real data to Arvind Party Node.js Backend
+      await _authenticateWithBackend(
+        provider: 'google',
+        uid: userCredential.user!.uid,
+        email: userCredential.user!.email,
+        name: userCredential.user!.displayName,
+        avatar: userCredential.user!.photoURL,
+      );
     } catch (e) {
-      _handleError(e.toString());
+      Get.snackbar('Login Failed', e.toString());
+      isLoading(false);
     }
+  }
+
+  // ==========================================
+  // 2. REAL PHONE LOGIN NAVIGATION
+  // ==========================================
+  void goToPhoneAuth() {
+    if (!_checkTerms()) return;
+    Get.toNamed('/phone-login'); // Will navigate to the real Phone OTP screen
+  }
+
+  // Other Authenticators (To be implemented next)
+  Future<void> loginWithFacebook() async {
+    if (!_checkTerms()) return;
+    Get.snackbar('Coming Soon', 'Real Facebook login is being configured.');
   }
 
   Future<void> loginWithWhatsApp() async {
     if (!_checkTerms()) return;
-    // WhatsApp login = phone auth ke through — same as phone button
-    goToPhoneAuth();
+    Get.snackbar('Coming Soon', 'Real WhatsApp login is being configured.');
   }
 
-  Future<void> loginWithApple() async {
-    if (!_checkTerms()) return;
-    await _startLogin('Connecting with Apple...');
+  Future<void> loginWithApple() async {}
+  Future<void> loginWithTwitter() async {}
+  Future<void> loginWithSnapchat() async {}
+
+  // ==========================================
+  // 3. CONNECT TO ARVIND PARTY NODE.JS BACKEND
+  // ==========================================
+  Future<void> _authenticateWithBackend({
+    required String provider,
+    required String uid,
+    String? email,
+    String? phone,
+    String? name,
+    String? avatar,
+  }) async {
+    loadingMessage('Logging into Arvind Party...');
+
     try {
-      // REAL IMPLEMENTATION STRUCTURE
-      throw Exception("Backend API not connected for Apple Sign In yet.");
+      var response = await _apiService.post('auth/login', {
+        'provider': provider,
+        'uid': uid,
+        'email': email,
+        'phone': phone,
+        'name': name,
+        'avatar': avatar,
+      });
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        _apiService.saveToken(response.data['token']);
+        bool isNewUser = response.data['isNewUser'] ?? false;
+        Get.offAllNamed(isNewUser ? '/complete-profile' : '/home');
+      }
     } catch (e) {
-      _handleError(e.toString());
+      Get.snackbar(
+          'Server Error', 'Failed to connect to Arvind Party servers.');
+      isLoading(false);
     }
-  }
-
-  Future<void> loginWithTwitter() async {
-    if (!_checkTerms()) return;
-    await _startLogin('Connecting with Twitter...');
-    try {
-      // REAL IMPLEMENTATION STRUCTURE
-      throw Exception("Backend API not connected for Twitter Sign In yet.");
-    } catch (e) {
-      _handleError(e.toString());
-    }
-  }
-
-  Future<void> loginWithSnapchat() async {
-    if (!_checkTerms()) return;
-    await _startLogin('Connecting with Snapchat...');
-    try {
-      // REAL IMPLEMENTATION STRUCTURE
-      throw Exception("Backend API not connected for Snapchat Sign In yet.");
-    } catch (e) {
-      _handleError(e.toString());
-    }
-  }
-
-  // ─── DEMO MODE ────────────────────────────────────────────────────────────
-  // ⚠️ TESTING ONLY — Production se remove karna!
-  Future<void> loginAsDemo() async {
-    await _startLogin('Entering Demo Mode...');
-    await Future.delayed(const Duration(milliseconds: 800));
-    _storage.write('user_id', 'demo_user_001');
-    _storage.write('user_name', 'Demo User');
-    _storage.write('is_logged_in', true);
-    isLoading.value = false;
-    Get.offAllNamed(AppRoutes.home);
-  }
-
-  // ─── HELPERS ──────────────────────────────────────────────────────────────
-  Future<void> _startLogin(String message) async {
-    loadingMessage.value = message;
-    isLoading.value = true;
-  }
-
-  void _handleError(String error) {
-    isLoading.value = false;
-    Get.snackbar('Login Failed', error,
-        backgroundColor: Colors.redAccent.withOpacity(0.8),
-        colorText: Colors.white,
-        snackPosition: SnackPosition.BOTTOM,
-        margin: const EdgeInsets.all(16));
-  }
-
-  @override
-  void onClose() {
-    isLoading.value = false;
-    super.onClose();
   }
 }

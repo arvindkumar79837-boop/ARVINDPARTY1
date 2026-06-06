@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../../auth/views/api_service.dart';
 
 class RoomSettingsController extends GetxController {
+  final ApiService _apiService = Get.find<ApiService>();
+  String roomId = Get.arguments?['roomId'] ?? 'unknown_room';
+
   // 1. Core Info Reactive States
   final roomName = "Music Party".obs;
   final roomTopic = "Welcome Everyone".obs;
@@ -82,16 +86,21 @@ class RoomSettingsController extends GetxController {
         }
       };
 
-      // Mock processing delay representing Redis cache clear / MongoDB updates sync
-      await Future.delayed(const Duration(milliseconds: 1200));
+      var response =
+          await _apiService.post('rooms/$roomId/settings', updatePayload);
 
-      Get.snackbar(
-        "Control Center",
-        "Room settings updated and synced globally! ⚙️",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color(0xff15141F),
-        colorText: const Color(0xffFF8906),
-      );
+      if (response.statusCode == 200) {
+        Get.snackbar(
+          "Control Center",
+          "Room settings updated and synced globally! ⚙️",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: const Color(0xff15141F),
+          colorText: const Color(0xffFF8906),
+        );
+      } else {
+        Get.snackbar("Sync Error",
+            "Failed to update settings: ${response.data['message']}");
+      }
     } catch (e) {
       Get.snackbar("Sync Error", "Failed to distribute configurations: $e");
     } finally {

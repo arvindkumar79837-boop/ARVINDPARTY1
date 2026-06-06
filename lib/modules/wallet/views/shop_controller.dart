@@ -1,8 +1,10 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'shop_item_model.dart';
+import '../../auth/views/api_service.dart';
 
 class ShopController extends GetxController {
+  final ApiService _apiService = Get.find<ApiService>();
   final isLoading = false.obs;
   final selectedCategory = 'frame'.obs;
   final items = <ShopItemModel>[].obs;
@@ -15,43 +17,28 @@ class ShopController extends GetxController {
 
   void _loadShopData() async {
     isLoading.value = true;
-    // TODO: Real API call (apiService.getShopItems())
-    await Future.delayed(const Duration(milliseconds: 800));
 
-    items.assignAll([
-      ShopItemModel(
-          id: 's1',
-          name: 'Neon Frame',
-          type: 'frame',
-          priceDiamonds: 500,
-          durationDays: 7),
-      ShopItemModel(
-          id: 's2',
-          name: 'Dragon Wings',
-          type: 'frame',
-          priceDiamonds: 1500,
-          durationDays: 30),
-      ShopItemModel(
-          id: 's3',
-          name: 'Ferrari Mount',
-          type: 'mount',
-          priceDiamonds: 3000,
-          durationDays: 7),
-      ShopItemModel(
-          id: 's4',
-          name: 'UFO Mount',
-          type: 'mount',
-          priceDiamonds: 10000,
-          durationDays: 30),
-      ShopItemModel(
-          id: 's5',
-          name: 'Fire Bubble',
-          type: 'bubble',
-          priceDiamonds: 200,
-          durationDays: 7),
-    ]);
+    try {
+      var response = await _apiService.get('shop/items');
 
-    isLoading.value = false;
+      if (response.statusCode == 200) {
+        var fetchedItems = (response.data['items'] as List)
+            .map((i) => ShopItemModel(
+                id: i['_id'] ?? i['id'],
+                name: i['name'],
+                type: i['type'],
+                priceDiamonds: i['priceDiamonds'],
+                durationDays: i['durationDays'] ?? 7))
+            .toList();
+
+        items.assignAll(fetchedItems);
+      }
+    } catch (e) {
+      Get.snackbar('Store Error', 'Failed to load shop items',
+          backgroundColor: Colors.redAccent, colorText: Colors.white);
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   List<ShopItemModel> get filteredItems =>
@@ -62,7 +49,6 @@ class ShopController extends GetxController {
   }
 
   void purchaseItem(ShopItemModel item) {
-    // TODO: Call API to deduct diamonds and add item to user inventory
     Get.dialog(AlertDialog(
       backgroundColor: const Color(0xFF15141F),
       title:
@@ -75,10 +61,26 @@ class ShopController extends GetxController {
             child:
                 const Text('Cancel', style: TextStyle(color: Colors.white38))),
         TextButton(
-          onPressed: () {
+          onPressed: () async {
             Get.back();
-            Get.snackbar('Success', '${item.name} purchased successfully!',
-                backgroundColor: Colors.green, colorText: Colors.white);
+            isLoading.value = true;
+            try {
+              var response =
+                  await _apiService.post('shop/purchase', {'itemId': item.id});
+              if (response.statusCode == 200) {
+                Get.snackbar('Success', '${item.name} purchased successfully!',
+                    backgroundColor: Colors.green, colorText: Colors.white);
+              } else {
+                Get.snackbar('Failed',
+                    response.data['message'] ?? 'Insufficient diamonds.',
+                    backgroundColor: Colors.redAccent, colorText: Colors.white);
+              }
+            } catch (e) {
+              Get.snackbar('Error', 'Failed to process transaction.',
+                  backgroundColor: Colors.redAccent, colorText: Colors.white);
+            } finally {
+              isLoading.value = false;
+            }
           },
           child: const Text('Buy Now',
               style: TextStyle(

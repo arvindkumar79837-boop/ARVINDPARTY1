@@ -27,7 +27,7 @@ class AdminApi extends GetxService {
   // ─── DASHBOARD ─────────────────────────────────────────────────────────────
   Future<Map<String, dynamic>> getDashboardStats() async {
     final res = await http.get(
-      Uri.parse('${ApiConstants.apiBaseUrl}/users/stats'),
+      Uri.parse('${ApiConstants.apiBaseUrl}/admin/stats'),
       headers: _headers,
     );
     return jsonDecode(res.body);
@@ -35,26 +35,27 @@ class AdminApi extends GetxService {
 
   Future<List<dynamic>> getActiveRooms() async {
     final res = await http.get(
-      Uri.parse('${ApiConstants.apiBaseUrl}/rooms'),
+      Uri.parse('${ApiConstants.apiBaseUrl}/rooms/live'),
       headers: _headers,
     );
     final data = jsonDecode(res.body);
-    return data['rooms'] ?? [];
+    return data is List ? data : data['rooms'] ?? [];
   }
 
   // ─── USERS ─────────────────────────────────────────────────────────────────
   Future<Map<String, dynamic>> getAllUsers({int page = 1, int limit = 20}) async {
     final res = await http.get(
-      Uri.parse('${ApiConstants.apiBaseUrl}/users?page=$page&limit=$limit'),
+      Uri.parse('${ApiConstants.apiBaseUrl}/admin/users?page=$page&limit=$limit'),
       headers: _headers,
     );
     return jsonDecode(res.body);
   }
 
   Future<bool> blockUser(String userId) async {
-    final res = await http.put(
-      Uri.parse('${ApiConstants.apiBaseUrl}/users/$userId/block'),
+    final res = await http.post(
+      Uri.parse('${ApiConstants.apiBaseUrl}/admin/users/ban'),
       headers: _headers,
+      body: jsonEncode({'userId': userId}),
     );
     final data = jsonDecode(res.body);
     return data['success'] == true;
@@ -62,7 +63,7 @@ class AdminApi extends GetxService {
 
   Future<bool> unblockUser(String userId) async {
     final res = await http.put(
-      Uri.parse('${ApiConstants.apiBaseUrl}/users/$userId/unblock'),
+      Uri.parse('${ApiConstants.apiBaseUrl}/admin/users/$userId/unblock'),
       headers: _headers,
     );
     final data = jsonDecode(res.body);
@@ -71,9 +72,9 @@ class AdminApi extends GetxService {
 
   Future<bool> adjustCoins(String userId, int coins, String reason) async {
     final res = await http.post(
-      Uri.parse('${ApiConstants.apiBaseUrl}/wallet/admin/adjust'),
+      Uri.parse('${ApiConstants.apiBaseUrl}/admin/users/balance'),
       headers: _headers,
-      body: jsonEncode({'userId': userId, 'coins': coins, 'reason': reason}),
+      body: jsonEncode({'userId': userId, 'amount': coins, 'reason': reason}),
     );
     final data = jsonDecode(res.body);
     return data['success'] == true;
@@ -103,6 +104,36 @@ class AdminApi extends GetxService {
     final res = await http.delete(
       Uri.parse('${ApiConstants.apiBaseUrl}/gifts/$giftId'),
       headers: _headers,
+    );
+    final data = jsonDecode(res.body);
+    return data['success'] == true;
+  }
+
+  // ─── WITHDRAWALS ───────────────────────────────────────────────────────────
+  Future<Map<String, dynamic>> getPendingWithdrawals() async {
+    final res = await http.get(
+      Uri.parse('${ApiConstants.apiBaseUrl}/admin/withdrawals/pending'),
+      headers: _headers,
+    );
+    return jsonDecode(res.body);
+  }
+
+  Future<bool> processWithdrawal(String transactionId, String action) async {
+    final res = await http.post(
+      Uri.parse('${ApiConstants.apiBaseUrl}/admin/withdrawals/process'),
+      headers: _headers,
+      body: jsonEncode({'transactionId': transactionId, 'action': action}),
+    );
+    final data = jsonDecode(res.body);
+    return data['success'] == true;
+  }
+
+  // ─── ANNOUNCEMENTS ──────────────────────────────────────────────────────────
+  Future<bool> createAnnouncement(String title, String message) async {
+    final res = await http.post(
+      Uri.parse('${ApiConstants.apiBaseUrl}/admin/announcement'),
+      headers: _headers,
+      body: jsonEncode({'title': title, 'message': message}),
     );
     final data = jsonDecode(res.body);
     return data['success'] == true;
