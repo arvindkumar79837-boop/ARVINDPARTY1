@@ -4,23 +4,56 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import 'package:get/get.dart';
+import '../repositories/lucky_draw_repository.dart';
 
 class LuckyDrawController extends GetxController {
   final isLoading = false.obs;
   final isSpinning = false.obs;
-  final prize = ''.obs;
+  final rewards = <Map<String, dynamic>>[].obs;
+  final prize = Rxn<Map<String, dynamic>>();
+  final newBalance = 0.obs;
 
-  void spin() async {
+  final LuckyDrawRepository _repo = LuckyDrawRepository();
+
+  @override
+  void onInit() {
+    super.onInit();
+    loadRewards();
+  }
+
+  Future<void> loadRewards() async {
+    try {
+      isLoading.value = true;
+      final fetched = await _repo.fetchRewards();
+      rewards.assignAll(fetched);
+    } catch (e) {
+      // Silent fail — rewards are optional for UI; spinner still works
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> spin() async {
     if (isSpinning.value) return;
     try {
       isSpinning.value = true;
-      // TODO: Call lottery API
-      await Future.delayed(const Duration(seconds: 3));
-      final prizes = ['100 coins', '50 coins', 'Try Again', '200 coins', 'Diamond', '10 coins'];
-      prize.value = prizes[DateTime.now().millisecond % prizes.length];
-      Get.snackbar('Congratulations!', 'You won \${prize.value}');
+      prize.value = null;
+      final result = await _repo.spin();
+
+      if (result['reward'] != null) {
+        prize.value = result['reward'] as Map<String, dynamic>;
+      } else {
+        prize.value = {'name': result['message'] ?? 'Try Again!', 'type': 'info', 'value': 0};
+      }
+      newBalance.value = result['newBalance'] as int? ?? 0;
+
+      Get.snackbar(
+        'Congratulations!',
+        'You won ${prize.value?['name'] ?? 'a prize'}!',
+      );
     } catch (e) {
-      Get.snackbar('Error', 'Spin failed');
+      final msg = e.toString().replaceAll('Exception: ', '');
+      Get.snackbar('Spin Failed', msg);
     } finally {
       isSpinning.value = false;
     }

@@ -1,46 +1,47 @@
-// ═══════════════════════════════════════════════════════════════════════════
-// FEATURE: Notifications
-// FILE: notifications_repository.dart
-// ═══════════════════════════════════════════════════════════════════════════
+import 'package:dio/dio.dart';
+import 'package:get/get.dart';
+import '../../../../core/constants/env_config.dart';
+import '../../../../core/services/auth_session_manager.dart';
+import '../../../../core/utils/api_exception.dart';
+import '../../../../core/constants/api_constants.dart';
 
 class NotificationsRepository {
-  /// Fetch user's notifications
+  final Dio _dio = Dio(BaseOptions(baseUrl: EnvConfig.plainApiBaseUrl));
+
   Future<List<Map<String, dynamic>>> fetchNotifications() async {
     try {
-      // API call: GET /api/notifications
-      return [];
-    } catch (e) {
-      rethrow;
+      final response = await _dio.get(
+        ApiConstants.notifications,
+        options: Options(headers: {'Authorization': 'Bearer ${_getToken()}'}),
+      );
+      final data = response.data as Map<String, dynamic>;
+      if (data['success'] == true) {
+        final notifications = data['data'] as List<dynamic>? ?? [];
+        return notifications.cast<Map<String, dynamic>>();
+      }
+      throw ApiException(message: data['message'] ?? 'Failed to fetch notifications');
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e.response?.data ?? {'message': e.message});
     }
   }
 
-  /// Mark notification as read
-  Future<bool> markNotificationAsRead(String notificationId) async {
+  Future<void> markAsRead(String notificationId) async {
     try {
-      // API call: POST /api/notifications/:id/read
-      return true;
-    } catch (e) {
-      rethrow;
+      await _dio.put(
+        '${ApiConstants.notifications}/$notificationId/read',
+        options: Options(headers: {'Authorization': 'Bearer ${_getToken()}'}),
+      );
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e.response?.data ?? {'message': e.message});
     }
   }
 
-  /// Delete notification
-  Future<bool> deleteNotification(String notificationId) async {
+  String? _getToken() {
     try {
-      // API call: DELETE /api/notifications/:id
-      return true;
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  /// Mark all notifications as read
-  Future<bool> markAllAsRead() async {
-    try {
-      // API call: POST /api/notifications/mark-all-read
-      return true;
-    } catch (e) {
-      rethrow;
+      final session = Get.find<AuthSessionManager>();
+      return session.token.value;
+    } catch (_) {
+      return null;
     }
   }
 }

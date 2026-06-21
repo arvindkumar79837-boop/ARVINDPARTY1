@@ -12,12 +12,12 @@ import '../../../../core/utils/api_exception.dart';
 import '../../models/auth_model.dart';
 
 class AuthRepository {
-  final Dio _dio = Dio(BaseOptions(baseUrl: EnvConfig.plainApiBaseUrl));
+  final Dio _dio =  Dio(BaseOptions(baseUrl: EnvConfig.plainApiBaseUrl));
 
   AuthSessionManager get _session => Get.find<AuthSessionManager>();
 
   String _getAuthHeader() {
-    final token = _session.token ?? '';
+    final token =  _session.token;
     return 'Bearer $token';
   }
 
@@ -25,7 +25,7 @@ class AuthRepository {
   /// Matches backend: POST /api/auth/send-otp { phone: "9876543210" }
   Future<Map<String, dynamic>> sendOtp(String phone) async {
     try {
-      final response = await _dio.post(
+      final response =  await _dio.post(
         '/auth/send-otp',
         data: {'phone': phone},
       );
@@ -42,7 +42,7 @@ class AuthRepository {
     required String otp,
   }) async {
     try {
-      final response = await _dio.post(
+      final response =  await _dio.post(
         '/auth/otp-verify',
         data: {
           'phone': phone,
@@ -50,9 +50,9 @@ class AuthRepository {
         },
       );
 
-      final data = response.data as Map<String, dynamic>;
+      final data =  response.data as Map<String, dynamic>;
       if (data['success'] == true) {
-        final auth = AuthResponse.fromBackendJson(data);
+        final auth =  AuthResponse.fromBackendJson(data);
         await _session.saveSession(
           token: auth.token,
           userId: auth.user.id,
@@ -76,7 +76,7 @@ class AuthRepository {
   /// Matches backend: POST /api/auth/resend-otp { phone: "9876543210" }
   Future<Map<String, dynamic>> resendOtp(String phone) async {
     try {
-      final response = await _dio.post(
+      final response =  await _dio.post(
         '/auth/resend-otp',
         data: {'phone': phone},
       );
@@ -95,7 +95,7 @@ class AuthRepository {
     DateTime? dob,
   }) async {
     try {
-      final response = await _dio.post(
+      final response =  await _dio.post(
         '/auth/register',
         data: {
           'phone': phone,
@@ -105,9 +105,9 @@ class AuthRepository {
         },
       );
 
-      final data = response.data as Map<String, dynamic>;
+      final data =  response.data as Map<String, dynamic>;
       if (data['success'] == true) {
-        final auth = AuthResponse.fromBackendJson(data);
+        final auth =  AuthResponse.fromBackendJson(data);
         await _session.saveSession(
           token: auth.token,
           userId: auth.user.id,
@@ -129,7 +129,7 @@ class AuthRepository {
     required String otp,
   }) async {
     try {
-      final response = await _dio.post(
+      final response =  await _dio.post(
         '/auth/login',
         data: {
           'phone': phone,
@@ -137,9 +137,9 @@ class AuthRepository {
         },
       );
 
-      final data = response.data as Map<String, dynamic>;
+      final data =  response.data as Map<String, dynamic>;
       if (data['success'] == true) {
-        final auth = AuthResponse.fromBackendJson(data);
+        final auth =  AuthResponse.fromBackendJson(data);
         await _session.saveSession(
           token: auth.token,
           userId: auth.user.id,
@@ -164,11 +164,11 @@ class AuthRepository {
   /// Matches backend: POST /api/auth/refresh-token { refreshToken }
   Future<String> refreshToken(String refreshToken) async {
     try {
-      final response = await _dio.post(
+      final response =  await _dio.post(
         '/auth/refresh-token',
         data: {'refreshToken': refreshToken},
       );
-      final data = response.data as Map<String, dynamic>;
+      final data =  response.data as Map<String, dynamic>;
       if (data['success'] == true) {
         return data['data']['token'] as String;
       }
@@ -182,7 +182,7 @@ class AuthRepository {
   /// Matches backend: POST /api/auth/logout
   Future<void> logout() async {
     try {
-      final token = _session.token;
+      final token =  _session.token.value;
       if (token != null && token.isNotEmpty) {
         await _dio.post(
           '/auth/logout',
@@ -191,7 +191,7 @@ class AuthRepository {
           }),
         );
       }
-    } on DioException catch (e) {
+    } on DioException catch (_) {
       // Logout errors are non-fatal
     } finally {
       await _session.clearSession();
@@ -202,14 +202,14 @@ class AuthRepository {
   /// Matches backend: GET /api/auth/me
   Future<User> getCurrentUser() async {
     try {
-      final response = await _dio.get(
+      final response =  await _dio.get(
         '/auth/me',
         options: Options(headers: {
           'Authorization': _getAuthHeader(),
         }),
       );
 
-      final data = response.data as Map<String, dynamic>;
+      final data =  response.data as Map<String, dynamic>;
       if (data['success'] == true) {
         return User.fromBackendJson(data['data']);
       }
@@ -221,7 +221,7 @@ class AuthRepository {
 
   /// Convenience redirect to session manager
   Future<void> saveToken(String token) => _session.saveSession(token: token);
-  String? getToken() => _session.token;
+  String? getToken() => _session.token.value;
   void clearToken() => _session.clearSession();
   bool isLoggedIn() => _session.hasToken();
 }

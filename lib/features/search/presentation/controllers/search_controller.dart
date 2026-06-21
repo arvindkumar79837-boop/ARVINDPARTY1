@@ -18,7 +18,7 @@ class SearchController extends GetxController {
     }
     try {
       isLoading.value = true;
-      // TODO: SearchRepository().search(q);
+      // // TODO: implement search
       await Future.delayed(const Duration(milliseconds: 300));
     } catch (e) {
       Get.snackbar('Error', 'Search failed');

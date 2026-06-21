@@ -18,7 +18,7 @@ class YouTubeRoomScreen extends GetView<YouTubeController> {
         title: const Text('YouTube Room', style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: const Color(0xFF15141F),
         actions: [
-          Obx(() => Switch(value: controller.synchronizedPlayback.value, onChanged: (_) => controller.toggleWatchParty(), activeColor: const Color(0xFFFF8906))),
+          Obx(() => Switch(value: controller.synchronizedPlayback.value, onChanged: (_) => controller.toggleWatchParty(), activeThumbColor: const Color(0xFFFF8906))),
           const Padding(padding: EdgeInsets.only(right: 8), child: Text('Sync', style: TextStyle(color: Colors.grey, fontSize: 12))),
         ],
       ),

@@ -16,7 +16,7 @@ dependencies:
   get: ^4.7.3
 
   # Video / Live Streaming (Agora + Video Player)
-  agora_rtc_engine: ^6.2.2
+  agora_rtc_engine: ^6.5.4
   video_player: ^2.8.6
 
   # Firebase Auth (Phone OTP + Google Login only)
@@ -44,6 +44,11 @@ dependencies:
   url_launcher: ^6.2.2
   package_info_plus: ^4.1.0
   path_provider: ^2.1.1
+
+  # Security
+  device_info_plus: ^10.1.0
+  crypto: ^3.0.3
+  shared_preferences: ^2.2.2
 
   # Utils
   flutter_animate: ^4.5.0

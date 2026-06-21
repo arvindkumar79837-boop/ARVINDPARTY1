@@ -18,6 +18,7 @@ class ProfileScreen extends GetView<ProfileController> {
         if (controller.isLoading.value) {
           return const Center(child: CircularProgressIndicator());
         }
+        final name = controller.userName;
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -26,15 +27,13 @@ class ProfileScreen extends GetView<ProfileController> {
                 radius: 50,
                 backgroundColor: const Color(0xFFFF8906),
                 child: Text(
-                  controller.userName.value.isNotEmpty
-                      ? controller.userName.value[0].toUpperCase()
-                      : '?',
+                  name.isNotEmpty ? name[0].toUpperCase() : '?',
                   style: const TextStyle(fontSize: 40, color: Colors.white),
                 ),
               ),
               const SizedBox(height: 16),
               Text(
-                controller.userName.value,
+                name,
                 style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
               ),
               const SizedBox(height: 8),
@@ -43,7 +42,7 @@ class ProfileScreen extends GetView<ProfileController> {
                 children: [
                   Icon(Icons.monetization_on, color: Color(0xFFD4AF37)),
                   SizedBox(width: 4),
-                  Text('\${controller.coins.value} coins', style: TextStyle(color: Color(0xFFD4AF37))),
+                  Text('0 coins', style: TextStyle(color: Color(0xFFD4AF37))),
                 ],
               ),
             ],

@@ -94,7 +94,7 @@ class RaiseHandSheet extends StatelessWidget {
                     children: [
                       // Reject Button
                       GestureDetector(
-                        onTap: () => ctrl.rejectRaiseHand(req.requestId),
+                        onTap: () => ctrl.rejectRaiseHand(i),
                         child: Container(
                           padding: const EdgeInsets.all(7),
                           decoration: BoxDecoration(
@@ -108,7 +108,7 @@ class RaiseHandSheet extends StatelessWidget {
                       // Approve Button
                       GestureDetector(
                         onTap: () {
-                          ctrl.approveRaiseHand(req.requestId);
+                          ctrl.approveRaiseHand(i);
                           if (ctrl.raiseHandRequests.isEmpty) Get.back();
                         },
                         child: Container(

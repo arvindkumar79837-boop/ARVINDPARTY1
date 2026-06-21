@@ -13,9 +13,11 @@ const vipController = require('../controllers/vipController');
 const agencyController = require('../controllers/agencyController');
 const familyController = require('../controllers/familyController');
 const supportController = require('../controllers/supportController');
+const rewardInjectorController = require('../controllers/rewardInjectorController');
 const authMiddleware = require('../middlewares/auth.middleware');
 const { verifyStaff } = require('../middlewares/adminMiddleware');
-const { verifyAdmin: isAdmin } = require('../middlewares/isAdmin');
+const verifyAdmin = require('../middlewares/isAdmin');
+const isAdmin = verifyAdmin;
 
 // Protect all admin routes
 router.use(authMiddleware);
@@ -320,6 +322,22 @@ router.get('/moments', momentController.getAllMoments);
 
 // DELETE /api/admin/moments/:id
 router.delete('/moments/:id', verifyAdmin, momentController.adminDeleteMoment);
+
+// ===========================================================================
+// REWARD INJECTOR (UID-targeted asset injection)
+// ===========================================================================
+
+// POST /api/admin/rewards/inject - Inject assets to a target UID
+router.post('/rewards/inject', verifyAdmin, rewardInjectorController.injectReward);
+
+// GET /api/admin/rewards/history - Reward injection history
+router.get('/rewards/history', rewardInjectorController.getRewardHistory);
+
+// POST /api/admin/rewards/revoke/:id - Revoke a reward injection
+router.post('/rewards/revoke/:id', verifyAdmin, rewardInjectorController.revokeReward);
+
+// GET /api/admin/rewards/user/:uid - Get rewards for a UID
+router.get('/rewards/user/:uid', rewardInjectorController.getUserRewards);
 
 // ===========================================================================
 // SEARCH

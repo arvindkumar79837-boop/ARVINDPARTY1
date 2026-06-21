@@ -153,6 +153,7 @@ abstract class AppRoutes {
   static const walletHistory = '/wallet-history';
   static const walletLogs = '/wallet-logs';
   static const treasury = '/treasury';
+  static const treasuryPanel = '/treasury-panel';
   static const transactionAudit = '/transaction-audit';
   static const rewardWallet = '/reward-wallet';
 
@@ -382,6 +383,14 @@ abstract class AppRoutes {
   static const maintenanceMode = '/maintenance-mode';
   static const systemAnnouncement = '/system-announcement';
   static const referral = '/referral';
+
+  // ═══════ NEW FEATURE ROUTES ═══════
+  static const mediaPlayer = '/media-player';
+  static const soundEffects = '/sound-effects';
+  static const levelPage = '/level';
+  static const inventory = '/inventory';
+  static const support = '/support';
+  static const settingsPage = '/settings';
 
   // ═══════ LEGACY ═══════
   static const events = '/events';

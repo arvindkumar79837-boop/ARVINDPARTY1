@@ -12,7 +12,6 @@ import 'package:get_storage/get_storage.dart';
 import '../../../../../core/constants/env_config.dart';
 import '../../../../../core/services/api_service.dart';
 import '../../models/room_models.dart';
-import '../../services/seat_layout_service.dart';
 
 class LiveRoomController extends GetxController {
   final ApiService _apiService = Get.find<ApiService>();
@@ -22,6 +21,12 @@ class LiveRoomController extends GetxController {
   final String roomId;
   final String roomOwnerId;
   final int initialSeatCount;
+
+  LiveRoomController({
+    this.roomId = '',
+    this.roomOwnerId = '',
+    this.initialSeatCount = 12,
+  });
   io.Socket? socket;
 
   String get currentUserId => _storage.read('user_id') ?? '';
@@ -44,6 +49,9 @@ class LiveRoomController extends GetxController {
   final seatCount = 0.obs;
   final activeSeat = Rxn<int>();
 
+  // ─── Members ───────────────────────────────────────────────
+  final members = <RoomMemberModel>[].obs;
+
   // ─── Gift System ───────────────────────────────────────────
   final activeGiftAnimation = Rxn<GiftAnimation>();
   final availableGifts = <Map<String, dynamic>>[].obs;
@@ -61,12 +69,6 @@ class LiveRoomController extends GetxController {
   final kickedUsersList = <Map<String, dynamic>>[].obs;
   final mutedUsersList = <Map<String, dynamic>>[].obs;
 
-  LiveRoomController({
-    required this.roomId,
-    required this.roomOwnerId,
-    this.initialSeatCount = 12,
-  });
-
   @override
   void onInit() {
     super.onInit();
@@ -79,21 +81,10 @@ class LiveRoomController extends GetxController {
 
   /// Initialize dynamic seat layout (8-30 seats) using SeatLayoutService
   void _initializeSeats(int count) {
-    final validCount = SeatLayoutService.availableSeatCounts.contains(count)
-        ? count
-        : SeatLayoutService.availableSeatCounts
-            .reduce((a, b) => (a - count).abs() < (b - count).abs() ? a : b);
+    final validCount = count;
     seatCount.value = validCount;
     seats.assignAll(
-      SeatLayoutService.generateInitialSeats(validCount)
-          .map((s) => SeatData(
-            index: s.index,
-            userId: s.userId,
-            userName: s.userName,
-            isLocked: s.isLocked,
-            isMuted: s.isMuted,
-          ))
-          .toList(),
+      List.generate(validCount, (i) => SeatData(index: i)),
     );
   }
 
@@ -104,7 +95,7 @@ class LiveRoomController extends GetxController {
           backgroundColor: Colors.redAccent, colorText: Colors.white);
       return;
     }
-    if (!SeatLayoutService.availableSeatCounts.contains(newCount)) return;
+    if (newCount < 1) return;
     seatCount.value = newCount;
     _initializeSeats(newCount);
     socket?.emit('update_seat_layout', {
@@ -278,6 +269,207 @@ class LiveRoomController extends GetxController {
         },
       );
     });
+
+    // ─── Member Events ──────────────────────────────────────────
+    socket!.on('member_joined', (data) {
+      if (data is Map) {
+        final member = RoomMemberModel(
+          id: data['id']?.toString() ?? '',
+          userId: data['userId']?.toString() ?? '',
+          userName: data['userName']?.toString() ?? 'Unknown',
+          role: _parseRole(data['role']?.toString() ?? 'member'),
+          isOnline: true,
+          avatar: data['avatar']?.toString(),
+          userLevel: data['userLevel'] as int?,
+        );
+        if (!members.any((m) => m.userId == member.userId)) {
+          members.add(member);
+        }
+        Get.snackbar(
+          'Member Joined',
+          '${member.userName} joined the room',
+          duration: const Duration(seconds: 2),
+          backgroundColor: Colors.greenAccent.withValues(alpha: 0.8),
+        );
+      }
+    });
+
+    socket!.on('member_left', (data) {
+      if (data is Map && data['userId'] != null) {
+        final userId = data['userId'].toString();
+        members.removeWhere((m) => m.userId == userId);
+        Get.snackbar(
+          'Member Left',
+          '${data['userName'] ?? 'Someone'} left the room',
+          duration: const Duration(seconds: 2),
+          backgroundColor: Colors.orangeAccent.withValues(alpha: 0.8),
+        );
+      }
+    });
+
+    socket!.on('members_list', (data) {
+      if (data is Map && data['members'] is List) {
+        final List<dynamic> membersList = data['members'];
+        members.assignAll(
+          membersList
+              .map((m) => RoomMemberModel(
+                id: m['id']?.toString() ?? '',
+                userId: m['userId']?.toString() ?? '',
+                userName: m['userName']?.toString() ?? 'Unknown',
+                role: _parseRole(m['role']?.toString() ?? 'member'),
+                isOnline: m['isOnline'] ?? true,
+                avatar: m['avatar']?.toString(),
+                userLevel: m['userLevel'] as int?,
+              ))
+              .toList(),
+        );
+      }
+    });
+
+    // ─── Moderation & Promotion Events ──────────────────────────
+    socket!.on('user_unmuted', (data) {
+      if (data is Map && data['targetUserId']?.toString() == currentUserId) {
+        isMuted.value = false;
+        Get.snackbar('Unmuted', 'You have been unmuted',
+            backgroundColor: Colors.greenAccent, colorText: Colors.black,
+            duration: const Duration(seconds: 2));
+      }
+    });
+
+    socket!.on('member_promoted', (data) {
+      if (data is Map) {
+        final userId = data['userId']?.toString();
+        final newRole = _parseRole(data['newRole']?.toString() ?? 'member');
+        final idx = members.indexWhere((m) => m.userId == userId);
+        if (idx != -1) {
+          members[idx] = members[idx].copyWith(role: newRole);
+        }
+        if (userId == currentUserId) {
+          Get.snackbar('Promoted', 'You have been promoted to ${newRole.name}',
+              backgroundColor: Colors.blueAccent, colorText: Colors.white,
+              duration: const Duration(seconds: 3));
+        }
+      }
+    });
+
+    socket!.on('member_demoted', (data) {
+      if (data is Map) {
+        final userId = data['userId']?.toString();
+        final newRole = _parseRole(data['newRole']?.toString() ?? 'member');
+        final idx = members.indexWhere((m) => m.userId == userId);
+        if (idx != -1) {
+          members[idx] = members[idx].copyWith(role: newRole);
+        }
+        if (userId == currentUserId) {
+          Get.snackbar('Demoted', 'You have been demoted to ${newRole.name}',
+              backgroundColor: Colors.orangeAccent, colorText: Colors.white,
+              duration: const Duration(seconds: 3));
+        }
+      }
+    });
+
+    socket!.on('member_banned', (data) {
+      if (data is Map && data['targetUserId']?.toString() == currentUserId) {
+        Get.defaultDialog(
+          title: 'Banned from Room',
+          middleText: 'You have been banned from this room.',
+          textConfirm: 'OK',
+          confirmTextColor: Colors.white,
+          buttonColor: Colors.redAccent,
+          barrierDismissible: false,
+          onConfirm: () {
+            Get.back();
+            Get.back();
+          },
+        );
+      } else if (data is Map && data['bannedUserId'] != null) {
+        members.removeWhere((m) => m.userId == data['bannedUserId'].toString());
+      }
+    });
+
+    // ─── Seat & Voice Events ────────────────────────────────────
+    socket!.on('seat_claimed', (data) {
+      if (data is Map) {
+        final seatIndex = data['seatIndex'] as int?;
+        if (seatIndex != null && seatIndex < seats.length) {
+          seats[seatIndex] = seats[seatIndex].copyWith(
+            userId: data['userId']?.toString(),
+            userName: data['userName']?.toString(),
+            userAvatar: data['userAvatar']?.toString(),
+            role: data['role']?.toString() ?? 'broadcaster',
+          );
+        }
+      }
+    });
+
+    socket!.on('seat_vacated', (data) {
+      if (data is Map) {
+        final seatIndex = data['seatIndex'] as int?;
+        if (seatIndex != null && seatIndex < seats.length) {
+          seats[seatIndex] = seats[seatIndex].copyWith(
+            userId: null,
+            userName: null,
+            userAvatar: null,
+            role: 'empty',
+            isMuted: false,
+          );
+        }
+      }
+    });
+
+    socket!.on('user_voice_state_changed', (data) {
+      if (data is Map) {
+        final userId = data['userId']?.toString();
+        final isMutedRemote = data['isMuted'] as bool? ?? false;
+        
+        // Update seat mute state
+        final seatIdx = seats.indexWhere((s) => s.userId == userId);
+        if (seatIdx != -1) {
+          seats[seatIdx] = seats[seatIdx].copyWith(isMuted: isMutedRemote);
+        }
+        
+        // Track remote user mute state
+        if (isMutedRemote && !mutedRemoteUsers.contains(userId.hashCode)) {
+          mutedRemoteUsers.add(userId.hashCode);
+        } else if (!isMutedRemote) {
+          mutedRemoteUsers.removeWhere((uid) => uid == userId.hashCode);
+        }
+      }
+    });
+
+    socket!.on('connection_error', (data) {
+      if (data is Map) {
+        debugPrint('[Socket] Connection error: ${data['message']}');
+        Get.snackbar('Connection Error', data['message']?.toString() ?? 'Unknown error',
+            backgroundColor: Colors.redAccent, colorText: Colors.white);
+      }
+    });
+  }
+
+  /// Parse role string to MemberRole enum
+  MemberRole _parseRole(String roleStr) {
+    switch (roleStr.toLowerCase()) {
+      case 'host':
+      case 'owner':
+        return MemberRole.host;
+      case 'cohost':
+      case 'co_host':
+        return MemberRole.coHost;
+      case 'moderator':
+      case 'mod':
+        return MemberRole.moderator;
+      case 'speaker':
+      case 'broadcaster':
+        return MemberRole.speaker;
+      case 'muted':
+        return MemberRole.muted;
+      case 'visitor':
+        return MemberRole.visitor;
+      case 'admin':
+        return MemberRole.admin;
+      default:
+        return MemberRole.listener;
+    }
   }
 
   // ══════════════════════════════════════════════════════════════════

@@ -1,49 +1,25 @@
-// ═══════════════════════════════════════════════════════════════════════════
-// FEATURE: Search
-// FILE: search_repository.dart
-// ═══════════════════════════════════════════════════════════════════════════
+import 'package:dio/dio.dart';
+import '../../../../core/constants/env_config.dart';
+import '../../../../core/utils/api_exception.dart';
+import '../../../../core/constants/api_constants.dart';
 
 class SearchRepository {
-  /// Search for users globally
-  Future<List<Map<String, dynamic>>> searchUsers(
-    String query,
-    String filter,
-  ) async {
-    try {
-      // API call: GET /api/search?q=query&filter=filter
-      return [];
-    } catch (e) {
-      rethrow;
-    }
-  }
+  final Dio _dio = Dio(BaseOptions(baseUrl: EnvConfig.plainApiBaseUrl));
 
-  /// Search for rooms
-  Future<List<Map<String, dynamic>>> searchRooms(String query) async {
+  Future<List<Map<String, dynamic>>> search(String query) async {
     try {
-      // API call: GET /api/search/rooms?q=query
-      return [];
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  /// Get search suggestions
-  Future<List<String>> getSearchSuggestions(String query) async {
-    try {
-      // API call: GET /api/search/suggestions?q=query
-      return [];
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  /// Get trending searches
-  Future<List<String>> getTrendingSearches() async {
-    try {
-      // API call: GET /api/search/trending
-      return [];
-    } catch (e) {
-      rethrow;
+      final response = await _dio.get(
+        ApiConstants.userSearch,
+        queryParameters: {'q': query},
+      );
+      final data = response.data as Map<String, dynamic>;
+      if (data['success'] == true) {
+        final results = data['data'] as List<dynamic>? ?? [];
+        return results.cast<Map<String, dynamic>>();
+      }
+      throw ApiException(message: data['message'] ?? 'Search failed');
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e.response?.data ?? {'message': e.message});
     }
   }
 }

@@ -1,47 +1,56 @@
-// ═══════════════════════════════════════════════════════════════════════════
-// FEATURE: Shop
-// FILE: shop_repository.dart
-// ═══════════════════════════════════════════════════════════════════════════
+import 'package:dio/dio.dart';
+import 'package:get/get.dart';
+import '../../../../core/constants/env_config.dart';
+import '../../../../core/services/auth_session_manager.dart';
+import '../../../../core/utils/api_exception.dart';
+import '../../../../core/constants/api_constants.dart';
 
 class ShopRepository {
-  /// Fetch products by category
-  Future<List<Map<String, dynamic>>> fetchProducts(String category) async {
-    try {
-      // API call: GET /api/shop/products?category=category
-      return [];
-    } catch (e) {
-      rethrow;
-    }
-  }
+  final Dio _dio = Dio(BaseOptions(baseUrl: EnvConfig.plainApiBaseUrl));
 
-  /// Get product details
-  Future<Map<String, dynamic>?> getProductDetails(String productId) async {
+  String? _getToken() {
     try {
-      // API call: GET /api/shop/products/:id
+      return Get.find<AuthSessionManager>().token.value;
+    } catch (_) {
       return null;
-    } catch (e) {
-      rethrow;
     }
   }
 
-  /// Checkout and purchase items
-  Future<bool> checkout(List<Map<String, dynamic>> items) async {
+  Options _authOptions() => Options(headers: {
+        if (_getToken() != null) 'Authorization': 'Bearer ${_getToken()}',
+      });
+
+  /// Fetch all shop items (frames, mounts, bubbles)
+  /// GET /api/shop/items
+  Future<List<Map<String, dynamic>>> fetchItems() async {
     try {
-      // API call: POST /api/shop/checkout
-      // Body: {items}
-      return true;
-    } catch (e) {
-      rethrow;
+      final response = await _dio.get(
+        ApiConstants.shopItems,
+        options: _authOptions(),
+      );
+      final data = response.data as Map<String, dynamic>;
+      if (data['items'] != null) {
+        final items = data['items'] as List<dynamic>;
+        return items.cast<Map<String, dynamic>>();
+      }
+      throw ApiException(message: data['message'] ?? 'Failed to fetch shop items');
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e.response?.data ?? {'message': e.message});
     }
   }
 
-  /// Get purchase history
-  Future<List<Map<String, dynamic>>> getPurchaseHistory() async {
+  /// Purchase an item from the shop
+  /// POST /api/shop/purchase
+  Future<Map<String, dynamic>> purchaseItem(String itemId) async {
     try {
-      // API call: GET /api/shop/history
-      return [];
-    } catch (e) {
-      rethrow;
+      final response = await _dio.post(
+        ApiConstants.shopPurchase,
+        data: {'itemId': itemId},
+        options: _authOptions(),
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e.response?.data ?? {'message': e.message});
     }
   }
 }

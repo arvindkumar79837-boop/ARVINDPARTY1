@@ -23,15 +23,14 @@ class SeatGridWidget extends StatelessWidget {
       }
 
       final count = ctrl.seats.length;
-      final crossAxis = count > 12 ? 5 : 4;
 
       return GridView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         itemCount: count,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: crossAxis,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 4,
           crossAxisSpacing: 10,
           mainAxisSpacing: 14,
           childAspectRatio: 0.78,
@@ -48,7 +47,7 @@ class SeatGridWidget extends StatelessWidget {
 
 class _SeatTile extends StatelessWidget {
   final int index;
-  final SeatModel seat;
+  final SeatData seat;
   const _SeatTile({required this.index, required this.seat});
 
   @override

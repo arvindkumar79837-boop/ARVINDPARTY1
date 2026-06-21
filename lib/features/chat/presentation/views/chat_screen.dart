@@ -55,7 +55,7 @@ class ChatScreen extends GetView<ChatController> {
               children: [
                 Expanded(
                   child: TextField(
-                    onChanged: (v) => controller.messageText.value = v,
+                    onChanged: (v) => controller.textController.text = v,
                     decoration: InputDecoration(
                       hintText: 'Type a message...',
                       filled: true,

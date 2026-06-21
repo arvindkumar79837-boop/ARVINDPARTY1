@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>59307295659-67l2civ6ltmpkpcvfhs1daegam83s19v.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.59307295659-67l2civ6ltmpkpcvfhs1daegam83s19v</string>
+	<key>API_KEY</key>
+	<string>AIzaSyCvxj0PUKB_M36aOs-G3uj2I6QOgeqQqJA</string>
+	<key>GCM_SENDER_ID</key>
+	<string>59307295659</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.arvind.party.arvindparty</string>
+	<key>PROJECT_ID</key>
+	<string>arvind-party-e583b</string>
+	<key>STORAGE_BUCKET</key>
+	<string>arvind-party-e583b.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:59307295659:ios:83ea99a01ef06f2438c8ee</string>
+</dict>
+</plist>

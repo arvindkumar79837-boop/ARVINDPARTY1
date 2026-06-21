@@ -5,7 +5,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../room/models/room_models.dart';
-import '../../../room/controllers/room_controller.dart';
 import '../../../../routes/app_routes.dart';
 
 class RoomCardWidget extends StatelessWidget {
@@ -207,9 +206,7 @@ class RoomCardWidget extends StatelessWidget {
   }
 
   void _navigateToRoom() {
-    final roomCtrl = Get.find<RoomController>();
-    roomCtrl.joinRoom(room.id);
-    Get.toNamed(AppRoutes.voiceRoom);
+    Get.toNamed(AppRoutes.voiceRoom, arguments: room.id);
   }
 
   void _showPasswordDialog() {

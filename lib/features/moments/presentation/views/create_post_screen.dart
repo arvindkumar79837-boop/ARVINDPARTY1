@@ -20,7 +20,7 @@ class CreatePostScreen extends GetView<MomentsController> {
         actions: [
           TextButton(
             onPressed: () {
-              // TODO: MomentsRepository().createPost(_contentController.text);
+              // // TODO: implement create post
               Get.back();
               Get.snackbar('Success', 'Post created');
             },

@@ -1,58 +1,23 @@
 // ═══════════════════════════════════════════════════════════════════════════
-// FEATURE: Chat
-// FILE: chat_repository.dart
+// FILE: lib/features/chat/services/chat_repository.dart
+// ARVIND PARTY - CHAT REPOSITORY
 // ═══════════════════════════════════════════════════════════════════════════
 
-class ChatRepository {
-  /// Fetch user's chat list
-  Future<List<Map<String, dynamic>>> fetchChats() async {
-    try {
-      // API call: GET /api/chat/conversations
-      return [];
-    } catch (e) {
-      rethrow;
+import 'package:get/get.dart';
+import '../../../../core/services/api_service.dart';
+
+class ChatRepository extends GetxService {
+  final ApiService _api = Get.find<ApiService>();
+
+  Future<List<Map<String, dynamic>>> fetchMessages(String roomId) async {
+    final response = await _api.get('/chat/$roomId/messages');
+    if (response is Map && response['data'] is List) {
+      return List<Map<String, dynamic>>.from(response['data']);
     }
+    return [];
   }
 
-  /// Fetch messages for a specific chat
-  Future<List<Map<String, dynamic>>> fetchMessages(String chatId) async {
-    try {
-      // API call: GET /api/chat/conversations/:id/messages
-      return [];
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  /// Send a message
-  Future<bool> sendMessage(String chatId, String text) async {
-    try {
-      // API call: POST /api/chat/conversations/:id/messages
-      // Body: {text}
-      return true;
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  /// Delete a chat
-  Future<bool> deleteChat(String chatId) async {
-    try {
-      // API call: DELETE /api/chat/conversations/:id
-      return true;
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  /// Start a new chat with user
-  Future<Map<String, dynamic>?> startChat(String userId) async {
-    try {
-      // API call: POST /api/chat/conversations/start
-      // Body: {userId}
-      return null;
-    } catch (e) {
-      rethrow;
-    }
+  Future<void> sendMessage(String roomId, String text) async {
+    await _api.post('/chat/$roomId/messages', body: {'text': text});
   }
 }

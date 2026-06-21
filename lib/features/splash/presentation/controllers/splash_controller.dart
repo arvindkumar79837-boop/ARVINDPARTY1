@@ -4,24 +4,24 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import 'package:get/get.dart';
-import '../../../../routes/app_routes.dart';
-import '../../../auth/presentation/controllers/auth_controller.dart';
+import 'package:get_storage/get_storage.dart';
 
 class SplashController extends GetxController {
-  final AuthController _authController = Get.find<AuthController>();
+  final _storage = GetStorage();
 
   @override
   void onInit() {
     super.onInit();
-    _navigateAfterDelay();
+    _navigateToNextScreen();
   }
 
-  Future<void> _navigateAfterDelay() async {
-    await Future.delayed(const Duration(seconds: 3));
-    if (_authController.isLoggedIn.value) {
-      Get.offAllNamed(AppRoutes.home);
+  void _navigateToNextScreen() async {
+    await Future.delayed(const Duration(seconds: 2));
+    final isLoggedIn = _storage.read('token') != null;
+    if (isLoggedIn) {
+      Get.offAllNamed('/home');
     } else {
-      Get.offAllNamed(AppRoutes.login);
+      Get.offAllNamed('/login');
     }
   }
 }

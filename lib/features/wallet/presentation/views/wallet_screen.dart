@@ -5,11 +5,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../controllers/wallet_controller.dart';
-import '../../models/wallet_model.dart';
-import '../../widgets/currency_card.dart';
-import '../../widgets/recharge_package_item.dart';
-import '../../widgets/transaction_item.dart';
+import '../controllers/wallet_controller.dart';
+import '../models/wallet_model.dart';
+import '../widgets/currency_card.dart';
+import '../widgets/recharge_package_item.dart';
+import '../widgets/transaction_item.dart';
 
 class WalletScreen extends GetView<WalletController> {
   const WalletScreen({super.key});
@@ -20,7 +20,7 @@ class WalletScreen extends GetView<WalletController> {
     return Scaffold(
       appBar: AppBar(title: const Text('My Wallet', style: TextStyle(fontWeight: FontWeight.bold)), backgroundColor: Colors.white, foregroundColor: Colors.black, elevation: 0),
       body: Obx(() {
-        if (controller.isLoading.value && controller.balance.value == null) return const Center(child: CircularProgressIndicator());
+        if (controller.isLoading.value) return const Center(child: CircularProgressIndicator());
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -44,18 +44,16 @@ class WalletScreen extends GetView<WalletController> {
                 ],
               ),
               const SizedBox(height: 20),
-              if (controller.balance.value != null) ...[
-                Row(children: [
-                  Expanded(child: CurrencyCard(type: CurrencyType.coins, amount: controller.balance.value!.coins)),
-                  const SizedBox(width: 12),
-                  Expanded(child: CurrencyCard(type: CurrencyType.diamonds, amount: controller.balance.value!.diamonds)),
-                ]),
-                const SizedBox(height: 12),
-                Row(children: [
-                  Expanded(child: CurrencyCard(type: CurrencyType.beans, amount: controller.balance.value!.beans)),
-                  const Spacer(),
-                ]),
-              ],
+              Row(children: [
+                Expanded(child: CurrencyCard(type: CurrencyType.coins, amount: controller.balance.coins)),
+                const SizedBox(width: 12),
+                Expanded(child: CurrencyCard(type: CurrencyType.diamonds, amount: controller.balance.diamonds)),
+              ]),
+              const SizedBox(height: 12),
+              Row(children: [
+                Expanded(child: CurrencyCard(type: CurrencyType.beans, amount: controller.balance.beans)),
+                const Spacer(),
+              ]),
               const SizedBox(height: 24),
               Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                 const Text('Recent Transactions', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),

@@ -40,8 +40,8 @@ class _RoomBottomBarWidgetState extends State<RoomBottomBarWidget> {
         children: [
           // ── Mic Toggle ──────────────────────────────────────────────────
           Obx(() {
-            final muted = ctrl.isUserMuted.value;
-            final onMic = ctrl.myCurrentSeatIndex.value >= 0;
+            final muted = ctrl.isUserMuted;
+            final onMic = (ctrl.myCurrentSeatIndex ?? -1) >= 0;
             if (!onMic) return const SizedBox.shrink();
             return _BarButton(
               icon: muted ? Icons.mic_off : Icons.mic,

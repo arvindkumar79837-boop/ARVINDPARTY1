@@ -6,7 +6,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../room/models/room_models.dart';
-import '../../../room/controllers/room_controller.dart';
+import '../../../room/presentation/controllers/room_controller.dart';
 import '../../../../routes/app_routes.dart';
 
 class RoomListTileWidget extends StatelessWidget {
@@ -145,9 +145,12 @@ class RoomListTileWidget extends StatelessWidget {
   }
 
   void _navigate() {
-    final roomCtrl = Get.find<RoomController>();
-    roomCtrl.joinRoom(room.id);
-    Get.toNamed(AppRoutes.voiceRoom);
+    // Navigate to room screen. Joining logic should be handled by the room
+    // screen/controller to avoid calling potentially non-existent methods here.
+    // If a join method is available on RoomController, it can be invoked there.
+    final roomController = Get.put<RoomController>(RoomController(roomId: room.id, roomOwnerId: room.hostId), tag: room.id);
+    roomController.fetchRoomDetail(room.id);
+    Get.toNamed(AppRoutes.voiceRoom, arguments: {'roomId': room.id});
   }
 
   void _showPasswordDialog() {

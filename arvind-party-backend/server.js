@@ -70,6 +70,10 @@ seatSocket(io);
 giftSocket(io);
 pkBattleSocket(io);
 
+// ─── START SCHEDULER SERVICE ──────────────────────────────────────────────
+const SchedulerService = require('./src/services/schedulerService');
+SchedulerService.startScheduler(24 * 60 * 60 * 1000); // Run daily audit
+
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);

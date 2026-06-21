@@ -34,7 +34,7 @@ class ApiService extends getx.GetxService {
     _dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) {
         try {
-          final token = getx.Get.find<AuthSessionManager>().token;
+          final token = getx.Get.find<AuthSessionManager>().token.value;
           if (token != null && token.isNotEmpty) {
             options.headers['Authorization'] = 'Bearer $token';
           }
@@ -62,7 +62,7 @@ class ApiService extends getx.GetxService {
   }
 
   String? getToken() {
-    return _authSession.token;
+    return _authSession.token.value;
   }
 
   void clearToken() {

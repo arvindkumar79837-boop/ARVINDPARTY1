@@ -17,12 +17,11 @@ import 'core/services/auth_session_manager.dart';
 import 'core/utils/network_manager.dart';
 import 'features/auth/presentation/repositories/auth_repository.dart';
 import 'features/home/services/user_repository.dart';
-import 'features/room/services/room_repository.dart';
-import 'features/chat/services/chat_repository.dart';
-import 'features/wallet/services/wallet_repository.dart';
-import 'features/gift/services/gift_repository.dart';
+import 'features/room/presentation/repositories/room_repository.dart';
+import 'features/chat/presentation/repositories/chat_repository.dart';
+import 'features/gift/presentation/repositories/gift_repository.dart';
 
-void main() async {
+void main() { // 👈 1. यहाँ से 'async' को हटा दीजिए
   WidgetsFlutterBinding.ensureInitialized();
 
   SystemChrome.setSystemUIOverlayStyle(
@@ -32,29 +31,41 @@ void main() async {
     ),
   );
 
-  await SystemChrome.setPreferredOrientations([
+  SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
 
-  await Firebase.initializeApp();
-  await GetStorage.init();
-
-  // ─── CORE SERVICES (Permanent) ────────────────────────────────────
-  Get.put<ApiService>(ApiService(), permanent: true);
-  Get.put<SocketService>(SocketService(), permanent: true);
-  Get.put<AuthSessionManager>(AuthSessionManager(), permanent: true);
-
-  // ─── REPOSITORIES (Permanent) ─────────────────────────────────────
-  Get.put<NetworkManager>(NetworkManager(), permanent: true);
-  Get.put<AuthRepository>(AuthRepository(), permanent: true);
-  Get.put<UserRepository>(UserRepository(), permanent: true);
-  Get.put<RoomRepository>(RoomRepository(), permanent: true);
-  Get.put<ChatRepository>(ChatRepository(), permanent: true);
-  Get.put<WalletRepository>(WalletRepository(), permanent: true);
-  Get.put<GiftRepository>(GiftRepository(), permanent: true);
-
+  // 👈 2. ऐप को तुरंत चालू कर दें ताकि वाइट स्क्रीन तुरंत गायब हो जाए
   runApp(const ArvindPartyApp());
+
+  // 👈 3. अब भारी बैकएंड सर्विसेज को बैकग्राउंड में आराम से लोड होने दें
+  initAsynchronousServices();
+}
+
+// 👈 4. यह नया फंक्शन सारी भारी सर्विसेज को बैकग्राउंड में चलाएगा
+void initAsynchronousServices() async {
+  try {
+    await Firebase.initializeApp();
+    await GetStorage.init();
+
+    // ─── CORE SERVICES (Permanent) ────────────────────────────────────
+    Get.put<ApiService>(ApiService(), permanent: true);
+    Get.put<SocketService>(SocketService(), permanent: true);
+    Get.put<AuthSessionManager>(AuthSessionManager(), permanent: true);
+
+    // ─── REPOSITORIES (Permanent) ─────────────────────────────────────
+    Get.put<NetworkManager>(NetworkManager(), permanent: true);
+    Get.put<AuthRepository>(AuthRepository(), permanent: true);
+    Get.put<UserRepository>(UserRepository(), permanent: true);
+    Get.put<RoomRepository>(RoomRepository(), permanent: true);
+    Get.put<ChatRepository>(ChatRepository(), permanent: true);
+    Get.put<GiftRepository>(GiftRepository(), permanent: true);
+
+    debugPrint('🚀 [Arvind Party] सारी बैकएंड सर्विसेज सफलतापूर्वक बैकग्राउंड में लोड हो गईं!');
+  } catch (e) {
+    debugPrint('⚠️ सर्विसेज लोड करने में दिक्कत आई: $e');
+  }
 }
 
 class ArvindPartyApp extends StatelessWidget {

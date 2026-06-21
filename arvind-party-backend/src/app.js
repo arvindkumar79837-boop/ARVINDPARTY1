@@ -4,9 +4,12 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const errorHandler = require('./middlewares/errorHandler.middleware');
 const corsConfig = require('./config/cors');
+const requestLoggerMiddleware = require('./middlewares/request-logger.middleware');
+const Logger = require('./utils/logger');
 
 // ─── IMPORTING ALL PRODUCTION ROUTES ───────────────────────────────────────
 const authRoutes = require('./routes/auth.routes');
+const googleAuthRoutes = require('./routes/googleAuthRoutes');
 const userRoutes = require('./routes/user.routes');
 const adminRoutes = require('./routes/adminRoutes');
 const staffRoutes = require('./routes/staffRoutes');
@@ -26,6 +29,7 @@ const vipRoutes = require('./routes/vipRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 const appUserRoutes = require('./routes/appUserRoutes');
 const levelRoutes = require('./routes/level.routes');
+const agoraRoutes = require('./controllers/agoraController');
 const inventoryRoutes = require('./routes/inventory.routes');
 const creatorRoutes = require('./routes/creator.routes');
 const supportRoutes = require('./routes/support.routes');
@@ -34,11 +38,13 @@ const referralRoutes = require('./routes/referral.routes');
 const momentRoutes = require('./routes/momentRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const eventRoutes = require('./routes/eventRoutes');
+const targetRoutes = require('./routes/targetRoutes');
 
 const app = express();
 
 // ─── SECURITY MIDDLEWARES ────────────────────────────────────────────────
 app.use(helmet()); // Protects against XSS, clickjacking, etc.
+app.use(requestLoggerMiddleware); // Log all incoming requests
 app.use(corsConfig); // Enable CORS for Web Panel & App
 
 // Increase JSON body size for Base64 image uploads if necessary
@@ -52,6 +58,21 @@ const apiLimiter = rateLimit({
   message: { success: false, message: 'Too many requests from this IP, please try again later.' }
 });
 app.use('/api/', apiLimiter);
+
+// ─── STRICT RATE LIMITING FOR AUTH ENDPOINTS ───────────────────────────────
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // max 5 attempts per IP per 15 min
+  skipSuccessfulRequests: false, // count all requests
+  message: { success: false, message: 'Too many login attempts. Please try again later.' }
+});
+
+const otpLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 3, // max 3 OTP attempts per minute
+  skipSuccessfulRequests: false,
+  message: { success: false, message: 'Too many OTP verification attempts. Please try again in 1 minute.' }
+});
 
 // ─── WELCOME & HEALTH CHECK ROUTES ─────────────────────────────────────────
 app.get('/', (req, res) => {
@@ -74,7 +95,8 @@ app.get('/health', (req, res) => {
 });
 
 // ─── MOUNTING ROUTES ─────────────────────────────────────────────────────
-app.use('/api/auth', authRoutes);
+app.use('/api/auth', authLimiter, authRoutes);
+app.use('/api/auth/social', googleAuthRoutes); // Google + Apple OAuth
 app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);         // Dashboard, Coin Control, Ban, Withdrawals
 app.use('/api/staff', staffRoutes);         // Staff Management (Owner Only)
@@ -95,15 +117,17 @@ app.use('/api/chat', chatRoutes);               // Chat Message History
 app.use('/api/app-users', appUserRoutes);       // App User Actions (Agency, Withdrawal)
 
 // ─── NEW ROUTES ────────────────────────────────────────────────────────────
-app.use('/api/users', levelRoutes);             // User Levels & XP
+app.use('/api/level', levelRoutes);             // User Levels & XP
 app.use('/api/inventory', inventoryRoutes);     // User Inventory
 app.use('/api/creator', creatorRoutes);         // Creator Economy
 app.use('/api/support', supportRoutes);         // Support & Tickets
 app.use('/api/moderation', moderationRoutes);   // Reports & Moderation
-app.use('/api/system', referralRoutes);         // Referral System
+app.use('/api/referral', referralRoutes);       // Referral System
+app.use('/api/room', agoraRoutes);              // Agora token & seat management
 app.use('/api/moments', momentRoutes);          // Moments / Posts Feed
 app.use('/api/notifications', notificationRoutes); // Notifications
 app.use('/api/events', eventRoutes);            // Events
+app.use('/api/targets', targetRoutes);          // Streamer Targets & 50-50 Split
 
 // ─── 404 HANDLER ───────────────────────────────────────────────────────────
 app.use((req, res) => {

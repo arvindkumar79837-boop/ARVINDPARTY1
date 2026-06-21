@@ -4,10 +4,13 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import 'package:get/get.dart';
+import '../repositories/notifications_repository.dart';
 
 class NotificationsController extends GetxController {
   final isLoading = false.obs;
   final notifications = <Map<String, dynamic>>[].obs;
+
+  final NotificationsRepository _notificationsRepository = NotificationsRepository();
 
   @override
   void onInit() {
@@ -18,8 +21,8 @@ class NotificationsController extends GetxController {
   Future<void> fetchNotifications() async {
     try {
       isLoading.value = true;
-      // TODO: NotificationsRepository().fetchNotifications();
-      await Future.delayed(const Duration(milliseconds: 500));
+      final result = await _notificationsRepository.fetchNotifications();
+      notifications.assignAll(result);
     } catch (e) {
       Get.snackbar('Error', 'Failed to load notifications');
     } finally {
@@ -27,7 +30,16 @@ class NotificationsController extends GetxController {
     }
   }
 
-  void markAsRead(String notificationId) {
-    // TODO: NotificationsRepository().markAsRead(notificationId);
+  Future<void> markAsRead(String notificationId) async {
+    try {
+      await _notificationsRepository.markAsRead(notificationId);
+      final index = notifications.indexWhere((n) => n['id'] == notificationId);
+      if (index != -1) {
+        notifications[index] = {...notifications[index], 'read': true};
+        notifications.refresh();
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to mark notification as read');
+    }
   }
 }

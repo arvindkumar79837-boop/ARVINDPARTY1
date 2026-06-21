@@ -13,7 +13,7 @@ class GameLeaderboardScreen extends GetView<RankingController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Leaderboard')),
+      appBar: AppBar(title: Obx(() => Text(controller.screenTitle))),
       body: Obx(() {
         if (controller.isLoading.value) {
           return const Center(child: CircularProgressIndicator());
@@ -28,13 +28,19 @@ class GameLeaderboardScreen extends GetView<RankingController> {
           itemCount: controller.rankings.length,
           itemBuilder: (context, index) {
             final entry = controller.rankings[index];
+            final name = entry['userName'] ?? entry['name'] ?? entry['username'] ?? 'Unknown';
+            final score = entry[controller.scoreField] ?? entry['score'] ?? 0;
+
             return ListTile(
               leading: CircleAvatar(
                 backgroundColor: index < 3 ? const Color(0xFFD4AF37) : const Color(0xFF2D2D44),
-                child: const Text('\${index + 1}', style: TextStyle(color: Colors.white)),
+                child: Text('${index + 1}', style: const TextStyle(color: Colors.white)),
               ),
-              title: Text(entry['userName'] ?? '', style: const TextStyle(color: Colors.white)),
-              trailing: Text('${entry['score']} pts', style: const TextStyle(color: Color(0xFFD4AF37))),
+              title: Text(name.toString(), style: const TextStyle(color: Colors.white)),
+              trailing: Text(
+                '$score',
+                style: const TextStyle(color: Color(0xFFD4AF37)),
+              ),
             );
           },
         );

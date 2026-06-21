@@ -52,7 +52,7 @@ class CoinSellerHomeScreen extends GetView<CoinSellerController> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text('\$${seller.pricePerCoin.toStringAsFixed(2)}/coin', style: const TextStyle(color: const Color(0xFFFF8906), fontWeight: FontWeight.bold)),
+                    Text('\$${seller.pricePerCoin.toStringAsFixed(2)}/coin', style: const TextStyle(color: Color(0xFFFF8906), fontWeight: FontWeight.bold)),
                     const SizedBox(height: 4),
                     Row(
                       mainAxisSize: MainAxisSize.min,

@@ -208,6 +208,35 @@ enum MemberRole {
   member,
 }
 
+enum VoiceEffect {
+  none,
+  robot,
+  echo,
+  reverb,
+  highPitch,
+  lowPitch,
+}
+
+enum SeatStatus {
+  empty,
+  occupied,
+  locked,
+  reserved,
+}
+
+enum RoomType {
+  voice,
+  video,
+  chat,
+  gaming,
+  music,
+  podcast,
+  interview,
+  meeting,
+  event,
+  social,
+}
+
 class RoomMemberModel {
   final String id;
   final String userId;
@@ -361,6 +390,27 @@ class SeatData {
   });
 
   bool get isOccupied => userId != null && userId!.isNotEmpty;
+
+  String? get avatar => userAvatar;
+
+  bool get isHost => userId == 'host';
+
+  bool get isSpeaking => false;
+
+  String get seatNumber => '${index + 1}';
+
+  /// Get seat status based on occupied/locked state
+  SeatStatus get status {
+    if (isLocked) return SeatStatus.locked;
+    if (isOccupied) return SeatStatus.occupied;
+    return SeatStatus.empty;
+  }
+
+  /// Alias for index (used as seat identifier in UI)
+  int get seatId => index;
+
+  /// Alias for isHost (used in UI for highlighting host seat)
+  bool get isHostSeat => isHost;
 
   factory SeatData.fromJson(Map<String, dynamic> json) {
     return SeatData(

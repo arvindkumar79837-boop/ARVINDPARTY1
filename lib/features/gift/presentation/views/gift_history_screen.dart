@@ -29,13 +29,17 @@ class GiftHistoryScreen extends GetView<GiftController> {
           itemCount: controller.giftHistory.length,
           itemBuilder: (context, index) {
             final item = controller.giftHistory[index];
+            final sender = item.senderName;
+            final receiver = item.receiverName;
+            final giftName = item.gift.name;
+            final giftPrice = item.gift.price;
             return Card(
               color: const Color(0xFF1A1A2E),
               child: ListTile(
                 leading: const Icon(Icons.card_giftcard, color: Color(0xFFFF8906)),
-                title: Text('${item.senderName} → ${item.receiverName}', style: const TextStyle(color: Colors.white)),
-                subtitle: Text(item.gift.name, style: const TextStyle(color: Colors.grey)),
-                trailing: Text('${item.gift.price} coins', style: const TextStyle(color: Color(0xFFD4AF37))),
+                title: Text('$sender → $receiver', style: const TextStyle(color: Colors.white)),
+                subtitle: Text(giftName, style: const TextStyle(color: Colors.grey)),
+                trailing: Text('$giftPrice coins', style: const TextStyle(color: Color(0xFFD4AF37))),
               ),
             );
           },

@@ -4,11 +4,13 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import 'package:get/get.dart';
+import '../repositories/family_repository.dart';
 
 class FamilyController extends GetxController {
   final isLoading = false.obs;
   final families = <Map<String, dynamic>>[].obs;
   final selectedFamily = Rxn<Map<String, dynamic>>();
+  final FamilyRepository _repo = FamilyRepository();
 
   @override
   void onInit() {
@@ -19,8 +21,8 @@ class FamilyController extends GetxController {
   Future<void> fetchFamilies() async {
     try {
       isLoading.value = true;
-      // TODO: FamilyRepository().fetchFamilies();
-      await Future.delayed(const Duration(milliseconds: 500));
+      final result = await _repo.fetchFamilies();
+      families.assignAll(result);
     } catch (e) {
       Get.snackbar('Error', 'Failed to load families');
     } finally {

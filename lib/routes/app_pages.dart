@@ -5,15 +5,52 @@
 
 import 'package:get/get.dart';
 
+// Media
+import '../features/media/presentation/views/media_player_screen.dart';
+import '../features/media/presentation/views/youtube_screen.dart';
+import '../features/media/presentation/views/playlist_screen.dart';
+import '../features/media/presentation/views/sound_effects_panel.dart';
+import '../features/media/presentation/bindings/media_binding.dart';
+
+// Level
+import '../features/level/presentation/views/level_screen.dart';
+import '../features/level/presentation/bindings/level_binding.dart';
+
+// Inventory
+import '../features/inventory/presentation/views/inventory_screen.dart';
+import '../features/inventory/presentation/bindings/inventory_binding.dart';
+
+// Support
+import '../features/support/presentation/views/support_screen.dart';
+import '../features/support/presentation/bindings/support_binding.dart';
+
+// Settings
+import '../features/settings/presentation/views/settings_screen.dart';
+import '../features/settings/presentation/bindings/settings_binding.dart';
+
 // Splash
 import '../features/splash/presentation/views/splash_screen.dart';
 import '../features/splash/presentation/bindings/splash_binding.dart';
+
+// Room Admin
+import '../features/room/presentation/views/host_controls_screen.dart';
+import '../features/room/presentation/views/moderator_controls_screen.dart';
+import '../features/room/presentation/views/room_lock_screen.dart';
+import '../features/room/presentation/views/room_background_screen.dart';
+import '../features/room/presentation/views/room_analytics_screen.dart';
 
 // Auth
 import '../features/auth/presentation/views/login_screen.dart';
 import '../features/auth/presentation/views/signup_screen.dart';
 import '../features/auth/presentation/views/phone_auth_screen.dart';
 import '../features/auth/presentation/views/otp_screen.dart';
+import '../features/auth/presentation/views/email_login_screen.dart';
+import '../features/auth/presentation/views/social_login_screen.dart';
+import '../features/auth/presentation/views/password_reset_screen.dart';
+import '../features/auth/presentation/views/device_binding_screen.dart';
+import '../features/auth/presentation/views/multi_device_control_screen.dart';
+import '../features/auth/presentation/views/session_management_screen.dart';
+import '../features/auth/presentation/views/account_security_screen.dart';
 import '../features/auth/presentation/bindings/auth_binding.dart';
 
 // Home
@@ -28,22 +65,26 @@ import '../features/profile/presentation/views/user_profile_view.dart';
 import '../features/profile/presentation/views/mission_screen.dart' as profile_mission;
 import '../features/profile/presentation/bindings/profile_binding.dart';
 
-// User Profile System
-import '../features/user_profile/views/my_profile_screen.dart';
-import '../features/user_profile/views/other_profile_screen.dart';
-import '../features/user_profile/views/edit_profile_screen.dart';
-import '../features/user_profile/models/user_profile_model.dart';
-import '../features/user_profile/bindings/profile_binding.dart' as user_profile_binding;
-
 // Wallet
 import '../features/wallet/presentation/views/wallet_screen.dart';
 import '../features/wallet/presentation/views/withdrawal_screen.dart';
 import '../features/wallet/presentation/views/withdrawal_management_view.dart';
+import '../features/wallet/presentation/views/coin_wallet_screen.dart';
+import '../features/wallet/presentation/views/diamond_wallet_screen.dart';
+import '../features/wallet/presentation/views/reward_wallet_screen.dart';
+import '../features/wallet/presentation/views/treasury_panel_screen.dart';
 import '../features/wallet/presentation/bindings/wallet_binding.dart';
 
 // Lucky Draw
 import '../features/lucky_draw/presentation/views/lucky_draw_screen.dart';
 import '../features/lucky_draw/presentation/bindings/lucky_draw_binding.dart';
+
+// Games
+import '../features/games/presentation/views/game_screen.dart';
+import '../features/games/presentation/views/scratch_card_screen.dart';
+import '../features/games/presentation/views/game_leaderboard_screen.dart' as games_leaderboard;
+import '../features/games/presentation/views/game_history_screen.dart';
+import '../features/games/presentation/bindings/games_binding.dart';
 
 // Events
 import '../features/events/presentation/views/events_screen.dart';
@@ -57,8 +98,8 @@ import '../features/search/presentation/bindings/search_binding.dart';
 import '../features/wallet/presentation/views/user_center_screen.dart';
 
 // VIP System
-import '../features/vip_system/views/vip_screen.dart';
-import '../features/vip_system/bindings/vip_binding.dart';
+import '../features/vip/views/vip_screen.dart';
+import '../features/vip/bindings/vip_binding.dart';
 
 // Ranking
 import '../features/ranking/presentation/views/game_leaderboard_screen.dart';
@@ -69,25 +110,25 @@ import '../features/shop/presentation/views/shop_screen.dart';
 import '../features/shop/presentation/bindings/shop_binding.dart';
 
 // Room
-import '../features/room/views/room_list_screen.dart';
-import '../features/room/views/room_detail_screen.dart';
-import '../features/room/bindings/room_binding.dart';
+import '../features/room/presentation/views/room_list_screen.dart';
+import '../features/room/presentation/views/room_detail_screen.dart';
+import '../features/room/presentation/bindings/room_binding.dart';
 
 // Gift
 import '../features/gift/presentation/views/gift_history_screen.dart';
 import '../features/gift/presentation/views/gift_ranking_screen.dart';
-import '../features/gift/views/gift_screen.dart';
+import '../features/gift/presentation/views/gift_screen.dart';
 import '../features/gift/presentation/bindings/gift_binding.dart';
 
 // Chat
-import '../features/chat/views/room_chat_screen.dart';
+import '../features/chat/presentation/views/room_chat_screen.dart';
 
-import '../features/chat/bindings/chat_binding.dart';
+import '../features/chat/presentation/bindings/chat_binding.dart';
 
 // Friend
-import '../features/friend/views/friend_screen.dart';
-import '../features/friend/views/friend_search_screen.dart';
-import '../features/friend/bindings/friend_binding.dart';
+import '../features/friend/presentation/views/friend_screen.dart';
+import '../features/friend/presentation/views/friend_search_screen.dart';
+import '../features/friend/presentation/bindings/friend_binding.dart';
 
 // Block
 import '../features/block/views/blacklist_screen.dart';
@@ -101,14 +142,19 @@ import '../features/notifications/presentation/bindings/notifications_binding.da
 import '../features/family/presentation/views/family_screen.dart';
 import '../features/family/presentation/views/family_chat_screen.dart';
 import '../features/family/presentation/views/family_members_screen.dart';
-import '../features/family/presentation/views/family_events_screen.dart';
+import '../features/family/presentation/views/family_tasks_screen.dart';
 import '../features/family/presentation/views/family_ranking_screen.dart';
-import '../features/family/presentation/views/family_settings_screen.dart';
+import '../features/family/presentation/views/family_wars_screen.dart';
+import '../features/family/presentation/views/family_wallet_screen.dart';
 import '../features/family/presentation/views/create_family_screen.dart';
 import '../features/family/presentation/bindings/family_binding.dart';
 
 // Coin Seller
-import '../features/cp/presentation/views/coin_seller_home_screen.dart';
+import '../features/cp/presentation/views/coin_seller_home_screen.dart' as cp_home;
+import '../features/cp/presentation/views/coin_seller_profile_screen.dart' as cp_profile;
+import '../features/cp/presentation/views/coin_seller_ranking_screen.dart' as cp_ranking;
+import '../features/cp/presentation/views/recharge_history_screen.dart' as cp_recharge;
+import '../features/cp/presentation/views/settlement_history_screen.dart' as cp_settlement;
 import '../features/cp/presentation/bindings/coin_seller_binding.dart';
 
 // Agency
@@ -118,9 +164,15 @@ import '../features/agency/presentation/views/agency_events_screen.dart';
 import '../features/agency/presentation/views/agency_analytics_screen.dart';
 import '../features/agency/presentation/views/agency_salary_screen.dart';
 import '../features/agency/presentation/views/agency_ranking_screen.dart';
-import '../features/agency/presentation/views/agency_settings_screen.dart';
+import '../features/agency/presentation/views/agency_leaderboard_screen.dart';
 import '../features/agency/presentation/views/create_agency_screen.dart';
 import '../features/agency/presentation/bindings/agency_binding.dart';
+
+// Admin
+import '../features/admin/presentation/views/admin_dashboard_screen.dart';
+import '../features/admin/presentation/views/staff_management_screen.dart';
+import '../features/admin/presentation/views/broadcast_screen.dart';
+import '../features/admin/presentation/bindings/admin_binding.dart';
 
 import 'app_routes.dart';
 
@@ -157,6 +209,56 @@ class AppPages {
       transition: Transition.rightToLeft,
     ),
     GetPage(
+      name: AppRoutes.emailLogin,
+      page: () => const EmailLoginScreen(),
+      binding: AuthBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.googleLogin,
+      page: () => const SocialLoginScreen(),
+      binding: AuthBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.facebookLogin,
+      page: () => const SocialLoginScreen(),
+      binding: AuthBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.appleLogin,
+      page: () => const SocialLoginScreen(),
+      binding: AuthBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.guestLogin,
+      page: () => const SocialLoginScreen(),
+      binding: AuthBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.passwordReset,
+      page: () => const PasswordResetScreen(),
+      binding: AuthBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.deviceBinding,
+      page: () => const DeviceBindingScreen(),
+      binding: AuthBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.multiDeviceControl,
+      page: () => const MultiDeviceControlScreen(),
+      binding: AuthBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.sessionManagement,
+      page: () => const SessionManagementScreen(),
+      binding: AuthBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.accountSecurity,
+      page: () => const AccountSecurityScreen(),
+      binding: AuthBinding(),
+    ),
+    GetPage(
       name: AppRoutes.completeProfile,
       page: () => CompleteProfileScreen(),
       binding: ProfileBinding(),
@@ -165,7 +267,7 @@ class AppPages {
     // ─── HOME ─────────────────────────────────────────────
     GetPage(
       name: AppRoutes.home,
-      page: () => HomeScreen(),
+      page: () => const HomeScreen(),
       binding: HomeBinding(),
     ),
     GetPage(
@@ -200,26 +302,31 @@ class AppPages {
       page: () => const TransactionHistoryScreen(),
       binding: ProfileBinding(),
     ),
-    GetPage(
-      name: AppRoutes.myProfile,
-      page: () => const MyProfileScreen(),
-      binding: user_profile_binding.ProfileBinding(),
-    ),
-    GetPage(
-      name: AppRoutes.otherProfile,
-      page: () => const OtherProfileScreen(userId: ''),
-      binding: user_profile_binding.ProfileBinding(),
-    ),
-    GetPage(
-      name: AppRoutes.editProfile,
-      page: () => EditProfileScreen(profile: UserProfile(userId: '', username: '', createdAt: DateTime.now())),
-      binding: user_profile_binding.ProfileBinding(),
-    ),
 
     // ─── WALLET ───────────────────────────────────────────
     GetPage(
       name: AppRoutes.wallet,
       page: () => const WalletScreen(),
+      binding: WalletBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.coinWallet,
+      page: () => const CoinWalletScreen(),
+      binding: WalletBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.diamondWallet,
+      page: () => const DiamondWalletScreen(),
+      binding: WalletBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.rewardWallet,
+      page: () => const RewardWalletScreen(),
+      binding: WalletBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.treasuryPanel,
+      page: () => const TreasuryPanelScreen(),
       binding: WalletBinding(),
     ),
     GetPage(
@@ -246,8 +353,33 @@ class AppPages {
     ),
     GetPage(
       name: AppRoutes.gameCenter,
-      page: () => const GameLeaderboardScreen(),
+      page: () => const games_leaderboard.GameLeaderboardScreen(),
       binding: RankingBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.games,
+      page: () => const GameScreen(),
+      binding: GamesBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.luckyNumber,
+      page: () => const ScratchCardScreen(),
+      binding: GamesBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.diceGame,
+      page: () => const ScratchCardScreen(),
+      binding: GamesBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.miniCompetitions,
+      page: () => const GameLeaderboardScreen(),
+      binding: GamesBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.drawHistory,
+      page: () => const GameHistoryScreen(),
+      binding: GamesBinding(),
     ),
 
     // ─── EVENTS ──────────────────────────────────────────
@@ -274,19 +406,49 @@ class AppPages {
     // ─── ROOM ──────────────────────────────────────────────
     GetPage(
       name: AppRoutes.roomList,
-      page: () => RoomListScreen(),
+      page: () => const RoomListScreen(),
       binding: RoomBinding(),
     ),
     GetPage(
       name: AppRoutes.roomDetail,
       page: () => const RoomDetailScreen(),
-      binding: RoomBinding(),
+      binding: RoomBinding(roomId: '', roomOwnerId: ''),
     ),
     GetPage(
       name: AppRoutes.voiceRoom,
-      page: () => RoomListScreen(),
-      binding: RoomBinding(),
+      page: () => const RoomListScreen(),
+      binding: RoomBinding(roomId: '', roomOwnerId: ''),
       transition: Transition.downToUp,
+    ),
+    GetPage(
+      name: AppRoutes.hostControls,
+      page: () => const HostControlsScreen(roomId: ''),
+      binding: RoomBinding(roomId: '', roomOwnerId: ''),
+    ),
+    GetPage(
+      name: AppRoutes.coHostControls,
+      page: () => const HostControlsScreen(roomId: ''),
+      binding: RoomBinding(roomId: '', roomOwnerId: ''),
+    ),
+    GetPage(
+      name: AppRoutes.moderatorControls,
+      page: () => const ModeratorControlsScreen(roomId: ''),
+      binding: RoomBinding(roomId: '', roomOwnerId: ''),
+    ),
+    GetPage(
+      name: AppRoutes.roomLock,
+      page: () => const RoomLockScreen(),
+      binding: RoomBinding(roomId: '', roomOwnerId: ''),
+    ),
+    GetPage(
+      name: AppRoutes.roomBackground,
+      page: () => const RoomBackgroundScreen(),
+      binding: RoomBinding(roomId: '', roomOwnerId: ''),
+    ),
+    GetPage(
+      name: AppRoutes.roomAnalytics,
+      page: () => const RoomAnalyticsScreen(),
+      binding: RoomBinding(roomId: '', roomOwnerId: ''),
     ),
     GetPage(
       name: AppRoutes.giftStatistics,
@@ -353,7 +515,7 @@ class AppPages {
     ),
     GetPage(
       name: AppRoutes.familyTasks,
-      page: () => const FamilyEventsScreen(),
+      page: () => const FamilyTasksScreen(),
       binding: FamilyBinding(),
     ),
     GetPage(
@@ -363,34 +525,39 @@ class AppPages {
     ),
     GetPage(
       name: AppRoutes.familyWars,
-      page: () => const FamilySettingsScreen(),
+      page: () => const FamilyWarsScreen(),
+      binding: FamilyBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.familyWallet,
+      page: () => const FamilyWalletScreen(),
       binding: FamilyBinding(),
     ),
 
     // ─── COIN SELLER ─────────────────────────────────────
     GetPage(
       name: AppRoutes.coinSeller,
-      page: () => const CoinSellerHomeScreen(),
+      page: () => const cp_home.CoinSellerHomeScreen(),
       binding: CoinSellerBinding(),
     ),
     GetPage(
       name: AppRoutes.coinSellerProfile,
-      page: () => const CoinSellerProfileScreen(),
+      page: () => const cp_profile.CoinSellerProfileScreen(),
       binding: CoinSellerBinding(),
     ),
     GetPage(
       name: AppRoutes.coinSellerRanking,
-      page: () => const CoinSellerRankingScreen(),
+      page: () => const cp_ranking.CoinSellerRankingScreen(),
       binding: CoinSellerBinding(),
     ),
     GetPage(
       name: AppRoutes.rechargeHistory,
-      page: () => const RechargeHistoryScreen(),
+      page: () => const cp_recharge.RechargeHistoryScreen(),
       binding: CoinSellerBinding(),
     ),
     GetPage(
       name: AppRoutes.settlementHistory,
-      page: () => const SettlementHistoryScreen(),
+      page: () => const cp_settlement.SettlementHistoryScreen(),
       binding: CoinSellerBinding(),
     ),
 
@@ -432,8 +599,75 @@ class AppPages {
     ),
     GetPage(
       name: AppRoutes.agencyLeaderboard,
-      page: () => const AgencySettingsScreen(),
+      page: () => const AgencyLeaderboardScreen(),
       binding: AgencyBinding(),
+    ),
+
+    // ─── MEDIA / MUSIC ───────────────────────────────────
+    GetPage(
+      name: AppRoutes.mediaPlayer,
+      page: () => const MediaPlayerScreen(),
+      binding: MediaBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.youtube,
+      page: () => const YoutubeScreen(),
+      binding: MediaBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.playlist,
+      page: () => const PlaylistScreen(),
+      binding: MediaBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.soundEffects,
+      page: () => const SoundEffectsPanel(),
+      binding: MediaBinding(),
+    ),
+
+    // ─── LEVEL & XP ─────────────────────────────────────
+    GetPage(
+      name: AppRoutes.levelPage,
+      page: () => const LevelScreen(),
+      binding: LevelBinding(),
+    ),
+
+    // ─── INVENTORY / BACKPACK ───────────────────────────
+    GetPage(
+      name: AppRoutes.inventory,
+      page: () => const InventoryScreen(),
+      binding: InventoryBinding(),
+    ),
+
+    // ─── SUPPORT & TICKETING ────────────────────────────
+    GetPage(
+      name: AppRoutes.support,
+      page: () => const SupportScreen(),
+      binding: SupportBinding(),
+    ),
+
+    // ─── SETTINGS & PRIVACY ─────────────────────────────
+    GetPage(
+      name: AppRoutes.settingsPage,
+      page: () => const SettingsScreen(),
+      binding: SettingsBinding(),
+    ),
+
+    // ─── ADMIN PANEL ────────────────────────────────────
+    GetPage(
+      name: '/admin',
+      page: () => const AdminDashboardScreen(),
+      binding: AdminBinding(),
+    ),
+    GetPage(
+      name: '/admin/staff',
+      page: () => const StaffManagementScreen(),
+      binding: AdminBinding(),
+    ),
+    GetPage(
+      name: '/admin/broadcast',
+      page: () => const BroadcastScreen(),
+      binding: AdminBinding(),
     ),
   ];
 }
