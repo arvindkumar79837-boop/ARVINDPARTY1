@@ -14,7 +14,11 @@ import '../../models/auth_model.dart';
 class AuthRepository {
   final Dio _dio =  Dio(BaseOptions(baseUrl: EnvConfig.plainApiBaseUrl));
 
-  AuthSessionManager get _session => Get.find<AuthSessionManager>();
+  AuthRepository();
+
+  AuthSessionManager get _session {
+    return Get.find<AuthSessionManager>();
+  }
 
   String _getAuthHeader() {
     final token =  _session.token;
@@ -214,6 +218,298 @@ class AuthRepository {
         return User.fromBackendJson(data['data']);
       }
       throw ApiException(message: 'Failed to fetch user');
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e.response?.data ?? {'message': e.message});
+    }
+  }
+
+  /// Social Login (Google, Apple, Facebook, Snapchat, Instagram, Guest)
+  /// Matches backend: POST /api/auth/social/login
+  Future<AuthResponse> socialLogin({
+    required String provider,
+    required String providerUid,
+    String? email,
+    String? displayName,
+    String? photoUrl,
+    Map<String, dynamic>? deviceInfo,
+  }) async {
+    try {
+      final response = await _dio.post(
+        '/auth/social/login',
+        data: {
+          'provider': provider,
+          'providerUid': providerUid,
+          if (email != null) 'email': email,
+          if (displayName != null) 'displayName': displayName,
+          if (photoUrl != null) 'photoUrl': photoUrl,
+          if (deviceInfo != null) 'deviceInfo': deviceInfo,
+        },
+      );
+
+      final data = response.data as Map<String, dynamic>;
+      if (data['success'] == true) {
+        final auth = AuthResponse.fromBackendJson(data);
+        await _session.saveSession(
+          token: auth.token,
+          userId: auth.user.id,
+          userName: auth.user.username,
+          userEmail: auth.user.email ?? '',
+          userAvatar: auth.user.avatar ?? '',
+        );
+        return auth;
+      }
+      throw ApiException(message: data['message'] ?? 'Social login failed');
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e.response?.data ?? {'message': e.message});
+    }
+  }
+
+  /// Guest Login
+  /// Matches backend: POST /api/auth/social/guest-login
+  Future<AuthResponse> guestLogin({Map<String, dynamic>? deviceInfo}) async {
+    try {
+      final response = await _dio.post(
+        '/auth/social/guest-login',
+        data: {
+          if (deviceInfo != null) 'deviceInfo': deviceInfo,
+        },
+      );
+
+      final data = response.data as Map<String, dynamic>;
+      if (data['success'] == true) {
+        final auth = AuthResponse.fromBackendJson(data);
+        await _session.saveSession(
+          token: auth.token,
+          refreshTokenValue: auth.refreshToken,
+          userId: auth.user.id,
+          userName: auth.user.username,
+          isGuest: true,
+        );
+        return auth;
+      }
+      throw ApiException(message: data['message'] ?? 'Guest login failed');
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e.response?.data ?? {'message': e.message});
+    }
+  }
+
+  /// Get Active Sessions / Devices
+  /// Matches backend: GET /api/security/devices/sessions
+  Future<List<Map<String, dynamic>>> getActiveSessions() async {
+    try {
+      final response = await _dio.get(
+        '/security/devices/sessions',
+        options: Options(headers: {'Authorization': _getAuthHeader()}),
+      );
+
+      final data = response.data as Map<String, dynamic>;
+      if (data['success'] == true) {
+        return List<Map<String, dynamic>>.from(data['data']['sessions'] ?? []);
+      }
+      return [];
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e.response?.data ?? {'message': e.message});
+    }
+  }
+
+  /// Get Login History
+  /// Matches backend: GET /api/security/login-history
+  Future<Map<String, dynamic>> getLoginHistory({int page = 1, int limit = 50}) async {
+    try {
+      final response = await _dio.get(
+        '/security/login-history',
+        options: Options(headers: {'Authorization': _getAuthHeader()}),
+        queryParameters: {'page': page, 'limit': limit},
+      );
+
+      final data = response.data as Map<String, dynamic>;
+      if (data['success'] == true) {
+        return data['data'];
+      }
+      return {'history': [], 'pagination': {}};
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e.response?.data ?? {'message': e.message});
+    }
+  }
+
+  /// Logout Device
+  /// Matches backend: POST /api/security/devices/sessions/:sessionId/logout
+  Future<bool> logoutDevice(String sessionId) async {
+    try {
+      final response = await _dio.post(
+        '/security/devices/sessions/$sessionId/logout',
+        options: Options(headers: {'Authorization': _getAuthHeader()}),
+      );
+
+      final data = response.data as Map<String, dynamic>;
+      return data['success'] == true;
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e.response?.data ?? {'message': e.message});
+    }
+  }
+
+  /// Trust Device
+  /// Matches backend: POST /api/security/devices/sessions/:sessionId/trust
+  Future<bool> trustDevice(String sessionId) async {
+    try {
+      final response = await _dio.post(
+        '/security/devices/sessions/$sessionId/trust',
+        options: Options(headers: {'Authorization': _getAuthHeader()}),
+      );
+
+      final data = response.data as Map<String, dynamic>;
+      return data['success'] == true;
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e.response?.data ?? {'message': e.message});
+    }
+  }
+
+  /// Forgot Password
+  /// Matches backend: POST /api/security/forgot-password
+  Future<bool> forgotPassword({String? email, String? phone}) async {
+    try {
+      final response = await _dio.post(
+        '/security/forgot-password',
+        data: {
+          if (email != null) 'email': email,
+          if (phone != null) 'phone': phone,
+        },
+      );
+
+      final data = response.data as Map<String, dynamic>;
+      return data['success'] == true;
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e.response?.data ?? {'message': e.message});
+    }
+  }
+
+  /// Get 2FA Status
+  /// Matches backend: GET /api/security/2fa/status
+  Future<Map<String, dynamic>> get2FAStatus() async {
+    try {
+      final response = await _dio.get(
+        '/security/2fa/status',
+        options: Options(headers: {'Authorization': _getAuthHeader()}),
+      );
+
+      final data = response.data as Map<String, dynamic>;
+      if (data['success'] == true) {
+        return data['data'];
+      }
+      return {};
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e.response?.data ?? {'message': e.message});
+    }
+  }
+
+  /// Enable 2FA
+  /// Matches backend: POST /api/security/2fa/enable
+  Future<Map<String, dynamic>> enable2FA({String method = 'totp', String? phone, String? email}) async {
+    try {
+      final response = await _dio.post(
+        '/security/2fa/enable',
+        options: Options(headers: {'Authorization': _getAuthHeader()}),
+        data: {
+          'method': method,
+          if (phone != null) 'phone': phone,
+          if (email != null) 'email': email,
+        },
+      );
+
+      final data = response.data as Map<String, dynamic>;
+      if (data['success'] == true) {
+        return data['data'];
+      }
+      throw ApiException(message: data['message'] ?? 'Failed to enable 2FA');
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e.response?.data ?? {'message': e.message});
+    }
+  }
+
+  /// Verify and Enable 2FA
+  /// Matches backend: POST /api/security/2fa/verify-enable
+  Future<bool> verifyAndEnable2FA(String code) async {
+    try {
+      final response = await _dio.post(
+        '/security/2fa/verify-enable',
+        options: Options(headers: {'Authorization': _getAuthHeader()}),
+        data: {'code': code},
+      );
+
+      final data = response.data as Map<String, dynamic>;
+      return data['success'] == true;
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e.response?.data ?? {'message': e.message});
+    }
+  }
+
+  /// Disable 2FA
+  /// Matches backend: POST /api/security/2fa/disable
+  Future<bool> disable2FA(String code) async {
+    try {
+      final response = await _dio.post(
+        '/security/2fa/disable',
+        options: Options(headers: {'Authorization': _getAuthHeader()}),
+        data: {'code': code},
+      );
+
+      final data = response.data as Map<String, dynamic>;
+      return data['success'] == true;
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e.response?.data ?? {'message': e.message});
+    }
+  }
+
+  /// Get Suspicious Alerts
+  /// Matches backend: GET /api/security/suspicious-alerts
+  Future<List<Map<String, dynamic>>> getSuspiciousAlerts() async {
+    try {
+      final response = await _dio.get(
+        '/security/suspicious-alerts',
+        options: Options(headers: {'Authorization': _getAuthHeader()}),
+      );
+
+      final data = response.data as Map<String, dynamic>;
+      if (data['success'] == true) {
+        return List<Map<String, dynamic>>.from(data['data']['alerts'] ?? []);
+      }
+      return [];
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e.response?.data ?? {'message': e.message});
+    }
+  }
+
+  /// Accept Terms & Privacy
+  /// Matches backend: POST /api/security/terms/accept
+  Future<bool> acceptTerms() async {
+    try {
+      final response = await _dio.post(
+        '/security/terms/accept',
+        options: Options(headers: {'Authorization': _getAuthHeader()}),
+      );
+
+      final data = response.data as Map<String, dynamic>;
+      return data['success'] == true;
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e.response?.data ?? {'message': e.message});
+    }
+  }
+
+  /// Setup Account Recovery
+  /// Matches backend: POST /api/security/recovery/setup
+  Future<bool> setupRecovery({String? recoveryEmail, String? recoveryPhone}) async {
+    try {
+      final response = await _dio.post(
+        '/security/recovery/setup',
+        options: Options(headers: {'Authorization': _getAuthHeader()}),
+        data: {
+          if (recoveryEmail != null) 'recoveryEmail': recoveryEmail,
+          if (recoveryPhone != null) 'recoveryPhone': recoveryPhone,
+        },
+      );
+
+      final data = response.data as Map<String, dynamic>;
+      return data['success'] == true;
     } on DioException catch (e) {
       throw ApiException.fromDioError(e.response?.data ?? {'message': e.message});
     }

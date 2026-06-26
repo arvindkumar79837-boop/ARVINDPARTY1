@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class AgencyManagementView extends StatefulWidget {
-  const AgencyManagementView({Key? key}) : super(key: key);
+  const AgencyManagementView({super.key});
 
   @override
   State<AgencyManagementView> createState() => _AgencyManagementViewState();

@@ -1,0 +1,2 @@
+d:\Alarms\arvind_party\arvind-party-backend\src\workers\analyticsWorker.js
+d:\Alarms\arvind_party\arvind-party-backend\src\workers\giftQueueWorker.js

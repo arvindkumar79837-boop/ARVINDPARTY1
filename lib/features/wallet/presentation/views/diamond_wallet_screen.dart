@@ -1,8 +1,3 @@
-// ═══════════════════════════════════════════════════════════════════════════
-// FILE: lib/features/wallet/presentation/views/diamond_wallet_screen.dart
-// ARVIND PARTY - DIAMOND WALLET SCREEN
-// ═══════════════════════════════════════════════════════════════════════════
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/wallet_controller.dart';
@@ -132,8 +127,8 @@ class DiamondWalletScreen extends StatelessWidget {
               Expanded(
                 child: _buildMiniStat(
                   icon: Icons.swap_horiz_outlined,
-                  label: 'From Coins',
-                  value: '${controller.coinToDiamondRate.value.toStringAsFixed(0)} 💎/coin',
+                  label: 'To Coins',
+                  value: '1/${controller.exchangeRate.value} 💎→🪙',
                   color: Colors.purple,
                 ),
               ),
@@ -252,7 +247,7 @@ class DiamondWalletScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Coins to Diamonds',
+                        'Diamonds to Coins',
                         style: TextStyle(
                           fontSize: 13,
                           color: Colors.white.withAlpha(179),
@@ -260,7 +255,7 @@ class DiamondWalletScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Obx(() => Text(
-                            'Rate: ${controller.coinToDiamondRate.value.toStringAsFixed(0)} 💎 per coin',
+                            'Rate: ${controller.exchangeRate.value} 💎 = 1 🪙',
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
@@ -311,7 +306,7 @@ class DiamondWalletScreen extends StatelessWidget {
               ),
             ),
             TextButton.icon(
-              onPressed: controller.fetchDiamondTransactions,
+              onPressed: () => controller.fetchTransactions(walletType: 'diamond'),
               icon: Icon(
                 Icons.refresh,
                 size: 14,
@@ -447,7 +442,7 @@ class DiamondWalletScreen extends StatelessWidget {
     switch (type) {
       case TransactionType.recharge:
         return Icons.add_circle_outline;
-      case TransactionType.withdraw:
+      case TransactionType.withdrawal:
         return Icons.arrow_circle_right_outlined;
       case TransactionType.giftSent:
         return Icons.card_giftcard_outlined;
@@ -455,33 +450,58 @@ class DiamondWalletScreen extends StatelessWidget {
         return Icons.card_giftcard;
       case TransactionType.eventReward:
         return Icons.emoji_events_outlined;
-      case TransactionType.system:
-        return Icons.settings_outlined;
+      case TransactionType.exchangeIn:
+      case TransactionType.exchangeOut:
+        return Icons.swap_horiz;
+      case TransactionType.reward:
+      case TransactionType.bonus:
+        return Icons.card_giftcard;
+      case TransactionType.taxDeducted:
+      case TransactionType.penalty:
+        return Icons.money_off;
+      case TransactionType.freezeAdjustment:
+        return Icons.lock;
+      case TransactionType.unfreezeAdjustment:
+        return Icons.lock_open;
+      case TransactionType.dailyTaskReward:
+      case TransactionType.loginStreakReward:
+        return Icons.task_alt;
+      case TransactionType.familyTaskReward:
+      case TransactionType.familyContribution:
+        return Icons.group;
+      case TransactionType.agencyCommission:
+      case TransactionType.agencyHostEarning:
+      case TransactionType.agencyWithdrawal:
+        return Icons.business;
+      case TransactionType.adminAdjust:
+        return Icons.admin_panel_settings;
+      case TransactionType.refund:
+        return Icons.refresh;
+      case TransactionType.treasureHuntReward:
+      case TransactionType.luckyDrawReward:
+      case TransactionType.tournamentReward:
+        return Icons.emoji_events;
     }
   }
 
   Color _getTxColor(TransactionType type) {
-    switch (type) {
-      case TransactionType.recharge:
-        return Colors.green;
-      case TransactionType.withdraw:
-        return Colors.red;
-      case TransactionType.giftSent:
-        return Colors.orange;
-      case TransactionType.giftReceived:
-        return Colors.pink;
-      case TransactionType.eventReward:
-        return Colors.blue;
-      case TransactionType.system:
-        return Colors.grey;
-    }
+    if (type == TransactionType.recharge || type == TransactionType.exchangeIn || type == TransactionType.reward || type == TransactionType.bonus || type == TransactionType.refund) return Colors.green;
+    if (type == TransactionType.withdrawal || type == TransactionType.giftSent || type == TransactionType.taxDeducted || type == TransactionType.penalty) return Colors.red;
+    if (type == TransactionType.giftReceived) return Colors.pink;
+    if (type == TransactionType.freezeAdjustment) return Colors.red.shade400;
+    if (type == TransactionType.unfreezeAdjustment) return Colors.green.shade400;
+    if (type == TransactionType.dailyTaskReward || type == TransactionType.loginStreakReward || type == TransactionType.eventReward) return Colors.blue;
+    if (type == TransactionType.familyTaskReward || type == TransactionType.familyContribution) return Colors.teal;
+    if (type == TransactionType.agencyCommission || type == TransactionType.agencyHostEarning) return Colors.deepPurple;
+    if (type == TransactionType.adminAdjust) return Colors.orange;
+    return Colors.grey;
   }
 
   String _getTxLabel(TransactionType type) {
     switch (type) {
       case TransactionType.recharge:
         return 'Recharge';
-      case TransactionType.withdraw:
+      case TransactionType.withdrawal:
         return 'Withdrawal';
       case TransactionType.giftSent:
         return 'Gift Sent';
@@ -489,8 +509,43 @@ class DiamondWalletScreen extends StatelessWidget {
         return 'Gift Received';
       case TransactionType.eventReward:
         return 'Event Reward';
-      case TransactionType.system:
-        return 'System';
+      case TransactionType.exchangeIn:
+        return 'Coin Exchange In';
+      case TransactionType.exchangeOut:
+        return 'Diamond Exchange Out';
+      case TransactionType.reward:
+      case TransactionType.bonus:
+        return 'Reward/Bonus';
+      case TransactionType.dailyTaskReward:
+        return 'Daily Task';
+      case TransactionType.loginStreakReward:
+        return 'Login Streak';
+      case TransactionType.familyTaskReward:
+        return 'Family Task';
+      case TransactionType.familyContribution:
+        return 'Family Contribution';
+      case TransactionType.agencyCommission:
+        return 'Agency Commission';
+      case TransactionType.agencyHostEarning:
+        return 'Host Earning';
+      case TransactionType.agencyWithdrawal:
+        return 'Agency Withdrawal';
+      case TransactionType.taxDeducted:
+        return 'Tax Deducted';
+      case TransactionType.penalty:
+        return 'Penalty';
+      case TransactionType.freezeAdjustment:
+        return 'Wallet Frozen';
+      case TransactionType.unfreezeAdjustment:
+        return 'Wallet Unfrozen';
+      case TransactionType.adminAdjust:
+        return 'Admin Adjustment';
+      case TransactionType.refund:
+        return 'Refund';
+      case TransactionType.treasureHuntReward:
+      case TransactionType.luckyDrawReward:
+      case TransactionType.tournamentReward:
+        return 'Game Reward';
     }
   }
 

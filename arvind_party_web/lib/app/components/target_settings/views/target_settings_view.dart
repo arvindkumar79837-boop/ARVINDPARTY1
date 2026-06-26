@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class TargetSettingsView extends StatefulWidget {
-  const TargetSettingsView({Key? key}) : super(key: key);
+  const TargetSettingsView({super.key});
 
   @override
   State<TargetSettingsView> createState() => _TargetSettingsViewState();

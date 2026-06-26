@@ -1,258 +1,180 @@
-# ARVIND PARTY - Phase 1: Project Structure Analysis
+# ARVIND PARTY Master Report
 
-## 1. Complete Folder Tree
+## Scope
+Static audit generated from the full repository on arvind_party. No runtime verification, database connection, or API execution was performed.
 
+## Phase 1: Project Structure
+
+### Folder Tree
+```text
+arvind_party/
+  - .agents/
+  - android/
+    - .kotlin/
+    - app/
+    - gradle/
+  - arvind-party-backend/
+    - logs/
+    - src/
+    - tests/
+  - arvind_party_web/
+    - assets/
+    - lib/
+    - modules/
+    - test/
+    - web/
+  - assets/
+    - animations/
+    - fonts/
+    - images/
+    - login/
+    - splash/
+  - controllers/
+  - ios/
+    - Flutter/
+    - Runner/
+    - Runner.xcodeproj/
+    - Runner.xcworkspace/
+    - RunnerTests/
+  - lib/
+    - core/
+    - features/
+    - routes/
+    - shared/
+  - linux/
+    - flutter/
+    - runner/
+  - macos/
+    - Flutter/
+    - Runner/
+    - Runner.xcodeproj/
+    - Runner.xcworkspace/
+    - RunnerTests/
+  - reports/
+  - test/
+  - views/
+  - windows/
+    - flutter/
+    - runner/
 ```
-ARVIND_PARTY/
-├── lib/                          # Flutter Mobile App (Dart)
-│   ├── main.dart
-│   ├── core/
-│   ├── features/
-│   ├── routes/
-│   └── shared/
-├── arvind_party_web/             # Flutter Web Panel (Dart)
-│   ├── lib/
-│   │   ├── main.dart
-│   │   ├── app/
-│   │   ├── core/
-│   │   └── routes/
-├── arvind-party-backend/         # Node.js Backend
-│   ├── src/
-│   │   ├── app.js
-│   │   ├── config/
-│   │   ├── controllers/
-│   │   ├── models/
-│   │   ├── routes/
-│   │   ├── services/
-│   │   ├── sockets/
-│   │   └── utils/
-│   ├── server.js
-│   └── package.json
-├── android/                      # Android native
-├── ios/                         # iOS native
-├── windows/                     # Windows native
-├── linux/                       # Linux native
-├── macos/                       # macOS native
-├── assets/                      # Shared assets
-├── lib/                         # Legacy/duplicate mobile app
-└── [config files]
-```
 
-## 2. File Inventory
+### File Inventory
+| Metric | Count |
+|---|---:|
+| Total files scanned | 1066 |
+| Dart files | 460 |
+| JS files | 316 |
+| JSON files | 9 |
+| Asset files | 61 |
+| Markdown files | 19 |
+| Python files | 2 |
+| Mobile Dart files | 355 |
+| Web Dart files | 99 |
+| Backend JS files | 314 |
 
-| Category | Count |
-|----------|-------|
-| **Total Files** | 635 |
-| **Dart Files** | 344 |
-| **JS Files** | 142 |
-| **JSON Files** | 9 |
-| **YAML Files** | 6 |
-| **Markdown Files** | 6 |
-| **Python Files** | 5 |
-| **Asset Files** | 1 |
-| **Config Files** | 15 |
-| **Other Files** | 107 |
+### Duplicate File Names
+- `.gitignore` appears 8 times
+- `CMakeLists.txt` appears 6 times
+- `ic_launcher.png` appears 5 times
+- `launcher_icon.png` appears 5 times
+- `IDEWorkspaceChecks.plist` appears 4 times
+- `AndroidManifest.xml` appears 3 times
+- `Contents.json` appears 3 times
+- `README.md` appears 3 times
+- `contents.xcworkspacedata` appears 3 times
+- `.env` appears 2 times
+- `.metadata` appears 2 times
+- `ARVIND_PARTY_APP_REPORT.md` appears 2 times
+- `ARVIND_PARTY_BACKEND_REPORT.md` appears 2 times
+- `ARVIND_PARTY_MASTER_REPORT.md` appears 2 times
+- `ARVIND_PARTY_WEB_REPORT.md` appears 2 times
+- `AppDelegate.swift` appears 2 times
+- `Debug.xcconfig` appears 2 times
+- `Info.plist` appears 2 times
+- `PRIORITY_FIX_LIST.md` appears 2 times
+- `Poppins-Bold.ttf` appears 2 times
 
-## 3. Dart File Distribution
+### Missing Delivery Artifacts
+- `.github/workflows`
+- `integration_test`
+- `Dockerfile`
+- `docker-compose.yml`
 
-| Location | Count |
-|----------|-------|
-| lib/ (Mobile) | 0 |
-| arvind_party_web/ (Web) | 0 |
-
-## 4. Mobile App Feature Files
-
-| Feature | Screens | Controllers | Services | Models | Widgets | Bindings | Routes | APIs | Repositories |
-|---------|---------|-------------|----------|--------|---------|----------|--------|------|-------------|
-| **Count** | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-
-## 5. Web Panel Module Files
-
-| Module | Files |
-|--------|-------|
-| Admin | 0 |
-| User Management | 0 |
-| Room Management | 0 |
-| Wallet Management | 0 |
-| Agency Management | 0 |
-| Reports | 0 |
-| Settings | 0 |
-
-## 6. Backend Structure
-
-| Component | Count |
-|-----------|-------|
-| Controllers | 0 |
-| Routes | 0 |
-| Models | 0 |
-| Middlewares | 0 |
-| Services | 0 |
-| Sockets | 0 |
-| Configs | 0 |
-| Utils | 0 |
-
-## 7. Missing Files Analysis
-
-### Critical Missing Files (Estimated)
-- No test files detected for mobile app
-- No dedicated API service layer files in web panel (uses direct API calls)
-- Missing cloud functions directory
-- Missing CI/CD configuration files
-- Missing environment-specific config files
-
-### Potential Duplicates
-- Two Flutter projects detected: `lib/` and `arvind_party_web/` (both contain Dart code)
-- This suggests either migration in progress or duplicate codebase
-
-### Dead Code Indicators
-- `fix_chat.py`, `fix_remaining.py`, `fix_withopacity.py` - utility scripts
-- `analyze_output.txt`, `full_scan.txt`, `structure_scan.txt` - analysis artifacts
-- Multiple `.log` files in android/.gradle and android/.kotlin
-
-## 8. Unused Files
-
-Files that appear to be temporary or utility scripts:
-- `fix_chat.py`
-- `fix_remaining.py`
-- `fix_withopacity.py`
+### Likely Unused or Analysis Artifact Files
 - `analyze_output.txt`
-- `full_scan.txt`
-- `structure_scan.txt`
 - `nav.patch`
-- `deploy.sh`
-- Multiple `.log` files
 
+## Phase 6: Connectivity Audit
 
-# ARVIND PARTY - Phase 6: Project Connection Audit
+### Connected Components
+- Mobile app has a central environment config in `lib/core/constants/env_config.dart` and API constants in `lib/core/constants/api_constants.dart`.
+- Web panel has an API service and env config under `arvind_party_web/lib/core/`.
+- Backend mounts 62 `/api/*` route prefixes from `arvind-party-backend/src/app.js`.
+- Socket initialization is present in `arvind-party-backend/server.js` and client socket constants are present in mobile `ApiConstants`.
 
-## Component Connectivity
+### Missing or Weak Connections
+- Mobile app is configured for development mode with `http://192.168.1.100:5000`, not a production-safe environment switch.
+- Web env config still contains placeholder backend, Firebase, Razorpay, and Agora values.
+- API connection status is static only; there is no proof in this audit that mobile/web flows succeed end to end.
+- Real-time socket authentication and event compatibility were not proven by execution.
 
-### Flutter Mobile App ↔ Node Backend
-- **Status**: Partially Connected
-- **API Integration**: Dio-based API service exists
-- **Socket Integration**: Socket.io client configured
-- **Auth Flow**: Firebase + JWT expected
-- **Missing**: Actual API base URL verification needed
+## Phase 7: Local Server Configuration Audit
 
-### Node Backend ↔ Web Panel
-- **Status**: Partially Connected  
-- **API Integration**: Admin API service exists in web
-- **CORS**: Configured in backend
-- **Missing**: Web panel API base URL verification needed
+| File | Line | Current Value |
+|---|---:|---|
+| `analysis_options.yaml` | 5 | `# IDEs (https://dart.dev/tools#ides-and-editors). The analyzer can also be` |
+| `analysis_options.yaml` | 16 | `# and their documentation is published at https://dart.dev/lints.` |
+| `analysis_options.yaml` | 28 | `# https://dart.dev/guides/language/analysis-options` |
+| `analyze_project.js` | 27 | `/localhost/i,` |
+| `analyze_project.js` | 31 | `/:3000/i,` |
+| `analyze_project.js` | 32 | `/:5000/i,` |
+| `analyze_project.js` | 33 | `/:8080/i,` |
+| `analyze_project.js` | 451 | `- Mobile app is configured for development mode with \`http://192.168.1.100:5000\`, not a production-safe envi` |
+| `analyze_project.js` | 453 | `- Web \`ApiService\` defaults to \`http://localhost:5000/api\` instead of reading the central env config.` |
+| `analyze_project.js` | 463 | `Development suggestion: \`http://192.168.x.x:5000/api\` for LAN devices or \`http://10.0.2.2:5000/api\` for An` |
+| `analyze_project.js` | 465 | `Production suggestion: \`https://api.arvindparty.com/api\`` |
+| `analyze_project.py` | 82 | `r"localhost",` |
+| `analyze_project.py` | 86 | `r":3000",` |
+| `analyze_project.py` | 87 | `r":5000",` |
+| `analyze_project.py` | 88 | `r":8080",` |
+| `analyze_project.py` | 544 | `- Mobile app is configured for development mode with `http://192.168.1.100:5000`, not a production-safe enviro` |
+| `analyze_project.py` | 555 | `Development suggestion: `http://192.168.x.x:5000/api` for LAN devices or `http://10.0.2.2:5000/api` for Androi` |
+| `analyze_project.py` | 557 | `Production suggestion: `https://api.arvindparty.com/api`` |
+| `ARVIND_PARTY_APP_REPORT.md` | 30 | `static const String plainApiBaseUrl = 'http://YOUR_API_IP:PORT/api';` |
+| `ARVIND_PARTY_APP_REPORT.md` | 31 | `static const String socketUrl = 'http://YOUR_API_IP:PORT';` |
+| `devtools_options.yaml` | 2 | `documentation: https://docs.flutter.dev/tools/devtools/extensions#configure-extension-enablement-states` |
+| `pubspec.lock` | 2 | `# See https://dart.dev/tools/pub/glossary#lockfile` |
+| `pubspec.lock` | 9 | `url: "https://pub.dev"` |
+| `pubspec.lock` | 17 | `url: "https://pub.dev"` |
+| `pubspec.lock` | 25 | `url: "https://pub.dev"` |
+| `pubspec.lock` | 33 | `url: "https://pub.dev"` |
+| `pubspec.lock` | 41 | `url: "https://pub.dev"` |
+| `pubspec.lock` | 49 | `url: "https://pub.dev"` |
+| `pubspec.lock` | 57 | `url: "https://pub.dev"` |
+| `pubspec.lock` | 65 | `url: "https://pub.dev"` |
+| `pubspec.lock` | 73 | `url: "https://pub.dev"` |
+| `pubspec.lock` | 81 | `url: "https://pub.dev"` |
+| `pubspec.lock` | 89 | `url: "https://pub.dev"` |
+| `pubspec.lock` | 97 | `url: "https://pub.dev"` |
+| `pubspec.lock` | 105 | `url: "https://pub.dev"` |
 
-### Socket.io Connectivity
-- **Server**: Initialized in server.js
-- **Client**: Socket service exists in mobile app
-- **Handlers**: 5 socket handlers implemented
+Development suggestion: `http://192.168.x.x:5000/api` for LAN devices or `http://10.0.2.2:5000/api` for Android emulator.
 
-## Connectivity Issues
+Production suggestion: `https://api.arvindparty.com/api`
 
-### Missing Connections
-1. **API URL Configuration**: Need to confirm mobile app uses production URL
-2. **Web Panel URL**: Need to confirm web panel URL configuration
-3. **Socket Endpoint**: Socket.io endpoint needs verification
-4. **Firebase Config**: Mobile and backend both use Firebase but configs may differ
+## Phase 11: Production Readiness
 
-### Working Connections
-1. ✅ Mobile App → Backend (HTTP APIs)
-2. ✅ Web Panel → Backend (HTTP APIs)
-3. ✅ Backend → MongoDB
-4. ✅ Backend → Redis (optional)
-5. ✅ Backend → Firebase
-6. ✅ Mobile App → Firebase Auth
-7. ✅ Mobile App → Agora
+| Area | Score | Notes |
+|---|---:|---|
+| Security baseline | 62 | Helmet, rate limiting, auth helpers, but hardening gaps remain |
+| Deployment readiness | 35 | No CI/CD workflow or container setup detected |
+| Observability | 40 | Logging exists, centralized monitoring not detected |
+| Test readiness | 20 | Minimal test presence only |
+| Config hygiene | 38 | Web config still uses placeholders; mobile defaults to dev |
+| Overall readiness | 50 | Static estimate only |
 
-### Not Connected
-1. ⚠️ Real-time socket events not verified
-2. ⚠️ Payment webhooks (Razorpay) status unknown
-3. ⚠️ Push notification flow not verified
-4. ⚠️ OAuth callback URLs not verified
-
-
-# ARVIND PARTY - Phase 7: Local Server Configuration Audit
-
-## API URL Audit
-
-### Files with Localhost/Development URLs
-
-| File | Line | Current URL | Suggested Development | Suggested Production |
-|------|------|-------------|----------------------|---------------------|
-| `analysis_options.yaml` | 5 | `# IDEs (https://dart.dev/tools#ides-and-editors). The analyz` | - | - |
-| `analysis_options.yaml` | 16 | `# and their documentation is published at https://dart.dev/l` | - | - |
-| `analysis_options.yaml` | 28 | `# https://dart.dev/guides/language/analysis-options` | - | - |
-| `devtools_options.yaml` | 2 | `documentation: https://docs.flutter.dev/tools/devtools/exten` | - | - |
-| `arvind-party-backend\.env` | 10 | `MONGO_URI=mongodb://localhost:27017/arvind_party` | - | - |
-| `arvind-party-backend\.env` | 17 | `REDIS_HOST=localhost` | - | - |
-| `arvind-party-backend\.env` | 37 | `WEB_PANEL_URL=http://localhost:3000` | - | - |
-| `arvind-party-backend\.env` | 37 | `WEB_PANEL_URL=http://localhost:3000` | - | - |
-| `arvind-party-backend\.env` | 37 | `WEB_PANEL_URL=http://localhost:3000` | - | - |
-| `arvind-party-backend\.env` | 38 | `MOBILE_APP_URL=http://localhost:8080` | - | - |
-| `arvind-party-backend\.env` | 38 | `MOBILE_APP_URL=http://localhost:8080` | - | - |
-| `arvind-party-backend\.env` | 38 | `MOBILE_APP_URL=http://localhost:8080` | - | - |
-| `arvind-party-backend\package-lock.json` | 40 | `"resolved": "https://registry.npmjs.org/@fastify/busboy/-/bu` | - | - |
-| `arvind-party-backend\package-lock.json` | 45 | `"resolved": "https://registry.npmjs.org/@firebase/app-check-` | - | - |
-| `arvind-party-backend\package-lock.json` | 50 | `"resolved": "https://registry.npmjs.org/@firebase/app-types/` | - | - |
-| `arvind-party-backend\package-lock.json` | 55 | `"resolved": "https://registry.npmjs.org/@firebase/auth-inter` | - | - |
-| `arvind-party-backend\package-lock.json` | 60 | `"resolved": "https://registry.npmjs.org/@firebase/component/` | - | - |
-| `arvind-party-backend\package-lock.json` | 69 | `"resolved": "https://registry.npmjs.org/@firebase/database/-` | - | - |
-| `arvind-party-backend\package-lock.json` | 83 | `"resolved": "https://registry.npmjs.org/@firebase/database-c` | - | - |
-| `arvind-party-backend\package-lock.json` | 96 | `"resolved": "https://registry.npmjs.org/@firebase/database-t` | - | - |
-| `arvind-party-backend\package-lock.json` | 105 | `"resolved": "https://registry.npmjs.org/@firebase/logger/-/l` | - | - |
-| `arvind-party-backend\package-lock.json` | 113 | `"resolved": "https://registry.npmjs.org/@firebase/util/-/uti` | - | - |
-| `arvind-party-backend\package-lock.json` | 121 | `"resolved": "https://registry.npmjs.org/@google-cloud/firest` | - | - |
-| `arvind-party-backend\package-lock.json` | 137 | `"resolved": "https://registry.npmjs.org/@google-cloud/pagina` | - | - |
-| `arvind-party-backend\package-lock.json` | 150 | `"resolved": "https://registry.npmjs.org/@google-cloud/projec` | - | - |
-| `arvind-party-backend\package-lock.json` | 159 | `"resolved": "https://registry.npmjs.org/@google-cloud/promis` | - | - |
-| `arvind-party-backend\package-lock.json` | 168 | `"resolved": "https://registry.npmjs.org/@google-cloud/storag` | - | - |
-| `arvind-party-backend\package-lock.json` | 193 | `"resolved": "https://registry.npmjs.org/@grpc/grpc-js/-/grpc` | - | - |
-| `arvind-party-backend\package-lock.json` | 206 | `"resolved": "https://registry.npmjs.org/@grpc/proto-loader/-` | - | - |
-| `arvind-party-backend\package-lock.json` | 224 | `"resolved": "https://registry.npmjs.org/@grpc/proto-loader/-` | - | - |
-
-*...and 517 more occurrences*
-
-## Configuration Files Found
-
-### Environment Files
-- `.env` - Production environment (gitignored)
-- `.env.example` - Example configuration
-- `.env.template` - Template configuration
-
-### Key URLs in Project
-
-**Backend Server:**
-- Default: `http://localhost:5000`
-- Configurable via `PORT` env var
-
-**Database:**
-- MongoDB: `MONGO_URI` in .env
-- Redis: Used for OTP (optional)
-
-**Firebase:**
-- firebase-admin.js
-- firebase.js (client config)
-
-## Recommendations
-
-### Development URLs
-```
-Mobile App:     http://10.0.2.2:5000/api (Android emulator)
-                http://localhost:5000/api (iOS simulator)
-Web Panel:      http://localhost:5000/api
-                or http://localhost:8080 (if using web dev server)
-```
-
-### Production URLs (Suggestions)
-```
-API:            https://api.arvindparty.com/api
-Socket:         https://api.arvindparty.com
-Web Panel:      https://admin.arvindparty.com
-CDN/Assets:     https://cdn.arvindparty.com
-```
-
-### Required Configuration
-1. Update `baseUrl` in mobile app's `env_config.dart`
-2. Update API base URL in web panel's `env_config.dart`
-3. Configure Firebase for both platforms
-4. Set up Agora App ID in both mobile and web
-5. Configure Razorpay keys
-6. Set Twilio credentials for SMS
+## Final Summary
+- Overall project completion: 70%
+- Overall production readiness: 50%
+- Estimated remaining work: 30%
+- Estimated time to production: 8-12 weeks, assuming one focused team closes security, testing, config, and deployment gaps

@@ -17,6 +17,7 @@ import 'core/services/auth_session_manager.dart';
 import 'core/utils/network_manager.dart';
 import 'features/auth/presentation/repositories/auth_repository.dart';
 import 'features/home/services/user_repository.dart';
+import 'core/localization/localization_service.dart';
 import 'features/room/presentation/repositories/room_repository.dart';
 import 'features/chat/presentation/repositories/chat_repository.dart';
 import 'features/gift/presentation/repositories/gift_repository.dart';
@@ -61,6 +62,8 @@ void initAsynchronousServices() async {
     Get.put<RoomRepository>(RoomRepository(), permanent: true);
     Get.put<ChatRepository>(ChatRepository(), permanent: true);
     Get.put<GiftRepository>(GiftRepository(), permanent: true);
+
+    Get.put<LocalizationService>(LocalizationService(), permanent: true);
 
     debugPrint('🚀 [Arvind Party] सारी बैकएंड सर्विसेज सफलतापूर्वक बैकग्राउंड में लोड हो गईं!');
   } catch (e) {

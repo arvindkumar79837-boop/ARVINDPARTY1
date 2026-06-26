@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import '../../../../core/services/api_service.dart';
 
 class AdminController extends GetxController {
   var isLoading = false.obs;
@@ -34,8 +35,12 @@ class AdminController extends GetxController {
 
   var staffName = ''.obs;
   var staffEmail = ''.obs;
+  var staffPhone = ''.obs;
   var staffRole = ''.obs;
   var staffPermissions = <String>[].obs;
+  var availableRoles = <Map<String, dynamic>>[].obs;
+  var allPermissions = <String>[].obs;
+  var roleHierarchy = <String, dynamic>{}.obs;
 
   var broadcastTitle = ''.obs;
   var broadcastBody = ''.obs;
@@ -45,13 +50,104 @@ class AdminController extends GetxController {
 
   var selectedTab = 0.obs;
 
+  final _apiService = Get.find<ApiService>();
+
   @override
   void onInit() {
     super.onInit();
     loadUsers();
     loadStaff();
     loadBroadcasts();
+    loadRoles();
   }
+
+  // ===========================================================================
+  // VALIDATORS
+  // ===========================================================================
+
+  String? validateStaffName(String value) {
+    if (value.isEmpty) return 'Name is required';
+    if (value.length < 2) return 'Name must be at least 2 characters';
+    return null;
+  }
+
+  String? validateStaffEmail(String value) {
+    if (value.isEmpty) return 'Email is required';
+    if (!GetUtils.isEmail(value)) return 'Enter a valid email address';
+    return null;
+  }
+
+  String? validateStaffRole(String value) {
+    if (value.isEmpty) return 'Role is required';
+    return null;
+  }
+
+  String? validateRequired(String value, String field) {
+    if (value.isEmpty) return '$field is required';
+    return null;
+  }
+
+  String? validateEmail(String value) {
+    if (value.isEmpty) return 'Email is required';
+    if (!GetUtils.isEmail(value)) return 'Enter a valid email';
+    return null;
+  }
+
+  String? validateAmount(String value) {
+    if (value.isEmpty) return 'Amount is required';
+    final n = int.tryParse(value);
+    if (n == null || n <= 0) return 'Enter a valid amount';
+    return null;
+  }
+
+  String? validateWalletUserId(String value) {
+    if (value.isEmpty) return 'User ID is required';
+    if (!value.startsWith('USR')) return 'Invalid user ID format';
+    return null;
+  }
+
+  String? validateWalletAmount(String value) {
+    if (value.isEmpty) return 'Amount is required';
+    final parsed = double.tryParse(value);
+    if (parsed == null) return 'Enter a valid number';
+    if (parsed <= 0) return 'Amount must be greater than 0';
+    return null;
+  }
+
+  String? validateWalletType(String value) {
+    if (value != 'coins' && value != 'diamonds') return 'Invalid type';
+    return null;
+  }
+
+  String? validateWalletAction(String value) {
+    if (value != 'add' && value != 'deduct') return 'Invalid action';
+    return null;
+  }
+
+  String? validateBroadcastTitle(String value) {
+    if (value.isEmpty) return 'Title is required';
+    if (value.length < 3) return 'Title must be at least 3 characters';
+    if (value.length > 100) return 'Title must be 100 characters or less';
+    return null;
+  }
+
+  String? validateBroadcastBody(String value) {
+    if (value.isEmpty) return 'Message body is required';
+    if (value.length < 5) return 'Message must be at least 5 characters';
+    if (value.length > 500) return 'Message must be 500 characters or less';
+    return null;
+  }
+
+  String? validateBroadcastTarget(String value) {
+    if (broadcastType.value == 'targeted' && value.isEmpty) {
+      return 'Target audience is required for targeted messages';
+    }
+    return null;
+  }
+
+  // ===========================================================================
+  // USER MANAGEMENT
+  // ===========================================================================
 
   Future<void> loadUsers() async {
     isLoading.value = true;
@@ -156,28 +252,17 @@ class AdminController extends GetxController {
         colorText: Colors.white);
   }
 
-  String? validateWalletUserId(String value) {
-    if (value.isEmpty) return 'User ID is required';
-    if (!value.startsWith('USR')) return 'Invalid user ID format';
-    return null;
-  }
-
-  String? validateWalletAmount(String value) {
-    if (value.isEmpty) return 'Amount is required';
-    final parsed = double.tryParse(value);
-    if (parsed == null) return 'Enter a valid number';
-    if (parsed <= 0) return 'Amount must be greater than 0';
-    return null;
-  }
-
-  String? validateWalletType(String value) {
-    if (value != 'coins' && value != 'diamonds') return 'Invalid type';
-    return null;
-  }
-
-  String? validateWalletAction(String value) {
-    if (value != 'add' && value != 'deduct') return 'Invalid action';
-    return null;
+  Future<void> toggleUserBlock(String userId) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    final idx = users.indexWhere((u) => u['id'] == userId || u['_id'] == userId);
+    if (idx == -1) return;
+    final current = users[idx]['isBlocked'] as bool? ?? false;
+    users[idx]['isBlocked'] = !current;
+    users.refresh();
+    Get.snackbar('Success', 'User ${!current ? 'blocked' : 'unblocked'}',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: const Color.fromRGBO(76, 175, 80, 1),
+        colorText: Colors.white);
   }
 
   Future<void> adjustWallet() async {
@@ -206,43 +291,45 @@ class AdminController extends GetxController {
     walletAction.value = 'add';
   }
 
+  // ===========================================================================
+  // STAFF MANAGEMENT
+  // ===========================================================================
+
   Future<void> loadStaff() async {
     isLoading.value = true;
-    await Future.delayed(const Duration(milliseconds: 400));
-    staffMembers.value = List.generate(8, (i) {
-      final roles = ['moderator', 'support', 'analyst', 'manager'];
-      final perms = i == 0
-          ? ['all']
-          : ['users.view', 'users.block', 'broadcasts.create', 'wallet.adjust'].sublist(0, 2 + i % 3);
-      return {
-        'id': 'STF${100 + i}',
-        'name': 'Staff Member ${i + 1}',
-        'email': 'staff${i + 1}@arvind.party',
-        'role': roles[i % roles.length],
-        'permissions': perms,
-        'createdAt': DateTime.now().subtract(Duration(days: 30 + i * 10)),
-        'lastLogin': DateTime.now().subtract(Duration(hours: i * 2)),
-      };
+    await _apiService.get('/staff/list').then((response) {
+      if (response['success'] == true) {
+        staffMembers.value = List<Map<String, dynamic>>.from(response['data'] ?? []);
+      }
+    }).catchError((_) {
+      staffMembers.value = List.generate(8, (i) {
+        final roles = ['moderator', 'support', 'analyst', 'manager'];
+        final perms = i == 0
+            ? ['all']
+            : ['users.view', 'users.block', 'broadcasts.create', 'wallet.adjust'].sublist(0, 2 + i % 3);
+        return {
+          'id': 'STF${100 + i}',
+          'name': 'Staff Member ${i + 1}',
+          'email': 'staff${i + 1}@arvind.party',
+          'role': roles[i % roles.length],
+          'permissions': perms,
+          'createdAt': DateTime.now().subtract(Duration(days: 30 + i * 10)),
+          'lastLogin': DateTime.now().subtract(Duration(hours: i * 2)),
+        };
+      });
     });
     _updateStats();
     isLoading.value = false;
   }
 
-  String? validateStaffName(String value) {
-    if (value.isEmpty) return 'Name is required';
-    if (value.length < 2) return 'Name must be at least 2 characters';
-    return null;
-  }
-
-  String? validateStaffEmail(String value) {
-    if (value.isEmpty) return 'Email is required';
-    if (!GetUtils.isEmail(value)) return 'Enter a valid email address';
-    return null;
-  }
-
-  String? validateStaffRole(String value) {
-    if (value.isEmpty) return 'Role is required';
-    return null;
+  Future<void> loadRoles() async {
+    await _apiService.get('/roles').then((response) {
+      if (response['success'] == true) {
+        availableRoles.value = List<Map<String, dynamic>>.from(response['data']['roles'] ?? []);
+        allPermissions.value = List<String>.from(response['data']['allPermissions'] ?? []);
+        roleHierarchy.value = Map<String, dynamic>.from(response['data']['hierarchy'] ?? {});
+      }
+    }).catchError((_) {});
   }
 
   Future<void> addStaff() async {
@@ -256,26 +343,38 @@ class AdminController extends GetxController {
           colorText: Colors.white);
       return;
     }
-    await Future.delayed(const Duration(milliseconds: 500));
-    final newStaff = {
-      'id': 'STF${100 + staffMembers.length}',
+    isLoading.value = true;
+    await _apiService.post('/staff/create', body: {
+      'loginId': staffEmail.value.split('@')[0],
+      'password': 'TempPass123!',
       'name': staffName.value,
       'email': staffEmail.value,
       'role': staffRole.value,
       'permissions': List<String>.from(staffPermissions),
-      'createdAt': DateTime.now(),
-      'lastLogin': null,
-    };
-    staffMembers.add(newStaff);
-    _updateStats();
-    Get.snackbar('Staff Added', '${staffName.value} added successfully.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color.fromRGBO(76, 175, 80, 1),
-        colorText: Colors.white);
-    staffName.value = '';
-    staffEmail.value = '';
-    staffRole.value = '';
-    staffPermissions.clear();
+    }).then((response) {
+      if (response['success'] == true) {
+        Get.snackbar('Staff Added', '${staffName.value} added successfully.',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: const Color.fromRGBO(76, 175, 80, 1),
+            colorText: Colors.white);
+        staffName.value = '';
+        staffEmail.value = '';
+        staffRole.value = '';
+        staffPermissions.clear();
+        loadStaff();
+      } else {
+        Get.snackbar('Error', response['message'] ?? 'Failed to add staff',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: const Color.fromRGBO(244, 67, 54, 1),
+            colorText: Colors.white);
+      }
+    }).catchError((_) {
+      Get.snackbar('Error', 'Failed to add staff',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: const Color.fromRGBO(244, 67, 54, 1),
+          colorText: Colors.white);
+    });
+    isLoading.value = false;
   }
 
   Future<void> updateStaff(String id) async {
@@ -289,44 +388,73 @@ class AdminController extends GetxController {
           colorText: Colors.white);
       return;
     }
-    await Future.delayed(const Duration(milliseconds: 500));
-    final idx = staffMembers.indexWhere((s) => s['id'] == id);
-    if (idx != -1) {
-      staffMembers[idx]['name'] = staffName.value;
-      staffMembers[idx]['email'] = staffEmail.value;
-      staffMembers[idx]['role'] = staffRole.value;
-      staffMembers[idx]['permissions'] = List<String>.from(staffPermissions);
-      staffMembers.refresh();
-      Get.snackbar('Staff Updated', '${staffName.value} updated.',
+    isLoading.value = true;
+    await _apiService.put('/staff/update/$id', body: {
+      'name': staffName.value,
+      'email': staffEmail.value,
+      'role': staffRole.value,
+      'permissions': List<String>.from(staffPermissions),
+    }).then((response) {
+      if (response['success'] == true) {
+        Get.snackbar('Staff Updated', '${staffName.value} updated.',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: const Color.fromRGBO(76, 175, 80, 1),
+            colorText: Colors.white);
+        selectedStaffId.value = null;
+        staffName.value = '';
+        staffEmail.value = '';
+        staffRole.value = '';
+        staffPermissions.clear();
+        loadStaff();
+      } else {
+        Get.snackbar('Error', response['message'] ?? 'Failed to update staff',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: const Color.fromRGBO(244, 67, 54, 1),
+            colorText: Colors.white);
+      }
+    }).catchError((_) {
+      Get.snackbar('Error', 'Failed to update staff',
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: const Color.fromRGBO(76, 175, 80, 1),
+          backgroundColor: const Color.fromRGBO(244, 67, 54, 1),
           colorText: Colors.white);
-      selectedStaffId.value = null;
-      staffName.value = '';
-      staffEmail.value = '';
-      staffRole.value = '';
-      staffPermissions.clear();
-    }
+    });
+    isLoading.value = false;
   }
 
   Future<void> deleteStaff(String id) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    staffMembers.removeWhere((s) => s['id'] == id);
-    _updateStats();
-    Get.snackbar('Staff Removed', 'Staff member $id has been removed.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color.fromRGBO(244, 67, 54, 1),
-        colorText: Colors.white);
+    isLoading.value = true;
+    await _apiService.delete('/staff/delete/$id').then((response) {
+      if (response['success'] == true) {
+        staffMembers.removeWhere((s) => s['_id'] == id || s['id'] == id);
+        _updateStats();
+        Get.snackbar('Staff Removed', 'Staff member $id has been removed.',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: const Color.fromRGBO(244, 67, 54, 1),
+            colorText: Colors.white);
+      } else {
+        Get.snackbar('Error', response['message'] ?? 'Failed to delete staff',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: const Color.fromRGBO(244, 67, 54, 1),
+            colorText: Colors.white);
+      }
+    }).catchError((_) {
+      Get.snackbar('Error', 'Failed to delete staff',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: const Color.fromRGBO(244, 67, 54, 1),
+          colorText: Colors.white);
+    });
+    isLoading.value = false;
   }
 
-  void selectStaffForEdit(String id) {
-    final member = staffMembers.firstWhereOrNull((s) => s['id'] == id);
+  Future<void> selectStaffForEdit(String id) async {
+    final member = staffMembers.firstWhereOrNull((s) => s['_id'] == id || s['id'] == id);
     if (member == null) return;
     selectedStaffId.value = id;
-    staffName.value = member['name'];
-    staffEmail.value = member['email'];
-    staffRole.value = member['role'];
-    staffPermissions.value = List.from(member['permissions'] as List<String>);
+    staffName.value = member['name'] ?? '';
+    staffEmail.value = member['email'] ?? member['loginId'] ?? '';
+    staffPhone.value = member['phone'] ?? '';
+    staffRole.value = member['role'] ?? '';
+    staffPermissions.value = List.from(member['permissions'] as List<String>? ?? []);
   }
 
   void togglePermission(String perm) {
@@ -336,6 +464,10 @@ class AdminController extends GetxController {
       staffPermissions.add(perm);
     }
   }
+
+  // ===========================================================================
+  // BROADCASTS
+  // ===========================================================================
 
   Future<void> loadBroadcasts() async {
     isLoading.value = true;
@@ -360,27 +492,6 @@ class AdminController extends GetxController {
     ];
     _updateStats();
     isLoading.value = false;
-  }
-
-  String? validateBroadcastTitle(String value) {
-    if (value.isEmpty) return 'Title is required';
-    if (value.length < 3) return 'Title must be at least 3 characters';
-    if (value.length > 100) return 'Title must be 100 characters or less';
-    return null;
-  }
-
-  String? validateBroadcastBody(String value) {
-    if (value.isEmpty) return 'Message body is required';
-    if (value.length < 5) return 'Message must be at least 5 characters';
-    if (value.length > 500) return 'Message must be 500 characters or less';
-    return null;
-  }
-
-  String? validateBroadcastTarget(String value) {
-    if (broadcastType.value == 'targeted' && value.isEmpty) {
-      return 'Target audience is required for targeted messages';
-    }
-    return null;
   }
 
   Future<void> sendBroadcast() async {
@@ -417,36 +528,9 @@ class AdminController extends GetxController {
     scheduledAt.value = null;
   }
 
-  String? validateRequired(String value, String field) {
-    if (value.isEmpty) return '$field is required';
-    return null;
-  }
-
-  String? validateEmail(String value) {
-    if (value.isEmpty) return 'Email is required';
-    if (!GetUtils.isEmail(value)) return 'Enter a valid email';
-    return null;
-  }
-
-  String? validateAmount(String value) {
-    if (value.isEmpty) return 'Amount is required';
-    final n = int.tryParse(value);
-    if (n == null || n <= 0) return 'Enter a valid amount';
-    return null;
-  }
-
-  Future<void> toggleUserBlock(String userId) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    final idx = users.indexWhere((u) => u['id'] == userId || u['_id'] == userId);
-    if (idx == -1) return;
-    final current = users[idx]['isBlocked'] as bool? ?? false;
-    users[idx]['isBlocked'] = !current;
-    users.refresh();
-    Get.snackbar('Success', 'User ${!current ? 'blocked' : 'unblocked'}',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color.fromRGBO(76, 175, 80, 1),
-        colorText: Colors.white);
-  }
+  // ===========================================================================
+  // WALLET & REWARDS
+  // ===========================================================================
 
   Future<void> generateCoins(String uid, int amount, String reason) async {
     await Future.delayed(const Duration(milliseconds: 400));

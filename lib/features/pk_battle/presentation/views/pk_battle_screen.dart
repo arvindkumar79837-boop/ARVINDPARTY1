@@ -152,49 +152,80 @@ class PkBattleScreen extends GetView<PkBattleController> {
   }
 
   Widget _buildLiveBattleUI(Map<String, dynamic> battle, BuildContext context) {
-    // This is a simplified UI. In a real app, this would be a complex animated PK battle UI.
     final hostId = battle['hostId'] as String? ?? '';
     final opponentId = battle['opponentId'] as String? ?? '';
+    final battleId = battle['battleId'] as String? ?? '';
     final endTime = battle['endTime'] != null ? DateTime.parse(battle['endTime'] as String) : DateTime.now().add(const Duration(minutes: 5));
 
+    // Scores are now being listened to by Obx
+    final hostScore = controller.liveBattle.value?['hostScore'] ?? 0;
+    final opponentScore = controller.liveBattle.value?['opponentScore'] ?? 0;
+
     return Padding(
-      padding: const EdgeInsets.all(24.0),
+      padding: const EdgeInsets.all(16.0),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           const Text(
             'PK Battle LIVE!',
             style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Color(0xFFFF8906)),
           ),
-          const SizedBox(height: 24),
+          // ─── Score Display ─────────────────────────────────────────
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              // Host Score
               Column(
                 children: [
                   const CircleAvatar(radius: 40, backgroundColor: Colors.blueAccent, child: Text('Host', style: TextStyle(color: Colors.white))),
                   const SizedBox(height: 8),
-                  Text('Host ID: $hostId', style: const TextStyle(color: Colors.white70)),
+                  Text(hostId, style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                  const SizedBox(height: 8),
+                  Text('$hostScore', style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
                 ],
               ),
               const Text('VS', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
+              // Opponent Score
               Column(
                 children: [
                   const CircleAvatar(radius: 40, backgroundColor: Colors.purpleAccent, child: Text('Opponent', style: TextStyle(color: Colors.white))),
                   const SizedBox(height: 8),
-                  Text('Opponent ID: $opponentId', style: const TextStyle(color: Colors.white70)),
+                  Text(opponentId, style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                  const SizedBox(height: 8),
+                  Text('$opponentScore', style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
                 ],
               ),
             ],
           ),
-          const SizedBox(height: 32),
+          // ─── Timer ───────────────────────────────────────────────────
           Obx(() => Text(
             'Time Remaining: ${_formatDuration(endTime.difference(DateTime.now()))}',
             style: const TextStyle(fontSize: 20, color: Colors.white),
           )),
-          const SizedBox(height: 32),
+          // ─── Gift Simulation Buttons ────────────────────────────────
+          Column(
+            children: [
+              const Text("Simulate Gift (Viewers)", style: TextStyle(color: Colors.grey)),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: () => controller.updateScore(battleId, 10, hostId),
+                    child: const Text('Gift to Host (+10)'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () => controller.updateScore(battleId, 10, opponentId),
+                    child: const Text('Gift to Opponent (+10)'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          // ─── End Battle Button ──────────────────────────────────────
           ElevatedButton(
-            onPressed: () => controller.endPkBattle(battle['battleId'] as String? ?? ''),
+            onPressed: () => controller.endPkBattle(battleId),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
               padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),

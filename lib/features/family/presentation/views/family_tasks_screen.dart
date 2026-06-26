@@ -1,19 +1,17 @@
 // ═══════════════════════════════════════════════════════════════════════════
 // FILE: lib/features/family/presentation/views/family_tasks_screen.dart
-// ARVIND PARTY - FAMILY TASKS PAGE (Daily checklist, XP, rewards)
+// ARVIND PARTY - FAMILY TASKS SCREEN
 // ═══════════════════════════════════════════════════════════════════════════
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/family_controller.dart';
 
-class FamilyTasksScreen extends StatelessWidget {
+class FamilyTasksScreen extends GetView<FamilyController> {
   const FamilyTasksScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final FamilyController controller = Get.find<FamilyController>();
-
     return Scaffold(
       backgroundColor: const Color(0xFF1A1A2E),
       appBar: AppBar(
@@ -25,44 +23,174 @@ class FamilyTasksScreen extends StatelessWidget {
         ),
         title: const Text(
           'Family Tasks',
-          style: TextStyle(color: Colors.white, fontSize: 20),
+          style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
         ),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildProgressOverview(controller),
-              const SizedBox(height: 24),
-              _buildDailyTasksSection(controller),
-              const SizedBox(height: 24),
-              _buildWeeklyChallengesSection(),
-              const SizedBox(height: 80),
-            ],
-          ),
-        ),
+        child: Obx(() {
+          if (controller.isLoading.value && controller.familyTasks.isEmpty) {
+            return const Center(child: CircularProgressIndicator(color: Color(0xFFFF8906)));
+          }
+
+          return RefreshIndicator(
+            onRefresh: () => controller.fetchFamilyTasks(),
+            color: const Color(0xFFFF8906),
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildHeader(),
+                  const SizedBox(height: 24),
+                  _buildTasksList(),
+                  const SizedBox(height: 80),
+                ],
+              ),
+            ),
+          );
+        }),
       ),
     );
   }
 
-  Widget _buildProgressOverview(FamilyController controller) {
+  Widget _buildHeader() {
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Colors.green.withValues(alpha: 0.2),
-            Colors.teal.withValues(alpha: 0.1),
+            Colors.green.withValues(alpha: 0.3),
+            Colors.teal.withValues(alpha: 0.2),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.green.withValues(alpha: 0.4), width: 1.5),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.task_alt, color: Colors.green.shade300, size: 28),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text(
+                  'Daily Family Tasks',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Complete tasks together to earn rewards for the entire family!',
+            style: TextStyle(color: Colors.green.shade100, fontSize: 13, height: 1.4),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTasksList() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Today's Challenges",
+          style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 14),
+        if (controller.familyTasks.isEmpty)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(32),
+            decoration: BoxDecoration(
+              color: Colors.grey.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Center(
+              child: Text(
+                'No tasks available right now. Check back later!',
+                style: TextStyle(color: Colors.grey, fontSize: 14),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          )
+        else
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: controller.familyTasks.length,
+            itemBuilder: (context, index) {
+              final task = controller.familyTasks[index];
+              return _buildTaskCard(task);
+            },
+          ),
+      ],
+    );
+  }
+
+  Widget _buildTaskCard(Map<String, dynamic> task) {
+    final target = task['target'] ?? 0;
+    final current = task['current'] ?? 0;
+    final progressPercent = target > 0 ? (current / target).clamp(0.0, 1.0) : 0.0;
+    final isCompleted = task['isCompleted'] ?? false;
+
+    Color progressColor;
+    if (progressPercent >= 1.0) {
+      progressColor = Colors.green;
+    } else if (progressPercent >= 0.5) {
+      progressColor = Colors.orange;
+    } else {
+      progressColor = Colors.blue;
+    }
+
+    String rewardIcon;
+    Color rewardColor;
+    switch (task['rewardType']) {
+      case 'coins':
+        rewardIcon = '🪙';
+        rewardColor = Colors.amber;
+        break;
+      case 'xp':
+        rewardIcon = '⚡';
+        rewardColor = Colors.purple;
+        break;
+      case 'family_points':
+        rewardIcon = '⭐';
+        rewardColor = Colors.deepOrange;
+        break;
+      default:
+        rewardIcon = '🎁';
+        rewardColor = Colors.pink;
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [
+            Color(0xFF252542),
+            Color(0xFF1E1E3A),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: Colors.green.withValues(alpha: 0.3),
-          width: 1,
+          color: isCompleted
+              ? Colors.green.withValues(alpha: 0.4)
+              : Colors.white.withValues(alpha: 0.1),
+          width: isCompleted ? 1.5 : 1,
         ),
       ),
       child: Column(
@@ -70,590 +198,133 @@ class FamilyTasksScreen extends StatelessWidget {
         children: [
           Row(
             children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Colors.green, Colors.teal],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+              Expanded(
+                child: Text(
+                  task['title'] ?? 'Task',
+                  style: TextStyle(
+                    color: isCompleted ? Colors.green : Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
                   ),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.emoji_events_outlined,
-                  color: Colors.white,
-                  size: 28,
                 ),
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Family Level',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.white70,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Obx(() => Text(
-                          'Level ${controller.families.value.isNotEmpty ? 12 : 1}',
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        )),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(
-                child: _buildProgressStat(
-                  icon: Icons.star_outlined,
-                  label: 'Total XP',
-                  value: '8,450',
-                  color: Colors.amber,
-                ),
-              ),
-              Expanded(
-                child: _buildProgressStat(
-                  icon: Icons.task_alt_outlined,
-                  label: 'Tasks Done',
-                  value: '23/30',
-                  color: Colors.green,
-                ),
-              ),
-              Expanded(
-                child: _buildProgressStat(
-                  icon: Icons.people_outlined,
-                  label: 'Members',
-                  value: '8',
-                  color: Colors.blue,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Obx(() {
-            const progress = 0.75;
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Level Progress',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.white.withValues(alpha: 0.7),
-                      ),
-                    ),
-                    Text(
-                      '${(progress * 100).toInt()}%',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.green,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
+              if (isCompleted)
                 Container(
-                  height: 8,
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(4),
+                    color: Colors.green.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.green.withValues(alpha: 0.4)),
                   ),
-                  child: FractionallySizedBox(
-                    widthFactor: progress,
-                    alignment: Alignment.centerLeft,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Colors.green, Colors.teal],
-                        ),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ),
+                  child: const Text(
+                    'COMPLETED',
+                    style: TextStyle(color: Colors.green, fontSize: 10, fontWeight: FontWeight.bold),
                   ),
                 ),
-              ],
-            );
-          }),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProgressStat({
-    required IconData icon,
-    required String label,
-    required String value,
-    required Color color,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, size: 14, color: color),
-              const SizedBox(width: 4),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 10,
-                  color: Colors.white.withValues(alpha: 0.6),
-                ),
-              ),
             ],
           ),
           const SizedBox(height: 6),
           Text(
-            value,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: color,
+            task['description'] ?? '',
+            style: TextStyle(color: Colors.grey.shade600, fontSize: 12, height: 1.4),
+          ),
+          const SizedBox(height: 12),
+
+          // Progress Bar
+          Container(
+            width: double.infinity,
+            height: 8,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: FractionallySizedBox(
+              alignment: Alignment.centerLeft,
+              widthFactor: progressPercent,
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [progressColor, progressColor.withValues(alpha: 0.7)],
+                  ),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
             ),
           ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '$current / $target ${task['unit'] ?? ''}',
+                style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
+              ),
+              Row(
+                children: [
+                  Text(rewardIcon, style: const TextStyle(fontSize: 16)),
+                  const SizedBox(width: 4),
+                  Text(
+                    '+${task['rewardAmount'] ?? 0}',
+                    style: TextStyle(color: rewardColor, fontSize: 13, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ],
+          ),
+
+          // Claim Button
+          if (isCompleted)
+            Padding(
+              padding: const EdgeInsets.only(top: 14),
+              child: SizedBox(
+                width: double.infinity,
+                child: Obx(() {
+                  return ElevatedButton(
+                    onPressed: controller.isClaiming.value
+                        ? null
+                        : () => controller.claimTaskReward(task['taskId'] ?? ''),
+                    style: ButtonStyle(
+                      backgroundColor: WidgetStateProperty.all(Colors.transparent),
+                      shadowColor: WidgetStateProperty.all(Colors.transparent),
+                      padding: WidgetStateProperty.all(EdgeInsets.zero),
+                    ),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Colors.green, Colors.teal],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      child: Center(
+                        child: controller.isClaiming.value
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Text(
+                                'CLAIM REWARD',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 1,
+                                ),
+                              ),
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            ),
         ],
       ),
-    );
-  }
-
-  Widget _buildDailyTasksSection(FamilyController controller) {
-    final tasks = [
-      {
-        'id': 1,
-        'title': 'Send 5 gifts in rooms',
-        'description': 'Send gifts to any room to complete this task',
-        'xp': 50,
-        'reward': 100,
-        'progress': 3,
-        'total': 5,
-        'icon': Icons.card_giftcard_outlined,
-        'color': Colors.pink,
-        'isCompleted': false,
-      },
-      {
-        'id': 2,
-        'title': 'Join 3 voice rooms',
-        'description': 'Join and stay in voice rooms for 10 minutes',
-        'xp': 30,
-        'reward': 60,
-        'progress': 3,
-        'total': 3,
-        'icon': Icons.mic_outlined,
-        'color': Colors.blue,
-        'isCompleted': true,
-      },
-      {
-        'id': 3,
-        'title': 'Invite 2 new members',
-        'description': 'Invite friends to join your family',
-        'xp': 100,
-        'reward': 200,
-        'progress': 1,
-        'total': 2,
-        'icon': Icons.person_add_outlined,
-        'color': Colors.green,
-        'isCompleted': false,
-      },
-      {
-        'id': 4,
-        'title': 'Share family post',
-        'description': 'Share family achievements on social media',
-        'xp': 20,
-        'reward': 40,
-        'progress': 0,
-        'total': 1,
-        'icon': Icons.share_outlined,
-        'color': Colors.orange,
-        'isCompleted': false,
-      },
-    ];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              'Daily Tasks',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.green.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                'Resets in ${DateTime.now().hour}h 30m',
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: Colors.green,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: tasks.length,
-          itemBuilder: (context, index) {
-            final task = tasks[index];
-            final isCompleted = task['isCompleted'] as bool;
-            final progress = task['progress'] as int;
-            final total = task['total'] as int;
-
-            return Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: isCompleted ? Colors.green.withValues(alpha: 0.05) : Colors.white.withValues(alpha: 0.03),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: isCompleted ? Colors.green.withValues(alpha: 0.2) : Colors.white.withValues(alpha: 0.08),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: (task['color'] as Color).withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Icon(
-                          task['icon'] as IconData,
-                          color: task['color'] as Color,
-                          size: 20,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              task['title'] as String,
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: isCompleted ? Colors.green : Colors.white,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              task['description'] as String,
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: Colors.white.withValues(alpha: 0.5),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        width: 28,
-                        height: 28,
-                        decoration: BoxDecoration(
-                          color: isCompleted ? Colors.green : Colors.white.withValues(alpha: 0.1),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          isCompleted ? Icons.check : Icons.radio_button_unchecked,
-                          color: isCompleted ? Colors.white : Colors.white54,
-                          size: 18,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.star_outlined,
-                            size: 12,
-                            color: Colors.amber,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '+${task['xp']} XP',
-                            style: const TextStyle(
-                              fontSize: 11,
-                              color: Colors.amber,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          const Icon(
-                            Icons.monetization_on_outlined,
-                            size: 12,
-                            color: Colors.orange,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '+${task['reward']} 🪙',
-                            style: const TextStyle(
-                              fontSize: 11,
-                              color: Colors.orange,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Text(
-                        '$progress/$total',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.white.withValues(alpha: 0.6),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                    child: FractionallySizedBox(
-                      widthFactor: progress / total,
-                      alignment: Alignment.centerLeft,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: (task['color'] as Color).withValues(alpha: 0.6),
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildWeeklyChallengesSection() {
-    final challenges = [
-      {
-        'title': 'Family Warrior',
-        'description': 'Complete 50 tasks as a family this week',
-        'progress': 35,
-        'target': 50,
-        'reward': '1000 🪙',
-        'color': Colors.blue,
-      },
-      {
-        'title': 'Social Spammers',
-        'description': 'Send 200 gifts collectively',
-        'progress': 150,
-        'target': 200,
-        'reward': '500 XP',
-        'color': Colors.pink,
-      },
-      {
-        'title': 'Voice Masters',
-        'description': 'Spend 10 hours in voice rooms',
-        'progress': 7,
-        'target': 10,
-        'reward': '2000 🪙',
-        'color': Colors.purple,
-      },
-    ];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              'Weekly Challenges',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.purple.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Text(
-                '3 active',
-                style: TextStyle(
-                  fontSize: 11,
-                  color: Colors.purple,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: challenges.length,
-          itemBuilder: (context, index) {
-            final challenge = challenges[index];
-            final progress = challenge['progress'] as int;
-            final target = challenge['target'] as int;
-
-            return Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    (challenge['color'] as Color).withValues(alpha: 0.15),
-                    (challenge['color'] as Color).withValues(alpha: 0.05),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: (challenge['color'] as Color).withValues(alpha: 0.3),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              challenge['title'] as String,
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                                color: challenge['color'] as Color,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              challenge['description'] as String,
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.white.withValues(alpha: 0.6),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Colors.orange.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          challenge['reward'] as String,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.orange,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        '$progress / $target',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.white.withValues(alpha: 0.6),
-                        ),
-                      ),
-                      Text(
-                        '${((progress / target) * 100).toInt()}%',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: challenge['color'] as Color,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  Container(
-                    height: 6,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(3),
-                    ),
-                    child: FractionallySizedBox(
-                      widthFactor: progress / target,
-                      alignment: Alignment.centerLeft,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              challenge['color'] as Color,
-                              (challenge['color'] as Color).withValues(alpha: 0.7),
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(3),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
-      ],
     );
   }
 }

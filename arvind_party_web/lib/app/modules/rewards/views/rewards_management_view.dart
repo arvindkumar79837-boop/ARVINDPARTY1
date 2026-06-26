@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class RewardsManagementView extends StatefulWidget {
-  const RewardsManagementView({Key? key}) : super(key: key);
+  const RewardsManagementView({super.key});
 
   @override
   State<RewardsManagementView> createState() => _RewardsManagementViewState();

@@ -8,10 +8,14 @@ import '../../../../core/constants/api_constants.dart';
 class RankingRepository {
   final Dio _dio =  Dio(BaseOptions(baseUrl: EnvConfig.plainApiBaseUrl));
 
-  AuthSessionManager get _session => Get.find<AuthSessionManager>();
+  RankingRepository();
+
+  AuthSessionManager get _session {
+    return Get.find<AuthSessionManager>();
+  }
 
   String _getAuthHeader() {
-    final token =  _session.token ?? '';
+    final token = _session.token;
     return 'Bearer $token';
   }
 
@@ -39,6 +43,18 @@ class RankingRepository {
           return ApiConstants.charmRanking;
         case 'gift':
           return ApiConstants.giftRanking;
+        case 'families':
+          return '${ApiConstants.rankings}/families';
+        case 'agencies':
+          return '${ApiConstants.rankings}/agencies';
+        case 'rooms':
+          return '${ApiConstants.rankings}/rooms';
+        case 'pk-battles':
+          return '${ApiConstants.rankings}/pk-battles';
+        case 'rich-list':
+          return '${ApiConstants.rankings}/rich-list';
+        case 'popular-list':
+          return '${ApiConstants.rankings}/popular-list';
         default:
           return ApiConstants.wealthRanking;
       }

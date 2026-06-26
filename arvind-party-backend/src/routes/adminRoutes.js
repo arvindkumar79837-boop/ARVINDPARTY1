@@ -340,6 +340,36 @@ router.post('/rewards/revoke/:id', verifyAdmin, rewardInjectorController.revokeR
 router.get('/rewards/user/:uid', rewardInjectorController.getUserRewards);
 
 // ===========================================================================
+// REWARD CONFIG (Dynamic probability & prize management)
+// ===========================================================================
+
+const rewardConfigController = require('../controllers/rewardConfigController');
+
+// POST /api/admin/reward-configs - Create reward configuration
+router.post('/reward-configs', verifyAdmin, rewardConfigController.createRewardConfig);
+
+// GET /api/admin/reward-configs - Get all reward configurations
+router.get('/reward-configs', rewardConfigController.getAllRewardConfigs);
+
+// GET /api/admin/reward-configs/:id - Get single reward config
+router.get('/reward-configs/:id', rewardConfigController.getRewardConfigById);
+
+// PUT /api/admin/reward-configs/:id - Update reward config (live)
+router.put('/reward-configs/:id', verifyAdmin, rewardConfigController.updateRewardConfig);
+
+// DELETE /api/admin/reward-configs/:id - Delete reward config
+router.delete('/reward-configs/:id', verifyAdmin, rewardConfigController.deleteRewardConfig);
+
+// POST /api/admin/reward-configs/:id/deploy - Deploy config as active
+router.post('/reward-configs/:id/deploy', verifyAdmin, rewardConfigController.deployRewardConfig);
+
+// GET /api/admin/reward-configs/analytics/:id - Get config analytics
+router.get('/reward-configs/analytics/:id', rewardConfigController.getRewardAnalytics);
+
+// GET /api/admin/reward-configs/tiers - Get reward tier definitions
+router.get('/reward-configs/tiers', rewardConfigController.getRewardTiers);
+
+// ===========================================================================
 // SEARCH
 // ===========================================================================
 

@@ -7,6 +7,20 @@ import 'package:flutter/material.dart';
 import '../core/constants/auth_controller.dart';
 import '../core/theme/web_theme.dart';
 import '../modules/dashboard/dashboard_view.dart';
+import '../modules/vip/views/vip_admin_view.dart';
+import '../modules/family_management/family_management_view.dart';
+import '../modules/security/security_dashboard_view.dart';
+import '../modules/security/security_binding.dart';
+import '../modules/events/event_management_view.dart';
+import '../modules/events/lucky_draw_management_view.dart';
+import '../modules/events/daily_task_management_view.dart';
+import '../modules/events/invite_management_view.dart';
+import '../modules/events/login_streak_management_view.dart';
+import '../modules/analytics/views/analytics_dashboard_view.dart';
+import '../modules/analytics/bindings/analytics_binding.dart';
+import '../modules/localization/localization_management_view.dart';
+import '../modules/wallets/wallet_management_view.dart';
+import '../modules/pk_battle/pk_battle_management_view.dart';
 import 'app_routes.dart';
 
 class AppPages {
@@ -16,11 +30,61 @@ class AppPages {
       page: () => const LoginPage(),
     ),
     GetPage(
+      name: AppRoutes.localization,
+      page: () => const LocalizationManagementView(),
+    ),
+    GetPage(
       name: AppRoutes.dashboard,
       page: () => const DashboardView(),
       binding: BindingsBuilder(() {
         Get.put<AuthController>(AuthController(), permanent: true);
       }),
+    ),
+    GetPage(
+      name: AppRoutes.securityDashboard,
+      page: () => const SecurityDashboardView(),
+      binding: SecurityBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.vipAdmin,
+      page: () => const VipAdminView(),
+    ),
+    GetPage(
+      name: AppRoutes.families,
+      page: () => const FamilyManagementView(),
+    ),
+    GetPage(
+      name: AppRoutes.events,
+      page: () => const EventManagementView(),
+    ),
+    GetPage(
+      name: AppRoutes.luckyDraws,
+      page: () => const LuckyDrawManagementView(),
+    ),
+    GetPage(
+      name: AppRoutes.dailyTasks,
+      page: () => const DailyTaskManagementView(),
+    ),
+    GetPage(
+      name: AppRoutes.invites,
+      page: () => const InviteManagementView(),
+    ),
+    GetPage(
+      name: AppRoutes.loginStreaks,
+      page: () => const LoginStreakManagementView(),
+    ),
+    GetPage(
+      name: AppRoutes.analyticsDashboard,
+      page: () => const AnalyticsDashboardView(),
+      binding: AnalyticsBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.walletManagement,
+      page: () => const WalletManagementView(),
+    ),
+    GetPage(
+      name: AppRoutes.pkBattleManagement,
+      page: () => PkBattleManagementView(),
     ),
   ];
 }

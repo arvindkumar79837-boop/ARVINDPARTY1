@@ -7,7 +7,6 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import '../../../../core/socket/socket_service.dart';
-import '../../../../core/services/auth_session_manager.dart';
 
 class RoomSocketService extends GetxService {
   static RoomSocketService get to => Get.find<RoomSocketService>();

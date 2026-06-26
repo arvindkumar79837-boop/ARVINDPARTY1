@@ -101,7 +101,7 @@ class SettingsScreen extends StatelessWidget {
                 spacing: 8,
                 runSpacing: 8,
                 children: controller.languages.map((lang) {
-                  final isSelected = controller.selectedLanguage.value == lang;
+                  final isSelected = controller.selectedLanguage.value == lang.code;
                   return GestureDetector(
                     onTap: () => controller.setLanguage(lang),
                     child: Container(
@@ -114,7 +114,7 @@ class SettingsScreen extends StatelessWidget {
                         ),
                       ),
                       child: Text(
-                        lang,
+                        '${lang.flagEmoji} ${lang.nativeName}',
                         style: TextStyle(
                           color: isSelected ? Colors.black : Colors.white70,
                           fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
@@ -269,14 +269,25 @@ class SettingsScreen extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _buildAccountOption(Icons.person, 'Edit Profile', () {}),
+          _buildAccountOption(Icons.person, 'Edit Profile', () {
+            _showEditProfileDialog(controller);
+          }),
+          const Divider(color: Colors.white10, height: 24),
+          _buildAccountOption(Icons.support_agent, 'Contact Support', () {
+            _showSupportDialog(controller);
+          }),
+          const Divider(color: Colors.white10, height: 24),
+          _buildAccountOption(Icons.inbox, 'Agency Invitations', () {
+            _showInboxDialog(controller);
+          }),
           const Divider(color: Colors.white10, height: 24),
           _buildAccountOption(Icons.security, 'Security Center', () {}),
           const Divider(color: Colors.white10, height: 24),
           _buildAccountOption(Icons.link, 'Linked Accounts', () {}),
           const Divider(color: Colors.white10, height: 24),
-          _buildAccountOption(Icons.delete_sweep, 'Delete Account', () {},
-              textColor: Colors.red),
+          _buildAccountOption(Icons.delete_sweep, 'Delete Account', () {
+            _showDeleteAccountDialog(controller);
+          }, textColor: Colors.red),
         ],
       ),
     );
@@ -300,6 +311,228 @@ class SettingsScreen extends StatelessWidget {
             ),
           ),
           Icon(Icons.chevron_right, color: Colors.white.withValues(alpha: 0.3), size: 20),
+        ],
+      ),
+    );
+  }
+
+  void _showEditProfileDialog(SettingsController controller) {
+    final nameController = TextEditingController(text: controller.userName.value);
+    final bioController = TextEditingController(text: controller.userBio.value);
+    
+    Get.dialog(
+      AlertDialog(
+        backgroundColor: const Color(0xFF2A2A4E),
+        title: const Text('Edit Profile', style: TextStyle(color: Colors.white)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameController,
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(
+                labelText: 'Name',
+                labelStyle: TextStyle(color: Colors.white70),
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: bioController,
+              style: const TextStyle(color: Colors.white),
+              maxLines: 3,
+              decoration: const InputDecoration(
+                labelText: 'Bio',
+                labelStyle: TextStyle(color: Colors.white70),
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              controller.updateProfile(data: {
+                'name': nameController.text,
+                'bio': bioController.text,
+              });
+              Get.back();
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF9800)),
+            child: const Text('Save', style: TextStyle(color: Colors.black)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteAccountDialog(SettingsController controller) {
+    final passwordController = TextEditingController();
+    
+    Get.dialog(
+      AlertDialog(
+        backgroundColor: const Color(0xFF2A2A4E),
+        title: const Text('Delete Account', style: TextStyle(color: Colors.red)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'This action cannot be undone. All your data will be permanently deleted.',
+              style: TextStyle(color: Colors.white70, fontSize: 13),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: passwordController,
+              style: const TextStyle(color: Colors.white),
+              obscureText: true,
+              decoration: const InputDecoration(
+                labelText: 'Enter Password',
+                labelStyle: TextStyle(color: Colors.white70),
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (passwordController.text.isNotEmpty) {
+                controller.deleteAccount(passwordController.text);
+                Get.back();
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Delete Forever', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showSupportDialog(SettingsController controller) {
+    final subjectController = TextEditingController();
+    final messageController = TextEditingController();
+    
+    Get.dialog(
+      AlertDialog(
+        backgroundColor: const Color(0xFF2A2A4E),
+        title: const Text('Contact Support', style: TextStyle(color: Colors.white)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: subjectController,
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(
+                labelText: 'Subject',
+                labelStyle: TextStyle(color: Colors.white70),
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: messageController,
+              style: const TextStyle(color: Colors.white),
+              maxLines: 5,
+              decoration: const InputDecoration(
+                labelText: 'Describe your issue',
+                labelStyle: TextStyle(color: Colors.white70),
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (subjectController.text.isNotEmpty && messageController.text.isNotEmpty) {
+                controller.createTicket(subjectController.text, messageController.text);
+                Get.back();
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF9800)),
+            child: const Text('Send', style: TextStyle(color: Colors.black)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showInboxDialog(SettingsController controller) {
+    Get.dialog(
+      AlertDialog(
+        backgroundColor: const Color(0xFF2A2A4E),
+        title: const Text('Agency Invitations', style: TextStyle(color: Colors.white)),
+        content: SizedBox(
+          width: double.maxFinite,
+          height: 400,
+          child: Obx(() {
+            if (controller.tickets.isEmpty) {
+              return const Center(
+                child: Text('No pending invitations', style: TextStyle(color: Colors.white70)),
+              );
+            }
+            return ListView.builder(
+              itemCount: controller.tickets.length,
+              itemBuilder: (context, index) {
+                final ticket = controller.tickets[index];
+                return Card(
+                  color: const Color(0xFF1A1A2E),
+                  margin: const EdgeInsets.symmetric(vertical: 4),
+                  child: ListTile(
+                    title: Text(ticket['subject'] ?? 'Invitation', style: const TextStyle(color: Colors.white)),
+                    subtitle: Text(
+                      ticket['message'] ?? '',
+                      style: const TextStyle(color: Colors.white70, fontSize: 12),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.check, color: Colors.green),
+                          onPressed: () {
+                            controller.replyToTicket(
+                              ticket['_id'],
+                              'Accepted',
+                            );
+                          },
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close, color: Colors.red),
+                          onPressed: () {
+                            controller.replyToTicket(
+                              ticket['_id'],
+                              'Rejected',
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            );
+          }),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text('Close', style: TextStyle(color: Colors.white70)),
+          ),
         ],
       ),
     );

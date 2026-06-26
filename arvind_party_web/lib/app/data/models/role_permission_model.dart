@@ -37,7 +37,12 @@ class UserPermissions {
 
   // सिक्योरिटी कंट्रोल्स
   final canBanUsers = false.obs;
+  final canViewSecurityDashboard = false.obs;
+  final canViewAuditLogs = false.obs;
   final isPasswordLocked = true.obs; // स्टाफ के लिए हमेशा true रहेगा
+
+  // 2FA Lock
+  final is2faLocked = false.obs;
 
   UserPermissions({
     required bool generateCoins,
@@ -49,7 +54,10 @@ class UserPermissions {
     required bool manageAgencies,
     required bool addMiniGames,
     required bool banUsers,
+    required bool viewSecurityDashboard,
+    required bool viewAuditLogs,
     required bool passwordLocked,
+    required bool is2faLocked,
   }) {
     canGenerateCoins.value = generateCoins;
     canTransferCoins.value = transferCoins;
@@ -60,7 +68,22 @@ class UserPermissions {
     canManageAgencies.value = manageAgencies;
     canAddMiniGames.value = addMiniGames;
     canBanUsers.value = banUsers;
+    canViewSecurityDashboard.value = viewSecurityDashboard;
+    canViewAuditLogs.value = viewAuditLogs;
     isPasswordLocked.value = passwordLocked;
+    this.is2faLocked.value = is2faLocked;
+  }
+
+  /// Special constructor for Owner's God Mode
+  factory UserPermissions.godMode() {
+    return UserPermissions(
+        generateCoins: true, transferCoins: true, approveWithdrawals: true,
+        manageStaff: true, changeBanners: true, giveFrames: true,
+        manageAgencies: true, addMiniGames: true, banUsers: true,
+        viewSecurityDashboard: true, viewAuditLogs: true,
+        passwordLocked: false,
+        is2faLocked: false
+    );
   }
 
   /// फैक्ट्री कंस्ट्रक्टर: बैकएंड JSON डेटा को मॉडल में बदलने के लिए
@@ -75,7 +98,10 @@ class UserPermissions {
       manageAgencies: json['manageAgencies'] ?? false,
       addMiniGames: json['addMiniGames'] ?? false,
       banUsers: json['banUsers'] ?? false,
+      viewSecurityDashboard: json['viewSecurityDashboard'] ?? false,
+      viewAuditLogs: json['viewAuditLogs'] ?? false,
       passwordLocked: json['passwordLocked'] ?? true,
+      is2faLocked: json['is2faLocked'] ?? false,
     );
   }
 
@@ -90,6 +116,9 @@ class UserPermissions {
         'manageAgencies': canManageAgencies.value,
         'addMiniGames': canAddMiniGames.value,
         'banUsers': canBanUsers.value,
+        'viewSecurityDashboard': canViewSecurityDashboard.value,
+        'viewAuditLogs': canViewAuditLogs.value,
         'passwordLocked': isPasswordLocked.value,
+        'is2faLocked': is2faLocked.value,
       };
 }

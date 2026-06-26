@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import '../../auth/controllers/role_auth_controller.dart'; // अपने कंट्रोलर का सही पाथ दें
 
 class CoinGeneratorView extends StatefulWidget {
-  const CoinGeneratorView({Key? key}) : super(key: key);
+  const CoinGeneratorView({super.key});
 
   @override
   State<CoinGeneratorView> createState() => _CoinGeneratorViewState();

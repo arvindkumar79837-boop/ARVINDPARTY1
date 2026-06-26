@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class HostEarningExchangeView extends StatefulWidget {
-  const HostEarningExchangeView({Key? key}) : super(key: key);
+  const HostEarningExchangeView({super.key});
 
   @override
   State<HostEarningExchangeView> createState() => _HostEarningExchangeViewState();

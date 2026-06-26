@@ -87,6 +87,7 @@ class AuthSessionManager extends GetxService {
     String? userEmail,
     String? userPhone,
     String? userAvatar,
+    bool isGuest = false,
   }) async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -108,6 +109,7 @@ class AuthSessionManager extends GetxService {
       if (userEmail != null) await prefs.setString(EnvConfig.userEmailKey, userEmail);
       if (userPhone != null) await prefs.setString(EnvConfig.userPhoneKey, userPhone);
       if (userAvatar != null) await prefs.setString(EnvConfig.userAvatarKey, userAvatar);
+      await prefs.setBool('is_guest', isGuest);
 
       isLoggedIn.value = true;
       

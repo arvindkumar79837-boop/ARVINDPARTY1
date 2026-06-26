@@ -11,8 +11,19 @@ import 'routes/app_routes.dart';
 
 // ============================================================
 // ARVIND PARTY WEB — Admin Panel Entry Point
-// Connects to same Firebase project as Mobile App
 // ============================================================
+
+// Securely define Firebase options using compile-time variables.
+// These values are passed during the build command, e.g.:
+// flutter run -d chrome --dart-define=FIREBASE_API_KEY=YOUR_KEY
+const firebaseOptions = FirebaseOptions(
+  apiKey: String.fromEnvironment('FIREBASE_API_KEY', defaultValue: 'NOT_SET'),
+  authDomain: String.fromEnvironment('FIREBASE_AUTH_DOMAIN', defaultValue: 'NOT_SET'),
+  projectId: String.fromEnvironment('FIREBASE_PROJECT_ID', defaultValue: 'NOT_SET'),
+  storageBucket: String.fromEnvironment('FIREBASE_STORAGE_BUCKET', defaultValue: 'NOT_SET'),
+  messagingSenderId: String.fromEnvironment('FIREBASE_MESSAGING_SENDER_ID', defaultValue: 'NOT_SET'),
+  appId: String.fromEnvironment('FIREBASE_APP_ID', defaultValue: 'NOT_SET'),
+);
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,29 +33,11 @@ Future<void> main() async {
     DeviceOrientation.landscapeRight,
     DeviceOrientation.portraitUp,
   ]);
-  SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      statusBarBrightness: Brightness.light,
-      statusBarIconBrightness: Brightness.light,
-      systemNavigationBarColor: Color(0xFF0F0E17),
-      systemNavigationBarIconBrightness: Brightness.light,
-    ),
-  );
-
+  
   await GetStorage.init();
 
-  // Firebase initialized with same project as mobile app
-  await Firebase.initializeApp(
-    options: const FirebaseOptions(
-      apiKey: 'AIzaSyD9qZDYKY5rG_wg0xghkeq_zlMPeKCcP-Y',
-      authDomain: 'arvind-party-e583b.firebaseapp.com',
-      projectId: 'arvind-party-e583b',
-      storageBucket: 'arvind-party-e583b.firebasestorage.app',
-      messagingSenderId: '59307295659',
-      appId: '1:59307295659:web:02ea59abfaf00c6938c8ee',
-    ),
-  );
+  // Initialize Firebase securely using the compile-time options.
+  await Firebase.initializeApp(options: firebaseOptions);
 
   Get.put<AdminApi>(AdminApi(), permanent: true);
   Get.put<AuthController>(AuthController(), permanent: true);

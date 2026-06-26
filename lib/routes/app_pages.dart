@@ -51,6 +51,7 @@ import '../features/auth/presentation/views/device_binding_screen.dart';
 import '../features/auth/presentation/views/multi_device_control_screen.dart';
 import '../features/auth/presentation/views/session_management_screen.dart';
 import '../features/auth/presentation/views/account_security_screen.dart';
+import '../features/auth/presentation/views/mobile_security_screen.dart';
 import '../features/auth/presentation/bindings/auth_binding.dart';
 
 // Home
@@ -66,6 +67,7 @@ import '../features/profile/presentation/views/mission_screen.dart' as profile_m
 import '../features/profile/presentation/bindings/profile_binding.dart';
 
 // Wallet
+import '../features/wallet/presentation/views/wallet_hub_screen.dart';
 import '../features/wallet/presentation/views/wallet_screen.dart';
 import '../features/wallet/presentation/views/withdrawal_screen.dart';
 import '../features/wallet/presentation/views/withdrawal_management_view.dart';
@@ -97,9 +99,17 @@ import '../features/search/presentation/bindings/search_binding.dart';
 // User Center
 import '../features/wallet/presentation/views/user_center_screen.dart';
 
-// VIP System
+// VIP System (Legacy)
 import '../features/vip/views/vip_screen.dart';
 import '../features/vip/bindings/vip_binding.dart';
+
+// VIP System NEW (VIP 1-15, SVIP, Premium, Cosmetics, Missions)
+import '../features/vip_system/views/vip_dashboard_view.dart';
+import '../features/vip_system/views/vip_shop_view.dart';
+import '../features/vip_system/views/vip_missions_view.dart';
+import '../features/vip_system/views/vip_cosmetics_view.dart';
+import '../features/vip_system/views/vip_premium_view.dart';
+import '../features/vip_system/controllers/vip_system_controller.dart';
 
 // Ranking
 import '../features/ranking/presentation/views/game_leaderboard_screen.dart';
@@ -157,6 +167,10 @@ import '../features/cp/presentation/views/recharge_history_screen.dart' as cp_re
 import '../features/cp/presentation/views/settlement_history_screen.dart' as cp_settlement;
 import '../features/cp/presentation/bindings/coin_seller_binding.dart';
 
+// Dealer
+import '../features/dealer/presentation/views/dealer_wallet_screen.dart';
+import '../features/dealer/presentation/controllers/dealer_controller.dart';
+
 // Agency
 import '../features/agency/presentation/views/agency_home_screen.dart';
 import '../features/agency/presentation/views/agency_members_screen.dart';
@@ -173,6 +187,9 @@ import '../features/admin/presentation/views/admin_dashboard_screen.dart';
 import '../features/admin/presentation/views/staff_management_screen.dart';
 import '../features/admin/presentation/views/broadcast_screen.dart';
 import '../features/admin/presentation/bindings/admin_binding.dart';
+
+// Analytics
+import '../features/analytics/presentation/views/analytics_dashboard_screen.dart';
 
 import 'app_routes.dart';
 
@@ -259,6 +276,11 @@ class AppPages {
       binding: AuthBinding(),
     ),
     GetPage(
+      name: AppRoutes.securityCenter,
+      page: () => const MobileSecurityScreen(),
+      binding: AuthBinding(),
+    ),
+    GetPage(
       name: AppRoutes.completeProfile,
       page: () => CompleteProfileScreen(),
       binding: ProfileBinding(),
@@ -279,6 +301,32 @@ class AppPages {
       name: AppRoutes.vip,
       page: () => const VIPScreen(),
       binding: VIPBinding(),
+    ),
+
+    // ─── VIP SYSTEM NEW ──────────────────────────────────
+    GetPage(
+      name: AppRoutes.vipDashboard,
+      page: () => const VipDashboardView(),
+    ),
+    GetPage(
+      name: AppRoutes.vipShop,
+      page: () => const VipShopView(),
+    ),
+    GetPage(
+      name: AppRoutes.vipMissions,
+      page: () => const VipMissionsView(),
+    ),
+    GetPage(
+      name: AppRoutes.vipCosmetics,
+      page: () => const VipCosmeticsView(),
+    ),
+    GetPage(
+      name: AppRoutes.premium,
+      page: () => const PremiumView(),
+    ),
+    GetPage(
+      name: AppRoutes.vipLeaderboard,
+      page: () => const VipDashboardView(),
     ),
 
     // ─── PROFILE ──────────────────────────────────────────
@@ -306,7 +354,7 @@ class AppPages {
     // ─── WALLET ───────────────────────────────────────────
     GetPage(
       name: AppRoutes.wallet,
-      page: () => const WalletScreen(),
+      page: () => const WalletHubScreen(),
       binding: WalletBinding(),
     ),
     GetPage(
@@ -412,6 +460,11 @@ class AppPages {
     GetPage(
       name: AppRoutes.roomDetail,
       page: () => const RoomDetailScreen(),
+      binding: RoomBinding(roomId: '', roomOwnerId: ''),
+    ),
+    GetPage(
+      name: AppRoutes.liveRoom,
+      page: () => const LiveRoomScreen(),
       binding: RoomBinding(roomId: '', roomOwnerId: ''),
     ),
     GetPage(
@@ -560,6 +613,13 @@ class AppPages {
       page: () => const cp_settlement.SettlementHistoryScreen(),
       binding: CoinSellerBinding(),
     ),
+    GetPage(
+      name: '/dealer-wallet',
+      page: () => const DealerWalletScreen(),
+      binding: BindingsBuilder(() {
+        Get.put(DealerController());
+      }),
+    ),
 
     // ─── AGENCY ───────────────────────────────────────────
     GetPage(
@@ -668,6 +728,17 @@ class AppPages {
       name: '/admin/broadcast',
       page: () => const BroadcastScreen(),
       binding: AdminBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.walletManagement,
+      page: () => const AdminWalletManagementView(),
+      binding: AdminBinding(),
+    ),
+
+    // ─── GLOBAL ANALYTICS ────────────────────────────────
+    GetPage(
+      name: AppRoutes.globalAnalytics,
+      page: () => const AnalyticsDashboardScreen(),
     ),
   ];
 }

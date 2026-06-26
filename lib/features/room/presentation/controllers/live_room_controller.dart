@@ -1,21 +1,25 @@
 // ═══════════════════════════════════════════════════════════════════════════
-// FILE: lib/modules/room/controllers/live_room_controller.dart
+// FILE: lib/features/room/presentation/controllers/live_room_controller.dart
 // ARVIND PARTY - LIVE STREAMING CONTROLLER (with stub for Agora)
 // Agora activated when package is added
 // ═══════════════════════════════════════════════════════════════════════════
 
 import 'dart:async';
+import 'package:agora_uikit/agora_uikit.dart';
+import 'package:arvind_party/core/constants/env_config.dart';
+import 'package:arvind_party/core/services/api_service.dart';
+import 'package:arvind_party/features/room/models/room_models.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:socket_io_client/socket_io_client.dart' as io;
 import 'package:get_storage/get_storage.dart';
-import '../../../../../core/constants/env_config.dart';
-import '../../../../../core/services/api_service.dart';
-import '../../models/room_models.dart';
+import 'package:socket_io_client/socket_io_client.dart' as io;
 
 class LiveRoomController extends GetxController {
   final ApiService _apiService = Get.find<ApiService>();
   final GetStorage _storage = GetStorage();
+
+  // ─── Agora Client ──────────────────────────────────────────
+  late final AgoraClient client;
 
   // ─── Room Identity ──────────────────────────────────────────
   final String roomId;
@@ -75,7 +79,22 @@ class LiveRoomController extends GetxController {
     _initializeSeats(initialSeatCount);
     _initSocket();
     _fetchAvailableGifts();
-    debugPrint('[LiveRoom] Agora SDK not included. Using stub.');
+    _initAgora();
+  }
+
+  Future<void> _initAgora() async {
+    client = AgoraClient(
+      agoraConnectionData: AgoraConnectionData(
+        appId: EnvConfig.agoraAppId,
+        channelName: roomId,
+        username: currentUserName,
+      ),
+      enabledPermission: [
+        Permission.camera,
+        Permission.microphone,
+      ],
+    );
+    await client.initialize();
     isAgoraInitialized.value = true;
   }
 
@@ -84,7 +103,7 @@ class LiveRoomController extends GetxController {
     final validCount = count;
     seatCount.value = validCount;
     seats.assignAll(
-      List.generate(validCount, (i) => SeatData(index: i)),
+      List.generate(validCount, (i) => SeatData(seatIndex: i)),
     );
   }
 
@@ -112,7 +131,8 @@ class LiveRoomController extends GetxController {
     try {
       final userId = _storage.read('user_id');
       if (userId == null) {
-        Get.snackbar('Error', 'You are not logged in.', backgroundColor: Colors.redAccent);
+        Get.snackbar('Error', 'You are not logged in.',
+            backgroundColor: Colors.redAccent);
         return;
       }
 
@@ -155,7 +175,8 @@ class LiveRoomController extends GetxController {
   void _registerSocketEventListeners() {
     socket!.on('receive_room_message', (data) {
       if (data is Map) {
-        chatMessages.insert(0, ChatMessage.fromJson(Map<String, dynamic>.from(data)));
+        chatMessages.insert(
+            0, ChatMessage.fromJson(Map<String, dynamic>.from(data)));
       }
     });
 
@@ -170,7 +191,8 @@ class LiveRoomController extends GetxController {
               .toList();
           seats.assignAll(updatedSeats);
         } else {
-          final updatedSeat = SeatData.fromJson(Map<String, dynamic>.from(data));
+          final updatedSeat =
+              SeatData.fromJson(Map<String, dynamic>.from(data));
           final index = seats.indexWhere((s) => s.index == updatedSeat.index);
           if (index != -1) {
             seats[index] = updatedSeat;
@@ -313,14 +335,14 @@ class LiveRoomController extends GetxController {
         members.assignAll(
           membersList
               .map((m) => RoomMemberModel(
-                id: m['id']?.toString() ?? '',
-                userId: m['userId']?.toString() ?? '',
-                userName: m['userName']?.toString() ?? 'Unknown',
-                role: _parseRole(m['role']?.toString() ?? 'member'),
-                isOnline: m['isOnline'] ?? true,
-                avatar: m['avatar']?.toString(),
-                userLevel: m['userLevel'] as int?,
-              ))
+                    id: m['id']?.toString() ?? '',
+                    userId: m['userId']?.toString() ?? '',
+                    userName: m['userName']?.toString() ?? 'Unknown',
+                    role: _parseRole(m['role']?.toString() ?? 'member'),
+                    isOnline: m['isOnline'] ?? true,
+                    avatar: m['avatar']?.toString(),
+                    userLevel: m['userLevel'] as int?,
+                  ))
               .toList(),
         );
       }
@@ -331,7 +353,8 @@ class LiveRoomController extends GetxController {
       if (data is Map && data['targetUserId']?.toString() == currentUserId) {
         isMuted.value = false;
         Get.snackbar('Unmuted', 'You have been unmuted',
-            backgroundColor: Colors.greenAccent, colorText: Colors.black,
+            backgroundColor: Colors.greenAccent,
+            colorText: Colors.black,
             duration: const Duration(seconds: 2));
       }
     });
@@ -346,7 +369,8 @@ class LiveRoomController extends GetxController {
         }
         if (userId == currentUserId) {
           Get.snackbar('Promoted', 'You have been promoted to ${newRole.name}',
-              backgroundColor: Colors.blueAccent, colorText: Colors.white,
+              backgroundColor: Colors.blueAccent,
+              colorText: Colors.white,
               duration: const Duration(seconds: 3));
         }
       }
@@ -362,7 +386,8 @@ class LiveRoomController extends GetxController {
         }
         if (userId == currentUserId) {
           Get.snackbar('Demoted', 'You have been demoted to ${newRole.name}',
-              backgroundColor: Colors.orangeAccent, colorText: Colors.white,
+              backgroundColor: Colors.orangeAccent,
+              colorText: Colors.white,
               duration: const Duration(seconds: 3));
         }
       }
@@ -421,13 +446,13 @@ class LiveRoomController extends GetxController {
       if (data is Map) {
         final userId = data['userId']?.toString();
         final isMutedRemote = data['isMuted'] as bool? ?? false;
-        
+
         // Update seat mute state
         final seatIdx = seats.indexWhere((s) => s.userId == userId);
         if (seatIdx != -1) {
           seats[seatIdx] = seats[seatIdx].copyWith(isMuted: isMutedRemote);
         }
-        
+
         // Track remote user mute state
         if (isMutedRemote && !mutedRemoteUsers.contains(userId.hashCode)) {
           mutedRemoteUsers.add(userId.hashCode);
@@ -440,7 +465,8 @@ class LiveRoomController extends GetxController {
     socket!.on('connection_error', (data) {
       if (data is Map) {
         debugPrint('[Socket] Connection error: ${data['message']}');
-        Get.snackbar('Connection Error', data['message']?.toString() ?? 'Unknown error',
+        Get.snackbar(
+            'Connection Error', data['message']?.toString() ?? 'Unknown error',
             backgroundColor: Colors.redAccent, colorText: Colors.white);
       }
     });
@@ -491,8 +517,10 @@ class LiveRoomController extends GetxController {
     try {
       final response = await _apiService.get('/gifts');
       if (response is Map && response['success'] == true) {
-        final list = response['data'] as List? ?? response['gifts'] as List? ?? [];
-        availableGifts.assignAll(list.map((e) => Map<String, dynamic>.from(e)).toList());
+        final list =
+            response['data'] as List? ?? response['gifts'] as List? ?? [];
+        availableGifts
+            .assignAll(list.map((e) => Map<String, dynamic>.from(e)).toList());
       }
     } catch (e) {
       debugPrint('[Gifts] Fetch error: $e');
@@ -506,10 +534,14 @@ class LiveRoomController extends GetxController {
       if (response is Map && response['success'] == true) {
         final data = response['data'] as Map? ?? {};
         kickedUsersList.assignAll(
-          (data['kickedUsers'] as List? ?? []).map((e) => Map<String, dynamic>.from(e)).toList(),
+          (data['kickedUsers'] as List? ?? [])
+              .map((e) => Map<String, dynamic>.from(e))
+              .toList(),
         );
         mutedUsersList.assignAll(
-          (data['mutedUsers'] as List? ?? []).map((e) => Map<String, dynamic>.from(e)).toList(),
+          (data['mutedUsers'] as List? ?? [])
+              .map((e) => Map<String, dynamic>.from(e))
+              .toList(),
         );
       }
     } catch (e) {
@@ -549,7 +581,10 @@ class LiveRoomController extends GetxController {
     final idx = activeSeat.value;
     if (idx == null || idx < 0 || idx >= seats.length) return;
     seats[idx] = seats[idx].copyWith(
-      userId: null, userName: null, userAvatar: null, role: 'empty',
+      userId: null,
+      userName: null,
+      userAvatar: null,
+      role: 'empty',
     );
     activeSeat.value = null;
     isMuted.value = false;
@@ -557,65 +592,99 @@ class LiveRoomController extends GetxController {
   }
 
   void toggleLockSeat(int seatIndex) {
-    if (currentUserId != roomOwnerId || seatIndex < 0 || seatIndex >= seats.length) return;
+    if (currentUserId != roomOwnerId ||
+        seatIndex < 0 ||
+        seatIndex >= seats.length) {
+      return;
+    }
     final newLocked = !seats[seatIndex].isLocked;
     seats[seatIndex] = seats[seatIndex].copyWith(isLocked: newLocked);
     socket!.emit(newLocked ? 'lock_seat' : 'unlock_seat', {
-      'roomId': roomId, 'seatIndex': seatIndex,
+      'roomId': roomId,
+      'seatIndex': seatIndex,
     });
   }
 
   void muteSeat(int seatIndex) {
-    if (currentUserId != roomOwnerId || seatIndex < 0 || seatIndex >= seats.length) return;
+    if (currentUserId != roomOwnerId ||
+        seatIndex < 0 ||
+        seatIndex >= seats.length) {
+      return;
+    }
     seats[seatIndex] = seats[seatIndex].copyWith(isMuted: true);
     socket!.emit('admin_mute_seat', {'roomId': roomId, 'seatIndex': seatIndex});
   }
 
   void unmuteSeat(int seatIndex) {
-    if (currentUserId != roomOwnerId || seatIndex < 0 || seatIndex >= seats.length) return;
+    if (currentUserId != roomOwnerId ||
+        seatIndex < 0 ||
+        seatIndex >= seats.length) {
+      return;
+    }
     seats[seatIndex] = seats[seatIndex].copyWith(isMuted: false);
-    socket!.emit('admin_unmute_seat', {'roomId': roomId, 'seatIndex': seatIndex});
+    socket!
+        .emit('admin_unmute_seat', {'roomId': roomId, 'seatIndex': seatIndex});
   }
 
   void kickFromSeat(int seatIndex) {
-    if (currentUserId != roomOwnerId || seatIndex < 0 || seatIndex >= seats.length) return;
+    if (currentUserId != roomOwnerId ||
+        seatIndex < 0 ||
+        seatIndex >= seats.length) {
+      return;
+    }
     seats[seatIndex] = seats[seatIndex].copyWith(
-      userId: null, userName: null, userAvatar: null, isMuted: false, role: 'empty',
+      userId: null,
+      userName: null,
+      userAvatar: null,
+      isMuted: false,
+      role: 'empty',
     );
     if (activeSeat.value == seatIndex) activeSeat.value = null;
     socket!.emit('kick_from_seat', {'roomId': roomId, 'seatIndex': seatIndex});
   }
 
-  void transferSeat(int fromSeatIndex, String toUserId, String toUserName, String toUserAvatar) {
-    if (currentUserId != roomOwnerId || fromSeatIndex < 0 || fromSeatIndex >= seats.length) return;
+  void transferSeat(
+      int fromSeatIndex, String toUserId, String toUserName, String toUserAvatar) {
+    if (currentUserId != roomOwnerId ||
+        fromSeatIndex < 0 ||
+        fromSeatIndex >= seats.length) {
+      return;
+    }
     seats[fromSeatIndex] = seats[fromSeatIndex].copyWith(
-      userId: toUserId, userName: toUserName, userAvatar: toUserAvatar,
+      userId: toUserId,
+      userName: toUserName,
+      userAvatar: toUserAvatar,
     );
     socket!.emit('transfer_seat', {
-      'roomId': roomId, 'seatIndex': fromSeatIndex, 'toUserId': toUserId,
+      'roomId': roomId,
+      'seatIndex': fromSeatIndex,
+      'toUserId': toUserId,
     });
   }
 
   // ══════════════════════════════════════════════════════════════════
-  // AUDIO/VIDEO CONTROLS (stub - Agora can be added later)
+  // AUDIO/VIDEO CONTROLS
   // ══════════════════════════════════════════════════════════════════
 
   void toggleMute() {
-    isMuted.value = !isMuted.value;
-    socket?.emit('toggle_mic', {
-      'roomId': roomId, 'userId': currentUserId, 'isMuted': isMuted.value,
-    });
+    if (isAgoraInitialized.value) {
+      client.sessionController.toggleMute();
+      isMuted.value = !isMuted.value;
+    }
   }
 
   void toggleVideo() {
-    isVideoEnabled.value = !isVideoEnabled.value;
-    socket?.emit('toggle_video', {
-      'roomId': roomId, 'userId': currentUserId, 'isVideoEnabled': isVideoEnabled.value,
-    });
+    if (isAgoraInitialized.value) {
+      client.sessionController.toggleCamera();
+      isVideoEnabled.value = !isVideoEnabled.value;
+    }
   }
 
   void toggleSpeaker() {
-    isSpeakerEnabled.value = !isSpeakerEnabled.value;
+    if (isAgoraInitialized.value) {
+      client.sessionController.toggleSpeaker();
+      isSpeakerEnabled.value = !isSpeakerEnabled.value;
+    }
   }
 
   // ══════════════════════════════════════════════════════════════════
@@ -639,10 +708,13 @@ class LiveRoomController extends GetxController {
   void raiseHand() {
     if (socket == null || !isConnected.value) return;
     socket!.emit('raise_hand', {
-      'roomId': roomId, 'userId': currentUserId, 'userName': currentUserName,
+      'roomId': roomId,
+      'userId': currentUserId,
+      'userName': currentUserName,
     });
     Get.snackbar('Hand Raised', 'Waiting for host approval',
-        backgroundColor: Colors.orangeAccent, colorText: Colors.white,
+        backgroundColor: Colors.orangeAccent,
+        colorText: Colors.white,
         duration: const Duration(seconds: 2));
   }
 
@@ -675,6 +747,9 @@ class LiveRoomController extends GetxController {
       }
       socket!.disconnect();
       socket!.dispose();
+    }
+    if (isAgoraInitialized.value) {
+      client.release();
     }
     super.onClose();
   }

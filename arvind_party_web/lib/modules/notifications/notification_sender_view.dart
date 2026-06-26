@@ -88,7 +88,7 @@ class _NotificationSenderViewState extends State<NotificationSenderView> {
                   ),
                   const SizedBox(height: 8),
                   DropdownButtonFormField<String>(
-                    value: _type,
+                    initialValue: _type,
                     decoration: const InputDecoration(labelText: 'Type', border: OutlineInputBorder()),
                     items: const [
                       DropdownMenuItem(value: 'general', child: Text('General')),

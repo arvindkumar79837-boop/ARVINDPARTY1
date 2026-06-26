@@ -58,4 +58,8 @@ class EnvConfig {
   static const int tokenRefreshThresholdMs = 300000; // 5 min before expiry
   static const int maxLoginAttempts = 5;
   static const int sessionTimeoutHours = 24;
+
+  // ─── AGORA ──────────────────────────────────────────────────────────
+  // INSERT YOUR AGORA APP ID HERE
+  static const String agoraAppId = 'INSERT_YOUR_AGORA_APP_ID_HERE';
 }

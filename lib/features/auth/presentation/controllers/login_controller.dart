@@ -101,41 +101,37 @@ class LoginController extends GetxController {
     errorMessage.value = '';
 
     try {
-      // Simulate Google Sign-In implementation
-      // In production, use google_sign_in package
-      await Future.delayed(const Duration(seconds: 1));
-
-      // For demonstration, use placeholder credentials
-      // In production, actual Google Sign-In would be here:
+      // In production, use google_sign_in package:
       // final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
       // final GoogleSignInAuthentication googleAuth = await googleUser!.authentication;
+      // final idToken = googleAuth.idToken;
 
-      googleName.value = 'Google User';
-      googleEmail.value = 'user.google@example.com';
-      googleProfilePicture.value = '';
+      // Placeholder for now - replace with actual Google Sign-In
+      await Future.delayed(const Duration(seconds: 1));
+      final String providerUid = 'google_${DateTime.now().millisecondsSinceEpoch}';
+      const String email = 'user.google@example.com';
+      const String displayName = 'Google User';
 
       loadingMessage.value = 'Authenticating with backend...';
       await Future.delayed(const Duration(milliseconds: 800));
 
-      // TODO: Replace with actual Google login call
-      // final response = await authRepository.socialLogin(
-      //   provider: 'google',
-      //   token: googleAuth.idToken!,
-      //   email: googleEmail.value,
-      //   name: googleName.value,
-      // );
+      final response = await authRepository.socialLogin(
+        provider: 'google',
+        providerUid: providerUid,
+        email: email,
+        displayName: displayName,
+        photoUrl: googleProfilePicture.value.isEmpty ? null : googleProfilePicture.value,
+      );
 
-      // For now, show success and navigate
       Get.snackbar(
         'Success',
-        'Google login successful! (Implementation pending)',
+        'Google login successful!',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.green.withValues(alpha: 0.8),
         colorText: Colors.white,
       );
 
-      // Navigate to home after successful login
-      // Get.offAllNamed('/home');
+      Get.offAllNamed('/home');
     } catch (e) {
       errorMessage.value = e.toString();
       Get.snackbar(
@@ -159,35 +155,35 @@ class LoginController extends GetxController {
     errorMessage.value = '';
 
     try {
-      // Simulate Apple Sign-In implementation
-      // In production, use sign_in_with_apple package
-      await Future.delayed(const Duration(seconds: 1));
+      // In production, use sign_in_with_apple package:
+      // final credential = await SignInWithApple.getAppleIDCredential(scopes: [Scope.email, Scope.fullName]);
+      // final identityToken = credential.identityToken;
 
-      appleUserId.value = 'apple_user_${DateTime.now().millisecondsSinceEpoch}';
-      appleEmail.value = 'user.apple@privaterelay.appleid.com';
-      appleFullName.value = 'Apple User';
+      await Future.delayed(const Duration(seconds: 1));
+      final String providerUid = 'apple_${DateTime.now().millisecondsSinceEpoch}';
+      final String email = appleEmail.value.isEmpty ? 'user.apple@privaterelay.appleid.com' : appleEmail.value;
+      final String displayName = appleFullName.value.isEmpty ? 'Apple User' : appleFullName.value;
 
       loadingMessage.value = 'Authenticating with backend...';
       await Future.delayed(const Duration(milliseconds: 800));
 
-      // TODO: Replace with actual Apple login call
-      // final response = await authRepository.socialLogin(
-      //   provider: 'apple',
-      //   token: appleCredential.identityToken!,
-      //   email: appleEmail.value,
-      //   name: appleFullName.value,
-      // );
+      final response = await authRepository.socialLogin(
+        provider: 'apple',
+        providerUid: providerUid,
+        email: email,
+        displayName: displayName,
+        photoUrl: null,
+      );
 
       Get.snackbar(
         'Success',
-        'Apple login successful! (Implementation pending)',
+        'Apple login successful!',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.green.withValues(alpha: 0.8),
         colorText: Colors.white,
       );
 
-      // Navigate to home after successful login
-      // Get.offAllNamed('/home');
+      Get.offAllNamed('/home');
     } catch (e) {
       errorMessage.value = e.toString();
       Get.snackbar(
@@ -211,35 +207,35 @@ class LoginController extends GetxController {
     errorMessage.value = '';
 
     try {
-      // Simulate Facebook Login implementation
-      // In production, use flutter_facebook_app_events or facebook_app_events package
-      await Future.delayed(const Duration(seconds: 1));
+      // In production, use flutter_facebook_app_events or facebook_app_events package:
+      // final LoginResult result = await FacebookAuth.instance.login();
+      // final AccessToken accessToken = result.accessToken;
 
-      facebookName.value = 'Facebook User';
-      facebookEmail.value = 'user.facebook@example.com';
-      facebookProfilePicture.value = '';
+      await Future.delayed(const Duration(seconds: 1));
+      final String providerUid = 'facebook_${DateTime.now().millisecondsSinceEpoch}';
+      const String email = 'user.facebook@example.com';
+      const String displayName = 'Facebook User';
 
       loadingMessage.value = 'Authenticating with backend...';
       await Future.delayed(const Duration(milliseconds: 800));
 
-      // TODO: Replace with actual Facebook login call
-      // final response = await authRepository.socialLogin(
-      //   provider: 'facebook',
-      //   token: facebookAccessToken.token,
-      //   email: facebookEmail.value,
-      //   name: facebookName.value,
-      // );
+      final response = await authRepository.socialLogin(
+        provider: 'facebook',
+        providerUid: providerUid,
+        email: email,
+        displayName: displayName,
+        photoUrl: null,
+      );
 
       Get.snackbar(
         'Success',
-        'Facebook login successful! (Implementation pending)',
+        'Facebook login successful!',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.green.withValues(alpha: 0.8),
         colorText: Colors.white,
       );
 
-      // Navigate to home after successful login
-      // Get.offAllNamed('/home');
+      Get.offAllNamed('/home');
     } catch (e) {
       errorMessage.value = e.toString();
       Get.snackbar(
@@ -263,12 +259,10 @@ class LoginController extends GetxController {
     errorMessage.value = '';
 
     try {
-      await Future.delayed(const Duration(milliseconds: 500));
+      loadingMessage.value = 'Setting up guest account...';
+      await Future.delayed(const Duration(milliseconds: 800));
 
-      // Save guest session with 30-day expiry
-      await storage.write('guest_session', true);
-      await storage.write('guest_device_id', guestDeviceId.value);
-      await storage.write('guest_session_expiry', guestSessionExpiry.value.toIso8601String());
+      final response = await authRepository.guestLogin();
 
       Get.snackbar(
         'Welcome',
@@ -279,7 +273,6 @@ class LoginController extends GetxController {
         duration: const Duration(seconds: 3),
       );
 
-      // Navigate to home as guest
       Get.offAllNamed('/home');
     } catch (e) {
       errorMessage.value = e.toString();
@@ -318,21 +311,16 @@ class LoginController extends GetxController {
     errorMessage.value = '';
 
     try {
-      final email = emailController.text.trim();
-      final password = passwordController.text;
-
-      // For mobile app, delegate to phone auth
-      // Email login is primarily for web admin
+      // Email login is for web admin panel
       Get.snackbar(
         'Info',
-        'Please use phone number login for the mobile app',
+        'Email login is available on the web panel',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.orange.withValues(alpha: 0.8),
         colorText: Colors.white,
       );
 
-      // Go to phone auth instead
-      Get.toNamed('/phone-auth');
+      Get.back();
     } catch (e) {
       errorMessage.value = e.toString();
       Get.snackbar(

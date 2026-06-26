@@ -1,12 +1,13 @@
 // ═══════════════════════════════════════════════════════════════════════════
 // FILE: lib/features/profile/presentation/controllers/profile_controller.dart
-// ARVIND PARTY - UNIFIED PROFILE CONTROLLER (MY PROFILE + OTHER USER PROFILE)
+// ARVIND PARTY - UNIFIED PROFILE CONTROLLER (REFACTORED WITH USER MODEL)
 // ═══════════════════════════════════════════════════════════════════════════
 
 import 'package:get/get.dart';
 import 'package:flutter/foundation.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/services/auth_session_manager.dart';
+import '../../../auth/models/auth_model.dart'; // Import the User model
 
 // ─────────────────────────────────────────────────────────────────────────
 // PROFILE CONTROLLER - For current user's profile
@@ -17,7 +18,8 @@ class ProfileController extends GetxController {
   final AuthSessionManager _session = Get.find<AuthSessionManager>();
 
   final isLoading = false.obs;
-  final userProfile = Rxn<Map<String, dynamic>>();
+  // Use the strongly-typed User model for the user's profile
+  final userProfile = Rxn<User>();
 
   @override
   void onInit() {
@@ -28,9 +30,18 @@ class ProfileController extends GetxController {
   Future<void> fetchProfile() async {
     isLoading.value = true;
     try {
-      final response = await _apiService.get('/profile');
+      final userId = _session.userId.value;
+      if (userId == null || userId.isEmpty) {
+        userProfile.value = null;
+        return;
+      }
+
+      // The API endpoint should provide the full user object
+      final response = await _apiService.get('/users/$userId');
       if (response is Map && response['success'] == true) {
-        userProfile.value = Map<String, dynamic>.from(response['data'] ?? response);
+        final data = Map<String, dynamic>.from(response['data']);
+        // Parse the response directly into our User model
+        userProfile.value = User.fromBackendJson(data);
       }
     } catch (e) {
       debugPrint('[ProfileController] fetchProfile error: $e');
@@ -43,9 +54,12 @@ class ProfileController extends GetxController {
   Future<bool> updateProfile(Map<String, dynamic> data) async {
     isLoading.value = true;
     try {
-      final response = await _apiService.put('/profile', body: data);
+      final userId = _session.userId.value;
+      if (userId == null || userId.isEmpty) return false;
+      // The API endpoint might need to be /users/:userId or similar
+      final response = await _apiService.put('/users/$userId', body: data);
       if (response is Map && response['success'] == true) {
-        await fetchProfile();
+        await fetchProfile(); // Refresh profile after update
         return true;
       }
       return false;
@@ -57,9 +71,25 @@ class ProfileController extends GetxController {
     }
   }
 
+  Future<bool> uploadProfilePicture(String imagePath, {bool isCover = false}) async {
+    try {
+      final userId = _session.userId.value;
+      final endpoint = isCover ? '/users/$userId/cover-photo' : '/users/$userId/avatar';
+      final fieldName = isCover ? 'coverPhoto' : 'avatar';
+
+      final response = await _apiService.uploadFile(endpoint, imagePath, fieldName);
+      if (response is Map && response['success'] == true) {
+        await fetchProfile(); // Refresh to get new image URL
+        return true;
+      }
+      return false;
+    } catch (e) {
+      debugPrint('[ProfileController] uploadProfilePicture error: $e');
+      return false;
+    }
+  }
+
   String get userId => _session.userId.value ?? '';
-  String get userName => _session.userName.value ?? '';
-  String get userAvatar => _session.userAvatar.value ?? '';
 }
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -68,20 +98,25 @@ class ProfileController extends GetxController {
 
 class OtherUserController extends GetxController {
   final ApiService _apiService = Get.find<ApiService>();
+  final AuthSessionManager _session = Get.find<AuthSessionManager>();
 
-  final userProfile = Rxn<Map<String, dynamic>>();
+  final userProfile = Rxn<User>();
   final isLoading = false.obs;
   final isFollowing = false.obs;
-  final followers = <dynamic>[].obs;
-  final following = <dynamic>[].obs;
+  final isBlockedByMe = false.obs;
 
   Future<void> fetchUserProfile(String userId) async {
     isLoading.value = true;
     try {
-      final response = await _apiService.get('/user/$userId/profile');
+      // Pass current user's ID to get relationship status (isFollowing, etc.)
+      final response = await _apiService.get('/users/$userId', queryParams: {'viewerId': _session.userId.value});
       if (response is Map && response['success'] == true) {
-        userProfile.value = Map<String, dynamic>.from(response['data'] ?? response);
-        isFollowing.value = response['isFollowedByMe'] ?? false;
+        final data = Map<String, dynamic>.from(response['data']);
+        userProfile.value = User.fromBackendJson(data);
+        
+        // Assuming backend returns these boolean flags based on 'viewerId'
+        isFollowing.value = data['isFollowing'] ?? false;
+        isBlockedByMe.value = data['isBlockedByMe'] ?? false;
       }
     } catch (e) {
       debugPrint('[OtherUserController] fetchUserProfile error: $e');
@@ -93,9 +128,12 @@ class OtherUserController extends GetxController {
 
   Future<void> followUser(String userId) async {
     try {
-      final response = await _apiService.post('/user/$userId/follow');
+      final response = await _apiService.post('/social/follow', body: {'userId': userId});
       if (response is Map && response['success'] == true) {
         isFollowing.value = true;
+        userProfile.update((user) {
+          user?.followers.add(_session.userId.value!);
+        });
       }
     } catch (e) {
       debugPrint('[OtherUserController] followUser error: $e');
@@ -104,9 +142,12 @@ class OtherUserController extends GetxController {
 
   Future<void> unfollowUser(String userId) async {
     try {
-      final response = await _apiService.post('/user/$userId/unfollow');
+      final response = await _apiService.post('/social/unfollow', body: {'userId': userId});
       if (response is Map && response['success'] == true) {
         isFollowing.value = false;
+        userProfile.update((user) {
+          user?.followers.remove(_session.userId.value!);
+        });
       }
     } catch (e) {
       debugPrint('[OtherUserController] unfollowUser error: $e');
@@ -115,34 +156,13 @@ class OtherUserController extends GetxController {
 
   Future<void> blockUser(String userId) async {
     try {
-      final response = await _apiService.post('/user/$userId/block');
+      final response = await _apiService.post('/social/block', body: {'userId': userId});
       if (response is Map && response['success'] == true) {
-        Get.back();
+        isBlockedByMe.value = true;
+        Get.back(); // Go back after blocking
       }
     } catch (e) {
       debugPrint('[OtherUserController] blockUser error: $e');
-    }
-  }
-
-  Future<void> fetchFollowers(String userId) async {
-    try {
-      final response = await _apiService.get('/user/$userId/followers');
-      if (response is Map && response['success'] == true) {
-        followers.value = response['data'] ?? [];
-      }
-    } catch (e) {
-      debugPrint('[OtherUserController] fetchFollowers error: $e');
-    }
-  }
-
-  Future<void> fetchFollowing(String userId) async {
-    try {
-      final response = await _apiService.get('/user/$userId/following');
-      if (response is Map && response['success'] == true) {
-        following.value = response['data'] ?? [];
-      }
-    } catch (e) {
-      debugPrint('[OtherUserController] fetchFollowing error: $e');
     }
   }
 }

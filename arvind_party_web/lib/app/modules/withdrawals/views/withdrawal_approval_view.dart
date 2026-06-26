@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class WithdrawalApprovalView extends StatefulWidget {
-  const WithdrawalApprovalView({Key? key}) : super(key: key);
+  const WithdrawalApprovalView({super.key});
 
   @override
   State<WithdrawalApprovalView> createState() => _WithdrawalApprovalViewState();
@@ -85,7 +85,7 @@ class _WithdrawalApprovalViewState extends State<WithdrawalApprovalView> {
                           SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
                             child: DataTable(
-                              headingRowColor: MaterialStateProperty.all(const Color(0xFF14141F)),
+                              headingRowColor: WidgetStateProperty.all(const Color(0xFF14141F)),
                               dataRowHeight: 64,
                               columns: const [
                                 DataColumn(label: Text("TXN ID", style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold))),

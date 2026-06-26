@@ -114,6 +114,22 @@ class RolePermissionService extends GetxService {
       icon: 'event',
       route: '/admin/events',
       permissionRequired: 'events.view',
+      children: [
+        SidebarItem('Event Manager', '/admin/events', 'events.view'),
+        SidebarItem('Lucky Draws', '/admin/events/lucky-draws', 'events.lucky_draw'),
+        SidebarItem('Daily Tasks', '/admin/events/daily-tasks', 'events.daily_tasks'),
+        SidebarItem('Invite/Referrals', '/admin/events/invites', 'events.invites'),
+        SidebarItem('Login Streaks', '/admin/events/login-streaks', 'events.login_streaks'),
+        SidebarItem('Tournaments', '/admin/tournaments', 'events.tournaments'),
+        SidebarItem('Championships', '/admin/championships', 'events.championships'),
+        SidebarItem('Treasure Hunts', '/admin/treasure-hunts', 'events.treasure_hunts'),
+      ],
+    ),
+    SidebarSection(
+      title: 'PK Battle Management',
+      icon: 'sports_kabaddi',
+      route: '/pk-battle-management',
+      permissionRequired: 'pk.view',
     ),
     SidebarSection(
       title: 'VIP Management',

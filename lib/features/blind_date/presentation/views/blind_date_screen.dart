@@ -100,6 +100,22 @@ class BlindDateScreen extends GetView<BlindDateController> {
                   ),
                   const SizedBox(height: 40),
                   ElevatedButton.icon(
+                    onPressed: () => controller.joinMatchRoom(),
+                    icon: const Icon(Icons.meeting_room, color: Colors.black),
+                    label: const Text(
+                      'Join Private Room',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.greenAccent,
+                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton.icon(
                     onPressed: () => controller.reset(),
                     icon: const Icon(Icons.refresh, color: Colors.white),
                     label: const Text(

@@ -35,9 +35,9 @@ class _SupportTicketsViewState extends State<SupportTicketsView> {
       if (_filter == 'open') queryParams['status'] = 'open';
       if (_filter == 'resolved') queryParams['status'] = 'resolved';
 
-      final response = await _apiService.get('/support/tickets', queryParams: queryParams);
+      final response = await _apiService.get('/api/support/tickets', queryParams: queryParams);
       if (response['success'] == true) {
-        _tickets = List<Map<String, dynamic>>.from(response['data'] ?? []);
+        _tickets = List<Map<String, dynamic>>.from(response['tickets'] ?? []);
       }
     } catch (_) {}
     setState(() => _isLoading = false);
@@ -62,7 +62,7 @@ class _SupportTicketsViewState extends State<SupportTicketsView> {
     );
     if (result != null && result.isNotEmpty) {
       try {
-        await _apiService.post('/support/tickets/reply/$ticketId', {'message': result});
+        await _apiService.post('/api/support/ticket/reply', {'id': ticketId, 'message': result});
         Get.snackbar('Success', 'Reply sent', backgroundColor: Colors.green);
         _loadTickets();
       } catch (_) {

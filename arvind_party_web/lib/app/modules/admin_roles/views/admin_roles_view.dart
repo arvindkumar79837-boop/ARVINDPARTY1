@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import '../../auth/controllers/role_auth_controller.dart'; // अपने कंट्रोलर का सही पाथ दें
 
 class AdminRolesView extends StatefulWidget {
-  const AdminRolesView({Key? key}) : super(key: key);
+  const AdminRolesView({super.key});
 
   @override
   State<AdminRolesView> createState() => _AdminRolesViewState();
@@ -272,10 +272,10 @@ class _AdminRolesViewState extends State<AdminRolesView> {
   // स्विच टाइल बनाने का हेल्पर
   Widget _buildSwitchTile(String title, bool value, Function(bool) onChanged) {
     return SwitchListTile(
-      title: Text(title, style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 13, fontWeight: FontWeight.w400)),
+      title: Text(title, style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 13, fontWeight: FontWeight.w400)),
       value: value,
-      activeColor: Colors.orange,
-      activeTrackColor: Colors.orange.withOpacity(0.3),
+      activeThumbColor: Colors.orange,
+      activeTrackColor: Colors.orange.withValues(alpha: 0.3),
       inactiveThumbColor: Colors.white30,
       inactiveTrackColor: Colors.white10,
       onChanged: onChanged,

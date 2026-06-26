@@ -1,6 +1,19 @@
 import 'package:flutter/material.dart';
 import '../../models/gift_model.dart';
 
+// Helper for shared category styling
+GiftCategory _parseCategoryFromString(String? category) {
+  switch (category?.toLowerCase() ?? 'basic') {
+    case 'hot': return GiftCategory.hot;
+    case 'premium': return GiftCategory.premium;
+    case 'luxury': return GiftCategory.luxury;
+    case 'vip': return GiftCategory.vip;
+    case 'lucky': return GiftCategory.lucky;
+    case 'festival': return GiftCategory.festival;
+    default: return GiftCategory.basic;
+  }
+}
+
 class GiftCard extends StatelessWidget {
   final GiftModel gift;
   final VoidCallback onTap;
@@ -29,7 +42,7 @@ class GiftCard extends StatelessWidget {
                   ),
                 ),
                 _badge(gift.type.name.toUpperCase(), alignment: Alignment.topLeft),
-                if (gift.category != GiftCategory.normal)
+                if (gift.category != GiftCategory.basic)
                   _badge(gift.category.name.toUpperCase(), alignment: Alignment.topRight),
                 if (gift.isLucky)
                   const Positioned(bottom: 8, left: 8, child: Icon(Icons.star, color: Colors.amber, size: 16)),

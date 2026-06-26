@@ -5,7 +5,7 @@ import '../../modules/auth/controllers/role_auth_controller.dart'; // अपन�
 class AdminSidebarWidget extends StatelessWidget {
   final RoleAuthController authController = Get.find<RoleAuthController>();
 
-  AdminSidebarWidget({Key? key}) : super(key: key);
+  AdminSidebarWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -127,6 +127,22 @@ class AdminSidebarWidget extends StatelessWidget {
                     show: authController.hasPermission('BAN_USER'),
                     onTap: () => Get.toNamed('/bans'),
                   ),
+
+                  _buildMenuItem(
+                    icon: Icons.security,
+                    title: "Security Dashboard",
+                    show: authController.hasPermission('SECURITY_DASHBOARD'),
+                    onTap: () => Get.toNamed('/security-dashboard'),
+                  ),
+
+                  _buildMenuItem(
+                    icon: Icons.history_edu,
+                    title: "Audit Logs",
+                    show: authController.hasPermission('AUDIT_LOGS'),
+                    onTap: () => Get.toNamed('/audit-logs'),
+                  ),
+
+                  const Divider(color: Color(0xFF2D2D44)),
 
                   _buildMenuItem(
                     icon: Icons.lock,

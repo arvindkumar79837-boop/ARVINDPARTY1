@@ -5,7 +5,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../core/services/api_service.dart';
-import '../../core/services/role_permission_service.dart';
 
 class RewardInjectorView extends StatefulWidget {
   const RewardInjectorView({super.key});
@@ -15,7 +14,6 @@ class RewardInjectorView extends StatefulWidget {
 }
 
 class _RewardInjectorViewState extends State<RewardInjectorView> {
-  final _permService = Get.find<RolePermissionService>();
   final _apiService = Get.find<ApiService>();
 
   final _targetUidController = TextEditingController();
@@ -26,7 +24,7 @@ class _RewardInjectorViewState extends State<RewardInjectorView> {
   final _assetUrlController = TextEditingController();
   final _durationDaysController = TextEditingController();
 
-  List<Map<String, dynamic>> _assets = [];
+  final List<Map<String, dynamic>> _assets = [];
   List<Map<String, dynamic>> _history = [];
   bool _isLoading = false;
 

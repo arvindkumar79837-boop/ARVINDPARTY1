@@ -1,73 +1,82 @@
-// ═══════════════════════════════════════════════════════════════════════════
-// FILE: lib/features/auth/presentation/views/social_login_screen.dart
-// ARVIND PARTY - SOCIAL LOGIN SCREEN (Google, Apple, Facebook)
-// ═══════════════════════════════════════════════════════════════════════════
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:video_player/video_player.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../controllers/login_controller.dart';
 
-class SocialLoginScreen extends StatelessWidget {
+class SocialLoginScreen extends StatefulWidget {
   const SocialLoginScreen({super.key});
 
   @override
+  State<SocialLoginScreen> createState() => _SocialLoginScreenState();
+}
+
+class _SocialLoginScreenState extends State<SocialLoginScreen> {
+  late VideoPlayerController _videoController;
+  bool _videoInitialized = false;
+
+  final LoginController controller = Get.find<LoginController>();
+
+  @override
+  void initState() {
+    super.initState();
+    _initVideo();
+  }
+
+  void _initVideo() {
+    _videoController = VideoPlayerController.asset('assets/login/videos/lion_bg.mp4')
+      ..initialize().then((_) {
+        if (mounted) {
+          setState(() => _videoInitialized = true);
+          _videoController
+            ..setLooping(true)
+            ..setVolume(0.0)
+            ..play();
+        }
+      }).catchError((e) {
+        debugPrint('[SocialLogin] Video load error: $e');
+      });
+  }
+
+  @override
+  void dispose() {
+    _videoController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final LoginController controller = Get.find<LoginController>();
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF1A1A2E),
+      backgroundColor: Colors.black,
       body: Stack(
         children: [
-          _buildBackground(),
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Spacer(flex: 2),
-                  _buildLogo(),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Quick Login',
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Choose your preferred sign-in method',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.white.withValues(alpha: 0.6),
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const Spacer(flex: 3),
-                  _buildSocialButtons(controller),
-                  const SizedBox(height: 40),
-                  _buildGuestOption(controller),
-                  const SizedBox(height: 24),
-                  _buildBackButton(context),
-                  const Spacer(flex: 2),
-                ],
-              ),
-            ),
-          ),
-          Obx(() => controller.isLoading.value
-              ? _buildLoadingOverlay(controller)
-              : const SizedBox.shrink()),
+          _buildBackground(size),
+          _buildGradientOverlay(),
+          SafeArea(child: _buildContent(context, size)),
+          Obx(() => controller.isLoading.value ? _buildLoadingOverlay() : const SizedBox.shrink()),
         ],
       ),
     );
   }
 
-  Widget _buildBackground() {
+  Widget _buildBackground(Size size) {
+    if (_videoInitialized && _videoController.value.isInitialized) {
+      return SizedBox.expand(
+        child: FittedBox(
+          fit: BoxFit.cover,
+          child: SizedBox(
+            width: _videoController.value.size.width,
+            height: _videoController.value.size.height,
+            child: VideoPlayer(_videoController),
+          ),
+        ),
+      );
+    }
     return Container(
+      width: double.infinity,
+      height: double.infinity,
       decoration: const BoxDecoration(
         gradient: RadialGradient(
           center: Alignment(0, -0.3),
@@ -78,115 +87,230 @@ class SocialLoginScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLogo() {
+  Widget _buildGradientOverlay() {
     return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.black.withValues(alpha: 0.3),
-        border: Border.all(color: Colors.amber.withValues(alpha: 0.3), width: 1.5),
-      ),
-      child: const Icon(
-        Icons.pets,
-        color: Color(0xFFFFC107),
-        size: 48,
+      width: double.infinity,
+      height: double.infinity,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          stops: [0.0, 0.35, 0.6, 1.0],
+          colors: [Color(0x99000000), Color(0x22000000), Color(0xBB000000), Color(0xEE000000)],
+        ),
       ),
     );
   }
 
-  Widget _buildSocialButtons(LoginController controller) {
+  Widget _buildContent(BuildContext context, Size size) {
+    return SingleChildScrollView(
+      physics: const ClampingScrollPhysics(),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(minHeight: size.height),
+        child: Column(
+          children: [
+            SizedBox(height: size.height * 0.06),
+            _buildHeader(size),
+            SizedBox(height: size.height * 0.08),
+            _buildSocialButtons(),
+            const SizedBox(height: 24),
+            _buildTermsSection(),
+            const SizedBox(height: 32),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader(Size size) {
     return Column(
       children: [
-        _SocialLoginButton(
-          label: 'Continue with Google',
-          icon: FontAwesomeIcons.google,
-          iconColor: const Color(0xFF4285F4),
-          backgroundColor: Colors.white,
-          textColor: Colors.black87,
-          onTap: controller.loginWithGoogle,
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.black.withValues(alpha: 0.3),
+            border: Border.all(color: Colors.amber.withValues(alpha: 0.3), width: 1),
+          ),
+          child: Image.asset(
+            'assets/login/login_icon.png',
+            width: 48,
+            height: 48,
+            errorBuilder: (_, __, ___) => const Icon(Icons.pets, color: Color(0xFFFFC107), size: 40),
+          ),
         ),
-        const SizedBox(height: 16),
-        _SocialLoginButton(
-          label: 'Continue with Apple',
-          icon: FontAwesomeIcons.apple,
-          iconColor: Colors.white,
-          backgroundColor: Colors.black,
-          textColor: Colors.white,
-          onTap: controller.loginWithApple,
-        ),
-        const SizedBox(height: 16),
-        _SocialLoginButton(
-          label: 'Continue with Facebook',
-          icon: FontAwesomeIcons.facebook,
-          iconColor: const Color(0xFF1877F2),
-          backgroundColor: const Color(0xFF1877F2),
-          textColor: Colors.white,
-          onTap: controller.loginWithFacebook,
+        const SizedBox(height: 8),
+        RichText(
+          textAlign: TextAlign.center,
+          text: const TextSpan(
+            children: [
+              TextSpan(
+                text: 'Arvind\n',
+                style: TextStyle(fontFamily: 'Poppins', fontSize: 28, fontWeight: FontWeight.w700, color: Colors.white, height: 1.1, shadows: [Shadow(color: Colors.black54, blurRadius: 8)]),
+              ),
+              TextSpan(
+                text: 'Party',
+                style: TextStyle(fontFamily: 'Poppins', fontSize: 26, fontWeight: FontWeight.w600, color: Color(0xFFFFC107), shadows: [Shadow(color: Colors.black54, blurRadius: 8)]),
+              ),
+            ],
+          ),
         ),
       ],
+    ).animate().fadeIn(delay: 300.ms, duration: 600.ms).slideY(begin: -0.2, end: 0);
+  }
+
+  Widget _buildSocialButtons() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
+        children: [
+          _buildSocialButton(
+            label: 'Continue with Google',
+            icon: Icons.g_mobiledata,
+            color: Colors.white,
+            textColor: Colors.black87,
+            onTap: controller.loginWithGoogle,
+          ).animate().fadeIn(delay: 400.ms, duration: 600.ms).slideY(begin: 0.3, end: 0),
+          const SizedBox(height: 12),
+          _buildSocialButton(
+            label: 'Continue with Apple',
+            icon: Icons.apple,
+            color: Colors.black,
+            textColor: Colors.white,
+            onTap: controller.loginWithApple,
+          ).animate().fadeIn(delay: 500.ms, duration: 600.ms).slideY(begin: 0.3, end: 0),
+          const SizedBox(height: 12),
+          _buildSocialButton(
+            label: 'Continue with Facebook',
+            icon: Icons.facebook,
+            color: const Color(0xFF1877F2),
+            textColor: Colors.white,
+            onTap: controller.loginWithFacebook,
+          ).animate().fadeIn(delay: 600.ms, duration: 600.ms).slideY(begin: 0.3, end: 0),
+          const SizedBox(height: 12),
+          _buildSocialButton(
+            label: 'Continue with Snapchat',
+            icon: Icons.camera_alt,
+            color: const Color(0xFFFFFC00),
+            textColor: Colors.black87,
+            onTap: () => _showComingSoon('Snapchat'),
+          ).animate().fadeIn(delay: 700.ms, duration: 600.ms).slideY(begin: 0.3, end: 0),
+          const SizedBox(height: 12),
+          _buildSocialButton(
+            label: 'Continue with Instagram',
+            icon: Icons.photo_camera,
+            color: const Color(0xFFE4405F),
+            textColor: Colors.white,
+            onTap: () => _showComingSoon('Instagram'),
+          ).animate().fadeIn(delay: 800.ms, duration: 600.ms).slideY(begin: 0.3, end: 0),
+          const SizedBox(height: 12),
+          _buildSocialButton(
+            label: 'Continue with Phone Number',
+            icon: Icons.phone_android,
+            color: Colors.white.withValues(alpha: 0.1),
+            textColor: Colors.white,
+            isOutlined: true,
+            onTap: controller.goToPhoneAuth,
+          ).animate().fadeIn(delay: 900.ms, duration: 600.ms).slideY(begin: 0.3, end: 0),
+          const SizedBox(height: 12),
+          _buildSocialButton(
+            label: 'Continue as Guest',
+            icon: Icons.person_outline,
+            color: Colors.white.withValues(alpha: 0.05),
+            textColor: Colors.white70,
+            isOutlined: true,
+            onTap: controller.continueAsGuest,
+          ).animate().fadeIn(delay: 1000.ms, duration: 600.ms).slideY(begin: 0.3, end: 0),
+        ],
+      ),
     );
   }
 
-  Widget _buildGuestOption(LoginController controller) {
-    return Column(
-      children: [
-        Row(
+  Widget _buildSocialButton({
+    required String label,
+    required IconData icon,
+    required Color color,
+    required Color textColor,
+    bool isOutlined = false,
+    required VoidCallback onTap,
+  }) {
+    return SizedBox(
+      width: double.infinity,
+      height: 50,
+      child: OutlinedButton(
+        onPressed: onTap,
+        style: OutlinedButton.styleFrom(
+          side: BorderSide(color: isOutlined ? Colors.white54 : Colors.transparent, width: 1.5),
+          backgroundColor: color,
+          foregroundColor: textColor,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Expanded(
-              child: Divider(color: Colors.white.withValues(alpha: 0.3)),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                'or',
-                style: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
+            Icon(icon, color: textColor, size: 20),
+            const SizedBox(width: 8),
+            Text(label, style: TextStyle(color: textColor, fontWeight: FontWeight.w600, fontSize: 14)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showComingSoon(String provider) {
+    Get.snackbar(
+      'Coming Soon',
+      '$provider login will be available soon!',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.orange.withValues(alpha: 0.8),
+      colorText: Colors.white,
+    );
+  }
+
+  Widget _buildTermsSection() {
+    return Obx(() => GestureDetector(
+      onTap: controller.toggleTerms,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: 20, height: 20,
+              decoration: BoxDecoration(
+                color: controller.isTermsAccepted.value ? const Color(0xFF1E88E5) : Colors.transparent,
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(color: controller.isTermsAccepted.value ? const Color(0xFF1E88E5) : Colors.white54, width: 2),
               ),
+              child: controller.isTermsAccepted.value ? const Icon(Icons.check, color: Colors.white, size: 14) : null,
             ),
-            Expanded(
-              child: Divider(color: Colors.white.withValues(alpha: 0.3)),
+            const SizedBox(width: 8),
+            Flexible(
+              child: RichText(
+                text: TextSpan(
+                  style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 12.5, fontFamily: 'Poppins'),
+                  children: const [
+                    TextSpan(text: 'Agree to '),
+                    TextSpan(text: 'Terms of Service', style: TextStyle(color: Color(0xFF64B5F6), decoration: TextDecoration.underline)),
+                    TextSpan(text: ' and '),
+                    TextSpan(text: 'Privacy Policy', style: TextStyle(color: Color(0xFF64B5F6), decoration: TextDecoration.underline)),
+                  ],
+                ),
+              ),
             ),
           ],
         ),
-        const SizedBox(height: 20),
-        OutlinedButton.icon(
-          onPressed: controller.continueAsGuest,
-          icon: const Icon(Icons.person_outline, color: Colors.white70),
-          label: const Text(
-            'Continue as Guest',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          style: OutlinedButton.styleFrom(
-            side: BorderSide(color: Colors.white.withValues(alpha: 0.4)),
-            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBackButton(BuildContext context) {
-    return TextButton.icon(
-      onPressed: () => Get.back(),
-      icon: const Icon(Icons.arrow_back, color: Colors.white70, size: 18),
-      label: const Text(
-        'Back to Login',
-        style: TextStyle(color: Colors.white70),
       ),
-    );
+    )).animate().fadeIn(delay: 1100.ms, duration: 600.ms);
   }
 
-  Widget _buildLoadingOverlay(LoginController controller) {
+  Widget _buildLoadingOverlay() {
     return Container(
-      color: Colors.black.withValues(alpha: 0.75),
+      color: Colors.black.withValues(alpha: 0.7),
       child: Center(
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 28),
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
           decoration: BoxDecoration(
             color: const Color(0xFF1A1A2E),
             borderRadius: BorderRadius.circular(16),
@@ -195,68 +319,11 @@ class SocialLoginScreen extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const CircularProgressIndicator(
-                color: Color(0xFF1E88E5),
-                strokeWidth: 3,
-              ),
+              const CircularProgressIndicator(color: Color(0xFF1E88E5), strokeWidth: 3),
               const SizedBox(height: 16),
-              Obx(() => Text(
-                    controller.loadingMessage.value,
-                    style: const TextStyle(color: Colors.white70, fontSize: 14),
-                  )),
+              Obx(() => Text(controller.loadingMessage.value, style: const TextStyle(color: Colors.white70, fontSize: 14))),
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _SocialLoginButton extends StatelessWidget {
-  final String label;
-  final IconData icon;
-  final Color iconColor;
-  final Color backgroundColor;
-  final Color textColor;
-  final VoidCallback onTap;
-
-  const _SocialLoginButton({
-    required this.label,
-    required this.icon,
-    required this.iconColor,
-    required this.backgroundColor,
-    required this.textColor,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: 52,
-      child: OutlinedButton(
-        onPressed: onTap,
-        style: OutlinedButton.styleFrom(
-          side: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
-          backgroundColor: backgroundColor.withValues(alpha: 0.9),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(28),
-          ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            FaIcon(icon, color: iconColor, size: 20),
-            const SizedBox(width: 12),
-            Text(
-              label,
-              style: TextStyle(
-                color: textColor,
-                fontWeight: FontWeight.w600,
-                fontSize: 15,
-              ),
-            ),
-          ],
         ),
       ),
     );

@@ -42,6 +42,25 @@ class ApiConstants {
 
   // ─── FAMILY ──────────────────────────────────────────────────────────
   static const String family = '/families';
+  static const String familyCreate = '$family/create';
+  static const String familyJoin = '$family/join';
+  static const String familyLeave = '$family/leave';
+  static const String familyMembers = '$family/members';
+  static const String familyTasks = '$family/tasks';
+  static const String familyTasksComplete = '$family/tasks/complete';
+  static const String familyTasksDaily = '$family/tasks/daily';
+  static const String familyWars = '$family/wars';
+  static const String familyWarCreate = '$family/wars/create';
+  static const String familyWarJoin = '$family/wars/join';
+  static const String familyRanking = '$family/ranking';
+  static const String familyRankingDaily = '$family/ranking/daily';
+  static const String familyRankingWeekly = '$family/ranking/weekly';
+  static const String familyRankingMonthly = '$family/ranking/monthly';
+  static const String familyPoints = '$family/points';
+  static const String familyShop = '$family/shop';
+  static const String familyShopPurchase = '$family/shop/purchase';
+  static const String familyChatHistory = '$family/chat/history';
+  static const String familyUpgrade = '$family/upgrade';
 
   // ─── AGENCY ──────────────────────────────────────────────────────────
   static const String agency = '/agency';

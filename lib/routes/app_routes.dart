@@ -84,6 +84,7 @@ abstract class AppRoutes {
   // ═══════ ROOM FEATURE (Complete Room System) ═══════
   static const roomList = '/room-list';
   static const roomDetail = '/room-detail';
+  static const liveRoom = '/live-room';
   static const roomCreate = '/room-create';
   static const roomEdit = '/room-edit';
   static const roomSettingsFull = '/room-settings';
@@ -157,6 +158,9 @@ abstract class AppRoutes {
   static const transactionAudit = '/transaction-audit';
   static const rewardWallet = '/reward-wallet';
 
+  // ═══════ VIP SYSTEM (16-18) ═══════
+  static const vipFreme = '/vipfreme';
+
   // ═══════ VIP (114-119) ═══════
   static const vipLevels = '/vip-levels';
   static const vipSubscription = '/vip-subscription';
@@ -164,6 +168,15 @@ abstract class AppRoutes {
   static const vipBadge = '/vip-badge';
   static const vipEntryEffect = '/vip-entry-effect';
   static const vipPrivileges = '/vip-privileges';
+
+  // ═══════ VIP SYSTEM NEW (VIP 1-15, SVIP, Premium, Cosmetics, Missions) ═══════
+  static const vipDashboard = '/vip-dashboard';
+  static const vipSystem = '/vip-system';
+  static const vipShop = '/vip-shop';
+  static const vipMissions = '/vip-missions';
+  static const vipCosmetics = '/vip-cosmetics';
+  static const vipLeaderboard = '/vip-leaderboard';
+  static const premium = '/premium';
 
   // ═══════ LEVEL (120-125) ═══════
   static const userLevel = '/user-level';
@@ -338,6 +351,7 @@ abstract class AppRoutes {
   static const eventManagement = '/event-management';
   static const walletManagement = '/wallet-management';
   static const agencyAdminPanel = '/agency-admin-panel';
+  static const coinSellerManagement = '/coin-seller-management';
 
   // ═══════ STAFF MANAGEMENT (240-253) ═══════
   static const ownerWeb = '/owner-web';

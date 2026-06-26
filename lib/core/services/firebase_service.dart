@@ -207,11 +207,11 @@ class FirebaseService extends GetxService {
   // PHONE AUTH (Updated for exact integration)
   // ─────────────────────────────────────────────────────────────────────────
 
-  // 1. मोबाइल नंबर पर OTP भेजने के लिए (verificationId को आगे भेजने के लिए callback का उपयोग)
+  // 1. To send OTP to a mobile number (using a callback to send verificationId forward)
   Future<void> verifyPhoneNumber(
     String phoneNumber, {
     required Function(String verificationId) onCodeSent,
-    required Function(FirebaseAuthException) onError,
+    required Function(FirebaseAuthException e) onVerificationFailed,
   }) async {
     try {
       await _auth.verifyPhoneNumber(
@@ -219,25 +219,27 @@ class FirebaseService extends GetxService {
         timeout: const Duration(seconds: 60),
         verificationCompleted: (PhoneAuthCredential credential) async {
           // कुछ Android फ़ोन्स में OTP अपने आप वेरिफाई हो जाता है
+          // On some Android devices, OTP is auto-verified
           await _auth.signInWithCredential(credential);
           debugPrint('✅ Phone auto-verification completed and signed in');
         },
         verificationFailed: (FirebaseAuthException e) {
           debugPrint('❌ Phone verification failed: ${e.message}');
-          onError(e);
+          onVerificationFailed(e);
         },
         codeSent: (String verificationId, int? resendToken) {
           debugPrint('✅ OTP sent successfully. ID: $verificationId');
           // UI को verificationId पास करें ताकि वह OTP स्क्रीन पर जा सके
+          // Pass verificationId to the UI so it can navigate to the OTP screen
           onCodeSent(verificationId);
         },
         codeAutoRetrievalTimeout: (String verificationId) {
           debugPrint('⚠️ Code auto-retrieval timeout');
+          // You can handle timeout logic here if needed
         },
       );
-    } catch (e) {
-      debugPrint('❌ Phone verification error: $e');
-      rethrow;
+    } on FirebaseAuthException catch (e) {
+      onVerificationFailed(e);
     }
   }
 

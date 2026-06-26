@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class DynamicGameCenterView extends StatefulWidget {
-  const DynamicGameCenterView({Key? key}) : super(key: key);
+  const DynamicGameCenterView({super.key});
 
   @override
   State<DynamicGameCenterView> createState() => _DynamicGameCenterViewState();
@@ -160,9 +160,9 @@ class _DynamicGameCenterViewState extends State<DynamicGameCenterView> {
                               const SizedBox(height: 24),
 
                               SwitchListTile(
-                                 title: Text("Restrict to VIP Members Only", style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 14)),
+                                 title: Text("Restrict to VIP Members Only", style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 14)),
                                 value: isPremiumOnly,
-                                activeColor: Colors.orange,
+                                activeThumbColor: Colors.orange,
                                 onChanged: (val) => setState(() => isPremiumOnly = val),
                               ),
                               const SizedBox(height: 24),
@@ -262,7 +262,7 @@ class _DynamicGameCenterViewState extends State<DynamicGameCenterView> {
                                             Container(
                                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                               decoration: BoxDecoration(
-                                                color: Colors.green.withOpacity(0.1),
+                                                color: Colors.green.withValues(alpha: 0.1),
                                                 borderRadius: BorderRadius.circular(4),
                                               ),
                                               child: Text(game['status'], style: const TextStyle(color: Colors.green, fontSize: 11, fontWeight: FontWeight.bold)),

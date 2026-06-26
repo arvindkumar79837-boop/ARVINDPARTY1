@@ -31,7 +31,7 @@ class RechargePackageItem extends StatelessWidget {
             color: isSelected ? Colors.blue : Colors.grey.shade300,
             width: isSelected ? 2 : 1,
           ),
-          color: isSelected ? Colors.blue.withOpacity(0.08) : Colors.white,
+          color: isSelected ? Colors.blue.withValues(alpha: 0.08) : Colors.white,
         ),
         child: Row(
           children: [

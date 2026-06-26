@@ -5,7 +5,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../core/services/api_service.dart';
-import '../../core/services/role_permission_service.dart';
 
 class TransactionHistoryView extends StatefulWidget {
   const TransactionHistoryView({super.key});
@@ -31,6 +30,17 @@ class _TransactionHistoryViewState extends State<TransactionHistoryView> {
       final response = await _apiService.get('/wallets/transactions');
       if (response['success'] == true) {
         _transactions = List<Map<String, dynamic>>.from(response['data'] ?? []);
+      }
+    } catch (_) {}
+    setState(() => _isLoading = false);
+  }
+
+  Future<void> _loadDealerTransactions(String dealerUid) async {
+    setState(() => _isLoading = true);
+    try {
+      final response = await _apiService.get('/dealer/transactions/$dealerUid');
+      if (response['success'] == true) {
+        _transactions = List<Map<String, dynamic>>.from(response['data']['transactions'] ?? []);
       }
     } catch (_) {}
     setState(() => _isLoading = false);

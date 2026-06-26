@@ -1,38 +1,56 @@
-// ═══════════════════════════════════════════════════════════════════════════
-// FILE: lib/features/wallet/controllers/wallet_controller.dart
-// ARVIND PARTY - WALLET CONTROLLER (Coin, Diamond, Reward, Treasury)
-// ═══════════════════════════════════════════════════════════════════════════
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../../core/services/api_service.dart';
+import '../../../../core/services/socket_service.dart';
 import '../models/wallet_model.dart';
 
 class WalletController extends GetxController {
-  // Loading states
   var isLoading = false.obs;
   var isRefreshing = false.obs;
 
-  // Wallet balances
+  // Coin Wallet
   var coinBalance = 0.obs;
+
+  // Diamond Wallet
   var diamondBalance = 0.obs;
+
+  // Legacy reward balance (mapped to coins)
   var rewardBalance = 0.obs;
-  
-  // For compatibility with views expecting WalletBalance object
-  WalletBalance get balance => WalletBalance(
-    coins: coinBalance.value,
-    diamonds: diamondBalance.value,
-    beans: rewardBalance.value,
-  );
+  var pendingWithdrawals = 0.obs;
+  var userRole = ''.obs;
+  var isCoinSeller = false.obs;
+  var coinSellerLevel = ''.obs;
+  var familyId = ''.obs;
+  var agencyId = ''.obs;
 
-  // Buying rates
-  var coinBuyRate = 0.0.obs;
+  // Family Wallet
+  var familyWalletData = Rxn<FamilyWalletData>();
+  var familyData = Rxn<FamilyData>();
+  var memberContributions = <MemberContribution>[].obs;
+  var isFamilyWalletLoading = false.obs;
+
+  // Agency Wallet
+  var agencyWalletData = Rxn<AgencyWalletData>();
+  var agencyData = Rxn<AgencyData>();
+  var agencyHosts = <HostSummary>[].obs;
+  var isAgencyWalletLoading = false.obs;
+  var isAgencyOwner = false.obs;
+
+  // Config & Rates
+  var coinBuyRate = 10.0.obs;
   var diamondBuyRate = 0.0.obs;
-  var coinToDiamondRate = 0.0.obs;
+  var coinToDiamondRate = 100.0.obs;
+  var exchangeRate = 100.obs;
+  var taxPercentage = 5.obs;
+  var minWithdrawal = 500.obs;
 
-  // Transaction history
+  // Today Income
+  var todayIncome = Rxn<TodayIncome>();
+
+  // Transactions
   var transactions = <TransactionModel>[].obs;
-  var rewardTransactions = <TransactionModel>[].obs;
-  var treasuryTransactions = <TransactionModel>[].obs;
+  var familyTransactions = <TransactionModel>[].obs;
+  var agencyTransactions = <TransactionModel>[].obs;
 
   // Recharge
   var packages = <RechargePackage>[].obs;
@@ -41,288 +59,466 @@ class WalletController extends GetxController {
   var isProcessingRecharge = false.obs;
   var withdrawAmountController = TextEditingController();
   var accountDetailsController = TextEditingController();
-  var selectedWithdrawMethod = 'bank_transfer'.obs;
+  var selectedWithdrawMethod = 'diamonds'.obs;
   var withdrawMethods = <WithdrawMethod>[].obs;
   var isProcessingWithdraw = false.obs;
 
-  // Reward wallet
-  var rewardConversionRate = 0.0.obs;
-  var minConversionAmount = 100.obs;
-  var isProcessingConversion = false.obs;
+  // Family contribution
+  var contributionCoinsController = TextEditingController();
+  var contributionDiamondsController = TextEditingController();
+  var isContributing = false.obs;
 
-  // Treasury (admin)
-  var treasuryBalance = 0.0.obs;
-  var totalTransactions = 0.obs;
-  var totalRevenue = 0.0.obs;
-  var isTreasuryLoading = false.obs;
+  final ApiService _api = Get.find<ApiService>();
+  final SocketService _socket = Get.find<SocketService>();
 
   @override
   void onInit() {
     super.onInit();
     loadAllData();
+    _setupSocketListeners();
+  }
+
+  void _setupSocketListeners() {
+    _socket.on('withdrawal_approved', _handleWithdrawalApproved);
+    _socket.on('withdrawal_rejected', _handleWithdrawalRejected);
+    _socket.on('withdrawal_paid', _handleWithdrawalPaid);
+  }
+
+  void _handleWithdrawalApproved(dynamic data) {
+    Get.snackbar('Withdrawal Approved', 'Your withdrawal request has been approved',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green.withValues(alpha: 0.9), colorText: Colors.white);
+    fetchWithdrawalStatus();
+  }
+
+  void _handleWithdrawalRejected(dynamic data) {
+    Get.snackbar('Withdrawal Rejected', data['reason'] ?? 'Your withdrawal request was rejected',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.withValues(alpha: 0.8), colorText: Colors.white);
+    fetchWithdrawalStatus();
+  }
+
+  void _handleWithdrawalPaid(dynamic data) {
+    Get.snackbar('Payment Sent', 'Withdrawal of ₹${data['amountINR']} has been processed',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green.withValues(alpha: 0.9), colorText: Colors.white);
+    fetchWithdrawalStatus();
+  }
+
+  @override
+  void onClose() {
+    _socket.off('withdrawal_approved');
+    _socket.off('withdrawal_rejected');
+    _socket.off('withdrawal_paid');
+    withdrawAmountController.dispose();
+    accountDetailsController.dispose();
+    contributionCoinsController.dispose();
+    contributionDiamondsController.dispose();
+    super.onClose();
   }
 
   Future<void> loadAllData() async {
     await Future.wait([
-      fetchCoinWallet(),
-      fetchDiamondWallet(),
-      fetchRewardWallet(),
+      fetchMainWallet(),
       fetchPackages(),
       fetchWithdrawMethods(),
     ]);
   }
 
-  // ═══════ COIN WALLET ═══════
-
-  Future<void> fetchCoinWallet() async {
+  Future<void> fetchMainWallet() async {
     try {
       isLoading.value = true;
-      // API integration pending
+      final response = await _api.get('/api/wallet/wallet');
+      if (response['success'] == true && response['data'] != null) {
+        final data = response['data'];
+        coinBalance.value = data['coins'] ?? 0;
+        diamondBalance.value = data['diamonds'] ?? 0;
+        pendingWithdrawals.value = data['pendingWithdrawals'] ?? 0;
+        userRole.value = data['role'] ?? '';
+        isCoinSeller.value = data['isCoinSeller'] ?? false;
+        coinSellerLevel.value = data['coinSellerLevel'] ?? '';
+        familyId.value = data['familyId'] ?? '';
+        agencyId.value = data['agencyId'] ?? '';
+
+        if (data['familyWallet'] != null) {
+          familyWalletData.value = FamilyWalletData.fromJson(data['familyWallet']);
+        }
+        if (data['agencyWallet'] != null) {
+          agencyWalletData.value = AgencyWalletData.fromJson(data['agencyWallet']);
+        }
+        if (data['todayIncome'] != null) {
+          todayIncome.value = TodayIncome.fromJson(data['todayIncome']);
+        }
+        if (data['config'] != null) {
+          final cfg = data['config'];
+          exchangeRate.value = cfg['exchangeRate'] ?? 100;
+          coinBuyRate.value = (cfg['coinPackageRate'] ?? 10).toDouble();
+          minWithdrawal.value = cfg['minWithdrawal'] ?? 500;
+          taxPercentage.value = cfg['taxPercentage'] ?? 5;
+        }
+      }
     } catch (e) {
-      Get.snackbar('Error', 'Failed to load coin wallet: ${e.toString()}',
+      Get.snackbar('Error', 'Failed to load wallet: ${e.toString()}',
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red.withValues(alpha: 0.8),
-          colorText: Colors.white);
+          backgroundColor: Colors.red.withValues(alpha: 0.8), colorText: Colors.white);
     } finally {
       isLoading.value = false;
     }
   }
 
-  Future<void> fetchCoinTransactions() async {
+  Future<void> fetchTransactions({String? walletType}) async {
     try {
       isRefreshing.value = true;
-      // API integration pending
+      final queryParams = walletType != null ? '?walletType=$walletType' : '';
+      final response = await _api.get('/api/wallet/wallet/transactions$queryParams');
+      if (response['success'] == true && response['data'] != null) {
+        final data = response['data'];
+        final List<dynamic> txns = data['transactions'] ?? [];
+        transactions.value = txns.map((t) => TransactionModel.fromJson(t)).toList();
+      }
     } catch (e) {
       Get.snackbar('Error', 'Failed to load transactions: ${e.toString()}',
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red.withValues(alpha: 0.8),
-          colorText: Colors.white);
+          backgroundColor: Colors.red.withValues(alpha: 0.8), colorText: Colors.white);
     } finally {
       isRefreshing.value = false;
     }
   }
 
-  // ═══════ DIAMOND WALLET ═══════
+  // ===================== FAMILY WALLET =====================
 
-  Future<void> fetchDiamondWallet() async {
+  Future<void> fetchFamilyWallet() async {
     try {
-      // API integration pending
+      isFamilyWalletLoading.value = true;
+      final response = await _api.get('/api/wallet/wallet/family');
+      if (response['success'] == true && response['data'] != null) {
+        final data = response['data'];
+        if (data['wallet'] != null) {
+          familyWalletData.value = FamilyWalletData.fromJson(data['wallet']);
+        }
+        if (data['family'] != null) {
+          familyData.value = FamilyData.fromJson(data['family']);
+        }
+        if (data['contributions'] != null) {
+          memberContributions.value = (data['contributions'] as List)
+              .map((c) => MemberContribution.fromJson(c))
+              .toList();
+        }
+      }
     } catch (e) {
-      Get.snackbar('Error', 'Failed to load diamond wallet: ${e.toString()}',
+      Get.snackbar('Error', 'Failed to load family wallet: ${e.toString()}',
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red.withValues(alpha: 0.8),
-          colorText: Colors.white);
+          backgroundColor: Colors.red.withValues(alpha: 0.8), colorText: Colors.white);
+    } finally {
+      isFamilyWalletLoading.value = false;
     }
   }
 
-  Future<void> fetchDiamondTransactions() async {
+  Future<void> fetchFamilyTransactions() async {
     try {
       isRefreshing.value = true;
-      // API integration pending
+      final response = await _api.get('/api/wallet/wallet/family/transactions');
+      if (response['success'] == true && response['data'] != null) {
+        final data = response['data'];
+        final List<dynamic> txns = data['transactions'] ?? [];
+        familyTransactions.value = txns.map((t) => TransactionModel.fromJson(t)).toList();
+      }
     } catch (e) {
-      Get.snackbar('Error', 'Failed to load transactions: ${e.toString()}',
+      Get.snackbar('Error', 'Failed to load family transactions: ${e.toString()}',
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red.withValues(alpha: 0.8),
-          colorText: Colors.white);
+          backgroundColor: Colors.red.withValues(alpha: 0.8), colorText: Colors.white);
     } finally {
       isRefreshing.value = false;
     }
   }
 
-  // ═══════ REWARD WALLET ═══════
+  Future<void> contributeToFamilyWallet() async {
+    final coins = int.tryParse(contributionCoinsController.text) ?? 0;
+    final diamonds = int.tryParse(contributionDiamondsController.text) ?? 0;
 
-  Future<void> fetchRewardWallet() async {
-    try {
-      // API integration pending
-    } catch (e) {
-      Get.snackbar('Error', 'Failed to load reward wallet: ${e.toString()}',
+    if (coins <= 0 && diamonds <= 0) {
+      Get.snackbar('Error', 'Enter coins or diamonds to contribute',
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red.withValues(alpha: 0.8),
-          colorText: Colors.white);
-    }
-  }
-
-  Future<void> fetchRewardTransactions() async {
-    try {
-      isRefreshing.value = true;
-      // API integration pending
-    } catch (e) {
-      Get.snackbar('Error', 'Failed to load reward history: ${e.toString()}',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red.withValues(alpha: 0.8),
-          colorText: Colors.white);
-    } finally {
-      isRefreshing.value = false;
-    }
-  }
-
-  Future<void> convertRewardsToCoins(int rewardPoints) async {
-    if (rewardPoints < minConversionAmount.value) {
-      Get.snackbar('Error', 'Minimum conversion amount is $minConversionAmount points',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red.withValues(alpha: 0.8),
-          colorText: Colors.white);
+          backgroundColor: Colors.red.withValues(alpha: 0.8), colorText: Colors.white);
       return;
     }
 
     try {
-      isProcessingConversion.value = true;
-      // API integration pending
-      Get.snackbar('Success', 'Converted $rewardPoints points',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.green.withValues(alpha: 0.8),
-          colorText: Colors.white);
+      isContributing.value = true;
+      final response = await _api.post('/api/wallet/wallet/family/contribute', body: {
+        'coins': coins,
+        'diamonds': diamonds,
+      });
+      if (response['success'] == true && response['data'] != null) {
+        final data = response['data'];
+        coinBalance.value = data['coinsRemaining'] ?? coinBalance.value;
+        diamondBalance.value = data['diamondsRemaining'] ?? diamondBalance.value;
+        if (data['familyWallet'] != null) {
+          familyWalletData.value = FamilyWalletData.fromJson(data['familyWallet']);
+        }
+        Get.snackbar('Success', 'Contributed to family wallet',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.green.withValues(alpha: 0.8), colorText: Colors.white);
+        contributionCoinsController.clear();
+        contributionDiamondsController.clear();
+        await fetchFamilyWallet();
+      }
     } catch (e) {
-      Get.snackbar('Error', 'Conversion failed: ${e.toString()}',
+      Get.snackbar('Error', 'Contribution failed: ${e.toString()}',
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red.withValues(alpha: 0.8),
-          colorText: Colors.white);
+          backgroundColor: Colors.red.withValues(alpha: 0.8), colorText: Colors.white);
     } finally {
-      isProcessingConversion.value = false;
+      isContributing.value = false;
     }
   }
 
-  // ═══════ RATES & PACKAGES ═══════
+  // ===================== AGENCY WALLET =====================
+
+  Future<void> fetchAgencyWallet() async {
+    try {
+      isAgencyWalletLoading.value = true;
+      final response = await _api.get('/api/wallet/wallet/agency');
+      if (response['success'] == true && response['data'] != null) {
+        final data = response['data'];
+        if (data['wallet'] != null) {
+          agencyWalletData.value = AgencyWalletData.fromJson(data['wallet']);
+        }
+        if (data['agency'] != null) {
+          agencyData.value = AgencyData.fromJson(data['agency']);
+        }
+        if (data['hosts'] != null) {
+          agencyHosts.value = (data['hosts'] as List)
+              .map((h) => HostSummary.fromJson(h))
+              .toList();
+        }
+        isAgencyOwner.value = data['isOwner'] ?? false;
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to load agency wallet: ${e.toString()}',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red.withValues(alpha: 0.8), colorText: Colors.white);
+    } finally {
+      isAgencyWalletLoading.value = false;
+    }
+  }
+
+  Future<void> fetchAgencyTransactions() async {
+    try {
+      final response = await _api.get('/api/wallet/wallet/agency/transactions');
+      if (response['success'] == true && response['data'] != null) {
+        final data = response['data'];
+        final List<dynamic> txns = data['transactions'] ?? [];
+        agencyTransactions.value = txns.map((t) => TransactionModel.fromJson(t)).toList();
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to load agency transactions: ${e.toString()}',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red.withValues(alpha: 0.8), colorText: Colors.white);
+    }
+  }
+
+  Future<void> requestAgencyWithdrawal() async {
+    final amount = int.tryParse(withdrawAmountController.text);
+    if (amount == null || amount <= 0) {
+      Get.snackbar('Error', 'Enter a valid withdrawal amount',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red.withValues(alpha: 0.8), colorText: Colors.white);
+      return;
+    }
+    try {
+      isProcessingWithdraw.value = true;
+      final response = await _api.post('/api/wallet/wallet/agency/withdraw/request', body: {
+        'amount': amount,
+      });
+      if (response['success'] == true) {
+        Get.snackbar('Success', 'Agency withdrawal request submitted',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.green.withValues(alpha: 0.8), colorText: Colors.white);
+        withdrawAmountController.clear();
+        await fetchAgencyWallet();
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Agency withdrawal failed: ${e.toString()}',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red.withValues(alpha: 0.8), colorText: Colors.white);
+    } finally {
+      isProcessingWithdraw.value = false;
+    }
+  }
+
+  // ===================== RECHARGE =====================
 
   Future<void> fetchPackages() async {
     try {
-      // API integration pending
+      final response = await _api.get('/api/wallet/wallet/packages');
+      if (response['success'] == true && response['data'] != null) {
+        final List<dynamic> pkgs = response['data'];
+        packages.value = pkgs.map((p) => RechargePackage.fromJson(p)).toList();
+      }
     } catch (e) {
-      // Silent fail for rates
+      debugPrint('Failed to fetch packages: $e');
     }
   }
 
   Future<void> fetchWithdrawMethods() async {
     try {
-      // API integration pending
+      final response = await _api.get('/api/wallet/wallet/withdraw-methods');
+      if (response['success'] == true && response['data'] != null) {
+        final List<dynamic> methods = response['data'];
+        withdrawMethods.value = methods.map((m) => WithdrawMethod.fromJson(m)).toList();
+      }
     } catch (e) {
-      // Silent fail
+      debugPrint('Failed to fetch withdraw methods: $e');
     }
   }
-
-  // ═══════ RECHARGE & WITHDRAW ═══════
 
   Future<void> processRecharge() async {
     if (selectedPackage.value == null) {
       Get.snackbar('Error', 'Please select a package',
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red.withValues(alpha: 0.8),
-          colorText: Colors.white);
+          backgroundColor: Colors.red.withValues(alpha: 0.8), colorText: Colors.white);
       return;
     }
 
     try {
       isProcessingRecharge.value = true;
-      // API integration pending
+      final response = await _api.post('/api/wallet/wallet/recharge/create-order', body: {
+        'amount': selectedPackage.value!.price,
+        'packageId': selectedPackage.value!.id,
+      });
+      if (response['success'] == true && response['data'] != null) {
+        Get.snackbar('Order Created', 'Redirecting to payment...',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.blue.withValues(alpha: 0.8), colorText: Colors.white);
+      }
     } catch (e) {
       Get.snackbar('Error', 'Recharge failed: ${e.toString()}',
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red.withValues(alpha: 0.8),
-          colorText: Colors.white);
+          backgroundColor: Colors.red.withValues(alpha: 0.8), colorText: Colors.white);
     } finally {
       isProcessingRecharge.value = false;
     }
   }
+
+  // ===================== WITHDRAWAL =====================
 
   Future<void> processWithdraw() async {
     final amount = double.tryParse(withdrawAmountController.text);
     if (amount == null || amount <= 0) {
       Get.snackbar('Error', 'Please enter a valid amount',
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red.withValues(alpha: 0.8),
-          colorText: Colors.white);
-      return;
-    }
-
-    if (accountDetailsController.text.isEmpty) {
-      Get.snackbar('Error', 'Please enter account details',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red.withValues(alpha: 0.8),
-          colorText: Colors.white);
+          backgroundColor: Colors.red.withValues(alpha: 0.8), colorText: Colors.white);
       return;
     }
 
     try {
       isProcessingWithdraw.value = true;
-      // API integration pending
+      final body = <String, dynamic>{
+        'bankAccount': accountDetailsController.text,
+        'ifsc': '',
+        'accountName': '',
+      };
+      if (selectedWithdrawMethod.value == 'diamonds') {
+        body['diamonds'] = amount.toInt();
+      } else {
+        body['amount'] = amount.toInt();
+      }
+      final response = await _api.post('/api/wallet/wallet/withdraw/request', body: body);
+      if (response['success'] == true) {
+        Get.snackbar('Success', 'Withdrawal request submitted',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.green.withValues(alpha: 0.8), colorText: Colors.white);
+        withdrawAmountController.clear();
+        accountDetailsController.clear();
+        fetchWithdrawalStatus();
+      }
     } catch (e) {
       Get.snackbar('Error', 'Withdrawal failed: ${e.toString()}',
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red.withValues(alpha: 0.8),
-          colorText: Colors.white);
+          backgroundColor: Colors.red.withValues(alpha: 0.8), colorText: Colors.white);
     } finally {
       isProcessingWithdraw.value = false;
     }
   }
 
-  // ═══════ TREASURY (ADMIN) ═══════
-
-  Future<void> fetchTreasuryData() async {
+  Future<void> fetchWithdrawalStatus() async {
     try {
-      isTreasuryLoading.value = true;
-      // API integration pending
+      final response = await _api.get('/api/wallet/wallet/withdraw/status');
+      if (response['success'] == true && response['data'] != null) {
+        final List<dynamic> withdrawals = response['data'] ?? [];
+        pendingWithdrawals.value = withdrawals.where((w) => w['status'] == 'PENDING' || w['status'] == 'PROCESSING').length;
+      }
     } catch (e) {
-      Get.snackbar('Error', 'Failed to load treasury data: ${e.toString()}',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red.withValues(alpha: 0.8),
-          colorText: Colors.white);
-    } finally {
-      isTreasuryLoading.value = false;
+      debugPrint('Failed to fetch withdrawal status: $e');
     }
   }
 
-  Future<void> creditTreasury(double amount, String description) async {
+  // ===================== DIAMOND EXCHANGE =====================
+
+  Future<void> exchangeDiamondsToCoins() async {
     try {
-      isTreasuryLoading.value = true;
-      await fetchTreasuryData();
-      Get.snackbar('Success', 'Credited $amount to treasury',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.green.withValues(alpha: 0.8),
-          colorText: Colors.white);
+      final amount = int.tryParse(withdrawAmountController.text);
+      if (amount == null || amount <= 0) {
+        Get.snackbar('Error', 'Enter valid diamond amount',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red.withValues(alpha: 0.8), colorText: Colors.white);
+        return;
+      }
+      final response = await _api.post('/api/wallet/wallet/exchange', body: {'diamondsToExchange': amount});
+      if (response['success'] == true && response['data'] != null) {
+        final data = response['data'];
+        coinBalance.value = data['coinsReceived'] ?? coinBalance.value;
+        diamondBalance.value = data['diamondsRemaining'] ?? diamondBalance.value;
+        Get.snackbar('Success', 'Exchanged ${data['diamondsExchanged']} diamonds to ${data['coinsReceived']} coins',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.green.withValues(alpha: 0.8), colorText: Colors.white);
+        withdrawAmountController.clear();
+      }
     } catch (e) {
-      Get.snackbar('Error', 'Credit failed: ${e.toString()}',
+      Get.snackbar('Error', 'Exchange failed: ${e.toString()}',
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red.withValues(alpha: 0.8),
-          colorText: Colors.white);
-    } finally {
-      isTreasuryLoading.value = false;
+          backgroundColor: Colors.red.withValues(alpha: 0.8), colorText: Colors.white);
     }
   }
 
-  Future<void> debitTreasury(double amount, String description) async {
+  // ===================== SEND GIFT =====================
+
+  Future<void> sendGift(String recipientId, String giftId, String giftName, int quantity, int costPerGift) async {
     try {
-      isTreasuryLoading.value = true;
-      await fetchTreasuryData();
-      Get.snackbar('Success', 'Debited $amount from treasury',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.green.withValues(alpha: 0.8),
-          colorText: Colors.white);
+      final response = await _api.post('/api/wallet/wallet/gift/send', body: {
+        'recipientId': recipientId,
+        'giftId': giftId,
+        'giftName': giftName,
+        'quantity': quantity,
+        'costPerGift': costPerGift,
+      });
+      if (response['success'] == true && response['data'] != null) {
+        coinBalance.value = response['data']['coinsRemaining'] ?? coinBalance.value;
+        Get.snackbar('Success', 'Gift sent successfully',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.green.withValues(alpha: 0.8), colorText: Colors.white);
+      }
     } catch (e) {
-      Get.snackbar('Error', 'Debit failed: ${e.toString()}',
+      Get.snackbar('Error', 'Gift failed: ${e.toString()}',
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red.withValues(alpha: 0.8),
-          colorText: Colors.white);
-    } finally {
-      isTreasuryLoading.value = false;
+          backgroundColor: Colors.red.withValues(alpha: 0.8), colorText: Colors.white);
+      rethrow;
     }
   }
+
+  // ===================== FORMATTING HELPERS =====================
 
   String formatCurrency(int amount) {
-    if (amount >= 1000000) return '${(amount / 1000000).toStringAsFixed(1)}M';
+    if (amount >= 10000000) return '${(amount / 10000000).toStringAsFixed(1)}Cr';
+    if (amount >= 100000) return '${(amount / 100000).toStringAsFixed(1)}L';
     if (amount >= 1000) return '${(amount / 1000).toStringAsFixed(1)}K';
     return amount.toString();
   }
 
   String formatCurrencyDouble(double amount) {
-    if (amount >= 1000000) return '${(amount / 1000000).toStringAsFixed(1)}M';
+    if (amount >= 10000000) return '${(amount / 10000000).toStringAsFixed(1)}Cr';
+    if (amount >= 100000) return '${(amount / 100000).toStringAsFixed(1)}L';
     if (amount >= 1000) return '${(amount / 1000).toStringAsFixed(1)}K';
     return amount.toStringAsFixed(2);
-  }
-
-  @override
-  void onClose() {
-    withdrawAmountController.dispose();
-    accountDetailsController.dispose();
-    super.onClose();
   }
 }

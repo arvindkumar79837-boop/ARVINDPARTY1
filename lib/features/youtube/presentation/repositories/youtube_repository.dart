@@ -1,38 +1,159 @@
 // ═══════════════════════════════════════════════════════════════════════════
 // FILE: lib/features/youtube/presentation/repositories/youtube_repository.dart
-// ARVIND PARTY - YOUTUBE REPOSITORY (Mock)
+// ARVIND PARTY - YOUTUBE REPOSITORY
 // ═══════════════════════════════════════════════════════════════════════════
 
+import 'package:get/get.dart';
 import '../../models/youtube_video_model.dart';
+import '../../../../core/services/api_service.dart';
+import '../../../../core/services/socket_service.dart';
 
 class YouTubeRepository {
+  final ApiService _api = Get.find<ApiService>();
+  final SocketService _socket = Get.find<SocketService>();
+
   Future<List<YouTubeVideo>> getPlaylist() async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    return _mockVideos();
+    try {
+      final response = await _api.get('/api/youtube/playlist');
+      if (response.statusCode == 200 && response.data != null) {
+        final List<dynamic> videos = response.data['videos'] ?? response.data;
+        return videos.map((v) => YouTubeVideo.fromJson(v)).toList();
+      }
+      throw Exception('Failed to load playlist');
+    } catch (e) {
+      Get.log('YouTubeRepository.getPlaylist error: $e');
+      rethrow;
+    }
   }
 
   Future<List<YouTubeVideo>> searchVideos(String query) async {
-    await Future.delayed(const Duration(milliseconds: 500));
-    return _mockVideos().where((v) =>
-      v.title.toLowerCase().contains(query.toLowerCase())
-    ).toList();
+    try {
+      final response = await _api.get('/api/youtube/search', query: {'q': query});
+      if (response.statusCode == 200 && response.data != null) {
+        final List<dynamic> videos = response.data['videos'] ?? response.data;
+        return videos.map((v) => YouTubeVideo.fromJson(v)).toList();
+      }
+      return [];
+    } catch (e) {
+      Get.log('YouTubeRepository.searchVideos error: $e');
+      return [];
+    }
   }
 
   Future<YouTubeVideo?> getVideoDetails(String videoId) async {
-    await Future.delayed(const Duration(milliseconds: 200));
-    final videos = _mockVideos();
     try {
-      return videos.firstWhere((v) => v.id == videoId);
-    } catch (_) {
+      final response = await _api.get('/api/youtube/video/$videoId');
+      if (response.statusCode == 200 && response.data != null) {
+        return YouTubeVideo.fromJson(response.data);
+      }
+      return null;
+    } catch (e) {
+      Get.log('YouTubeRepository.getVideoDetails error: $e');
       return null;
     }
   }
 
-  List<YouTubeVideo> _mockVideos() => [
-    YouTubeVideo(id: 'yt1', title: 'Party Music Mix 2024', thumbnailUrl: 'https://picsum.photos/seed/music/320/180', videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', channelName: 'Party Central', duration: 240.0, views: 15000),
-    YouTubeVideo(id: 'yt2', title: 'Live DJ Session', thumbnailUrl: 'https://picsum.photos/seed/dj/320/180', videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', channelName: 'DJ Arvind', duration: 3600.0, views: 42000),
-    YouTubeVideo(id: 'yt3', title: 'Karaoke Hits Collection', thumbnailUrl: 'https://picsum.photos/seed/karaoke/320/180', videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', channelName: 'Sing Along', duration: 1800.0, views: 28000),
-    YouTubeVideo(id: 'yt4', title: 'Romantic Songs Night', thumbnailUrl: 'https://picsum.photos/seed/romantic/320/180', videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', channelName: 'Love Songs', duration: 1200.0, views: 35000),
-    YouTubeVideo(id: 'yt5', title: 'Dance Floor Fillers', thumbnailUrl: 'https://picsum.photos/seed/dance/320/180', videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', channelName: 'Dance Crew', duration: 900.0, views: 22000),
-  ];
+  Future<void> addToPlaylist(YouTubeVideo video) async {
+    try {
+      await _api.post('/api/youtube/playlist/add', body: video.toJson());
+    } catch (e) {
+      Get.log('YouTubeRepository.addToPlaylist error: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> removeFromPlaylist(String videoId) async {
+    try {
+      await _api.delete('/api/youtube/playlist/$videoId', body: {'videoId': videoId});
+    } catch (e) {
+      Get.log('YouTubeRepository.removeFromPlaylist error: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> updatePlaybackState({
+    required bool isPlaying,
+    required double position,
+    required String videoId,
+    required String roomId,
+  }) async {
+    try {
+      await _api.post('/api/youtube/playback/update', body: {
+        'isPlaying': isPlaying,
+        'position': position,
+        'videoId': videoId,
+        'roomId': roomId,
+      });
+    } catch (e) {
+      Get.log('YouTubeRepository.updatePlaybackState error: $e');
+    }
+  }
+
+  void listenToPlaybackSync(Function(Map<String, dynamic>) onSyncUpdate) {
+    _socket.on('youtube:sync_update', (data) {
+      onSyncUpdate(data);
+    });
+  }
+
+  void listenToPlaylistUpdate(Function(List<dynamic>) onPlaylistUpdate) {
+    _socket.on('youtube:playlist_updated', (data) {
+      final videos = data['videos'] as List<dynamic>? ?? [];
+      onPlaylistUpdate(videos);
+    });
+  }
+
+  void listenToParticipantUpdate(Function(List<dynamic>) onParticipantUpdate) {
+    _socket.on('youtube:participants_updated', (data) {
+      final participants = data['participants'] as List<dynamic>? ?? [];
+      onParticipantUpdate(participants);
+    });
+  }
+
+  void listenToVideoChange(Function(Map<String, dynamic>) onVideoChange) {
+    _socket.on('youtube:video_changed', (data) {
+      onVideoChange(data);
+    });
+  }
+
+  void listenToWatchPartyToggle(Function(Map<String, dynamic>) onToggle) {
+    _socket.on('youtube:watch_party_toggled', (data) {
+      onToggle(data);
+    });
+  }
+
+  void emitJoinRoom(String roomId, String userId) {
+    _socket.emit('youtube:join_room', {'roomId': roomId, 'userId': userId});
+  }
+
+  void emitLeaveRoom(String roomId, String userId) {
+    _socket.emit('youtube:leave_room', {'roomId': roomId, 'userId': userId});
+  }
+
+  void emitTogglePlayPause(String roomId, bool isPlaying) {
+    _socket.emit('youtube:toggle_play', {
+      'roomId': roomId,
+      'isPlaying': isPlaying,
+    });
+  }
+
+  void emitSeekTo(String roomId, double position) {
+    _socket.emit('youtube:seek', {
+      'roomId': roomId,
+      'position': position,
+    });
+  }
+
+  void emitChangeVideo(String roomId, String videoId) {
+    _socket.emit('youtube:change_video', {
+      'roomId': roomId,
+      'videoId': videoId,
+    });
+  }
+
+  void emitToggleWatchParty(String roomId, bool enabled) {
+    _socket.emit('youtube:toggle_watch_party', {
+      'roomId': roomId,
+      'enabled': enabled,
+    });
+  }
 }

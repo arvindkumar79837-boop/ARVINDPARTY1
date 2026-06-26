@@ -5,16 +5,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controllers/room_controller.dart';
 
 class ModeratorControlsScreen extends StatelessWidget {
-  final String roomId;
-  const ModeratorControlsScreen({super.key, required this.roomId});
+  const ModeratorControlsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final RoomController controller = Get.find<RoomController>();
-
     return Scaffold(
       backgroundColor: const Color(0xFF1A1A2E),
       appBar: AppBar(

@@ -1,59 +1,127 @@
 import 'package:get/get.dart';
+import '../../../../core/services/api_service.dart';
+import '../../../../core/services/auth_session_manager.dart';
 import '../../models/coin_seller_model.dart';
 
 class CoinSellerController extends GetxController {
-  final sellers = <CoinSeller>[].obs;
-  final rechargeRequests = <RechargeRequest>[].obs;
+  final ApiService _api = Get.find<ApiService>();
+  final AuthSessionManager _session = Get.find<AuthSessionManager>();
+
+  // Observables for the logged-in dealer's state
+  final dealerWallet = Rxn<DealerWallet>();
+  final transactions = <WalletTransaction>[].obs;
   final settlementHistory = <SettlementRecord>[].obs;
+
   final isLoading = false.obs;
-  final selectedTab = 0.obs;
+  final errorMessage = ''.obs;
 
   @override
   void onInit() {
     super.onInit();
-    loadData();
+    // Only load data if the user is a coin seller
+    if (_session.isCoinSeller.value) {
+      loadDealerData();
+    }
   }
 
-  Future<void> loadData() async {
+  /// Loads all necessary data for the logged-in dealer from the backend.
+  Future<void> loadDealerData() async {
     isLoading.value = true;
-    await Future.delayed(const Duration(milliseconds: 500));
-    sellers.assignAll([
-      CoinSeller(id: 'cs1', name: 'CoinMaster', type: 'super', coinsAvailable: 50000, pricePerCoin: 0.9, rating: 4.8, totalSales: 1520, phone: '+91 98765 43210'),
-      CoinSeller(id: 'cs2', name: 'Official Coins', type: 'official', coinsAvailable: 100000, pricePerCoin: 1.0, rating: 4.9, totalSales: 5000, phone: '+91 88888 88888'),
-      CoinSeller(id: 'cs3', name: 'QuickRecharge', type: 'normal', coinsAvailable: 10000, pricePerCoin: 0.95, rating: 4.5, totalSales: 850, phone: '+91 77777 77777'),
-    ]);
-    rechargeRequests.assignAll([
-      RechargeRequest(id: 'rr1', sellerId: 'cs1', sellerName: 'CoinMaster', coins: 1000, amount: 900.0, status: 'completed', createdAt: DateTime.now().subtract(const Duration(hours: 2))),
-      RechargeRequest(id: 'rr2', sellerId: 'cs2', sellerName: 'Official Coins', coins: 500, amount: 500.0, status: 'pending', createdAt: DateTime.now().subtract(const Duration(minutes: 30))),
-    ]);
-    settlementHistory.assignAll([
-      SettlementRecord(id: 'st1', sellerId: 'cs2', amount: 4500.0, status: 'completed', createdAt: DateTime.now().subtract(const Duration(days: 1))),
-      SettlementRecord(id: 'st2', sellerId: 'cs1', amount: 1800.0, status: 'pending', createdAt: DateTime.now().subtract(const Duration(days: 3))),
-    ]);
-    isLoading.value = false;
+    errorMessage.value = '';
+    try {
+      final dealerUid = _session.userUid.value;
+      if (dealerUid.isEmpty) {
+        throw Exception('User is not logged in or has no UID.');
+      }
+
+      // Fetch wallet details and transaction history in parallel
+      final results = await Future.wait([
+        _api.get('/dealer/wallet/$dealerUid'),
+        _api.get('/dealer/transactions/$dealerUid'),
+        // Assuming a settlement history endpoint
+        _api.get('/dealer/settlements/$dealerUid'),
+      ]);
+
+      // Process wallet data
+      final walletResponse = results[0];
+      if (walletResponse['success'] == true) {
+        dealerWallet.value = DealerWallet.fromJson(walletResponse['data']['wallet']);
+      } else {
+        throw Exception('Failed to load dealer wallet: ${walletResponse['message']}');
+      }
+
+      // Process transaction history
+      final txResponse = results[1];
+      if (txResponse['success'] == true) {
+        final txList = (txResponse['data'] as List).map((tx) => WalletTransaction.fromJson(tx)).toList();
+        transactions.assignAll(txList);
+      }
+
+      // Process settlement history
+      final settlementResponse = results[2];
+      if (settlementResponse['success'] == true) {
+        final settlementList = (settlementResponse['data'] as List).map((s) => SettlementRecord.fromJson(s)).toList();
+        settlementHistory.assignAll(settlementList);
+      }
+
+    } catch (e) {
+      errorMessage.value = 'Error loading dealer data: ${e.toString()}';
+      Get.snackbar('Error', errorMessage.value, backgroundColor: Colors.red, colorText: Colors.white);
+    } finally {
+      isLoading.value = false;
+    }
   }
 
-  Future<void> submitRechargeRequest(String sellerId, String sellerName, int coins, double amount) async {
-    rechargeRequests.insert(0, RechargeRequest(
-      id: 'rr_${DateTime.now().millisecondsSinceEpoch}',
-      sellerId: sellerId,
-      sellerName: sellerName,
-      coins: coins,
-      amount: amount,
-      status: 'pending',
-      createdAt: DateTime.now(),
-    ));
-    Get.snackbar('Success', 'Recharge request submitted for $coins coins');
+  /// Transfer coins from the logged-in dealer to a target user.
+  Future<bool> transferCoinsToUser({required String targetUid, required int amount}) async {
+    isLoading.value = true;
+    try {
+      if (dealerWallet.value == null || dealerWallet.value!.balance < amount) {
+        Get.snackbar('Error', 'Insufficient balance.', backgroundColor: Colors.red, colorText: Colors.white);
+        return false;
+      }
+      final response = await _api.post('/dealer/transfer', body: {
+        'targetUid': targetUid,
+        'amount': amount,
+        'description': 'Coin transfer from dealer',
+      });
+
+      if (response['success'] == true) {
+        Get.snackbar('Success', 'Successfully transferred $amount coins to $targetUid.', backgroundColor: Colors.green);
+        // Refresh data after successful transfer
+        await loadDealerData();
+        return true;
+      } else {
+        Get.snackbar('Transfer Failed', response['message'] ?? 'An unknown error occurred.', backgroundColor: Colors.red, colorText: Colors.white);
+        return false;
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'An error occurred: ${e.toString()}', backgroundColor: Colors.red, colorText: Colors.white);
+      return false;
+    } finally {
+      isLoading.value = false;
+    }
   }
 
-  Future<void> submitSettlement(String sellerId, double amount) async {
-    settlementHistory.insert(0, SettlementRecord(
-      id: 'st_${DateTime.now().millisecondsSinceEpoch}',
-      sellerId: sellerId,
-      amount: amount,
-      status: 'pending',
-      createdAt: DateTime.now(),
-    ));
-    Get.snackbar('Success', 'Settlement request of \$${amount.toStringAsFixed(2)} submitted');
+  /// Submits a request for the dealer to settle their earnings.
+  Future<void> submitSettlement({required double amount, required String method}) async {
+    isLoading.value = true;
+    try {
+      final response = await _api.post('/dealer/settlement-request', body: {
+        'amount': amount,
+        'method': method, // e.g., 'bank_transfer', 'upi'
+      });
+
+       if (response['success'] == true) {
+        Get.snackbar('Success', 'Settlement request for \$$amount submitted successfully.', backgroundColor: Colors.green);
+        await loadDealerData();
+      } else {
+        Get.snackbar('Failed', response['message'] ?? 'Could not submit request.', backgroundColor: Colors.red, colorText: Colors.white);
+      }
+    } catch (e) {
+       Get.snackbar('Error', 'An error occurred: ${e.toString()}', backgroundColor: Colors.red, colorText: Colors.white);
+    } finally {
+      isLoading.value = false;
+    }
   }
 }

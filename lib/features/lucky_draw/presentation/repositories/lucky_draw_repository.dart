@@ -1,59 +1,108 @@
-import 'package:dio/dio.dart';
+// ═══════════════════════════════════════════════════════════════════════════
+// REPOSITORY: LuckyDrawRepository — API calls for Lucky Spin
+// ═══════════════════════════════════════════════════════════════════════════
+
+import 'package:arvind_party/core/services/api_service.dart';
+import 'package:arvind_party/core/services/socket_service.dart';
 import 'package:get/get.dart';
-import '../../../../core/constants/env_config.dart';
-import '../../../../core/services/auth_session_manager.dart';
-import '../../../../core/utils/api_exception.dart';
-import '../../../../core/constants/api_constants.dart';
 
 class LuckyDrawRepository {
-  final Dio _dio = Dio(BaseOptions(baseUrl: EnvConfig.plainApiBaseUrl));
+  final ApiService _apiService = Get.find<ApiService>();
+  final SocketService _socketService = Get.find<SocketService>();
 
-  String? _getToken() {
-    try {
-      return Get.find<AuthSessionManager>().token.value;
-    } catch (_) {
-      return null;
-    }
-  }
-
-  Options _authOptions() => Options(headers: {
-        if (_getToken() != null) 'Authorization': 'Bearer ${_getToken()}',
-      });
-
-  /// Fetch all active lucky wheel rewards
-  /// GET /api/games/lucky-wheel/rewards
+  /// Fetch available lucky spin configurations
   Future<List<Map<String, dynamic>>> fetchRewards() async {
     try {
-      final response = await _dio.get(
-        ApiConstants.luckyWheelRewards,
-        options: _authOptions(),
-      );
-      final data = response.data as Map<String, dynamic>;
-      if (data['success'] == true) {
-        final rewards = data['data'] as List<dynamic>? ?? [];
-        return rewards.cast<Map<String, dynamic>>();
+      final response = await _apiService.get('/lucky-draw');
+      if (response['success'] == true) {
+        return List<Map<String, dynamic>>.from(response['data'] ?? []);
       }
-      throw ApiException(message: data['message'] ?? 'Failed to fetch rewards');
-    } on DioException catch (e) {
-      throw ApiException.fromDioError(e.response?.data ?? {'message': e.message});
+      return [];
+    } catch (e) {
+      throw Exception('Failed to fetch lucky draws: $e');
     }
   }
 
-  /// Execute a lucky wheel spin
-  /// POST /api/games/lucky-wheel/spin
+  /// Spin the wheel
   Future<Map<String, dynamic>> spin() async {
     try {
-      final response = await _dio.post(
-        ApiConstants.luckyWheelSpin,
-        options: _authOptions(),
-      );
-      final data = response.data as Map<String, dynamic>;
-      if (data['success'] == true) {
-        return data['data'] as Map<String, dynamic>? ?? data;
+      final response = await _apiService.post('/lucky-draw/spin', body: {});
+      if (response['success'] == true && response['data'] != null) {
+        return response['data'];
       }
-      throw ApiException(message: data['message'] ?? 'Spin failed');
-    } on DioException catch (e) {
-      throw ApiException.fromDioError(e.response?.data ?? {'message': e.message});
+      throw Exception(response['message'] ?? 'Spin failed');
+    } catch (e) {
+      throw Exception('Spin failed: $e');
     }
+  }
+
+  /// Get single lucky draw by ID
+  Future<Map<String, dynamic>> getLuckyDrawById(String drawId) async {
+    try {
+      final response = await _apiService.get('/lucky-draw/$drawId');
+      if (response['success'] == true && response['data'] != null) {
+        return response['data'] as Map<String, dynamic>;
+      }
+      throw Exception(response['message'] ?? 'Lucky draw not found');
+    } catch (e) {
+      throw Exception('Failed to fetch lucky draw: $e');
+    }
+  }
+
+  /// Join game room for real-time updates
+  void joinGameRoom(String gameType) {
+    _socketService.emit('join_game_room', gameType);
+  }
+
+  /// Leave game room
+  void leaveGameRoom(String gameType) {
+    _socketService.emit('leave_game_room', gameType);
+  }
+
+  /// Request active config
+  void requestActiveConfig(String gameType) {
+    _socketService.emit('get_active_config', gameType);
+  }
+
+  /// Listen to socket updates
+  void listenToSocketEvents({
+    Function(Map<String, dynamic>)? onConfigUpdated,
+    Function(Map<String, dynamic>)? onConfigDeployed,
+    Function(Map<String, dynamic>)? onJackpotHit,
+    Function(Map<String, dynamic>)? onError,
+  }) {
+    _socketService.on('reward_config_updated', (data) {
+      final event = Map<String, dynamic>.from(data);
+      onConfigUpdated?.call(event);
+    });
+
+    _socketService.on('reward_config_deployed', (data) {
+      final event = Map<String, dynamic>.from(data);
+      onConfigDeployed?.call(event);
+    });
+
+    _socketService.on('jackpot_hit', (data) {
+      final event = Map<String, dynamic>.from(data);
+      onJackpotHit?.call(event);
+    });
+
+    _socketService.on('global_jackpot', (data) {
+      final event = Map<String, dynamic>.from(data);
+      onJackpotHit?.call(event);
+    });
+
+    _socketService.on('error', (data) {
+      final event = Map<String, dynamic>.from(data);
+      onError?.call(event);
+    });
+  }
+
+  /// Remove socket listeners
+  void removeSocketListeners() {
+    _socketService.off('reward_config_updated');
+    _socketService.off('reward_config_deployed');
+    _socketService.off('jackpot_hit');
+    _socketService.off('global_jackpot');
+    _socketService.off('error');
   }
 }

@@ -28,6 +28,10 @@ class YouTubeController extends GetxController {
   // ─── Watch Party ──────────────────────────────────────────
   final synchronizedPlayback = false.obs;
   final participants = <String>[].obs;
+  final isConnected = false.obs;
+  
+  // Socket listener references for cleanup
+  final Map<String, Function> _socketListeners = {};
 
   YouTubeController({
     this.roomId,
@@ -39,7 +43,19 @@ class YouTubeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    setupSocketListeners();
     loadPlaylist();
+    if (roomId != null && currentUserId != null) {
+      _repo.emitJoinRoom(roomId!, currentUserId!);
+    }
+  }
+
+  @override
+  void onClose() {
+    if (roomId != null && currentUserId != null) {
+      _repo.emitLeaveRoom(roomId!, currentUserId!);
+    }
+    super.onClose();
   }
 
   // ══════════════════════════════════════════════════════════════
@@ -65,33 +81,41 @@ class YouTubeController extends GetxController {
     }
   }
 
-  void playVideo(YouTubeVideo video) {
+  Future<void> playVideo(YouTubeVideo video) async {
     currentVideo.value = video;
     isPlaying.value = true;
     currentPosition.value = 0.0;
     videoDuration.value = video.duration ?? 0.0;
+    if (roomId != null) {
+      _repo.emitChangeVideo(roomId!, video.id);
+    }
   }
 
   void togglePlayPause() {
-    if (isHost || true) { // Host/moderator only
-      isPlaying.value = !isPlaying.value;
-    }
+    if (roomId == null) return;
+    if (!isHost) return;
+    isPlaying.value = !isPlaying.value;
+    _repo.emitTogglePlayPause(roomId!, isPlaying.value);
   }
 
   void seekTo(double position) {
-    if (isHost || true) {
-      currentPosition.value = position;
-    }
+    if (roomId == null) return;
+    if (!isHost) return;
+    currentPosition.value = position;
+    _repo.emitSeekTo(roomId!, position);
   }
 
-  void addToPlaylist(YouTubeVideo video) {
+  Future<void> addToPlaylist(YouTubeVideo video) async {
+    if (!isHost) return;
+    await _repo.addToPlaylist(video);
     playlist.add(video);
   }
 
-  void removeFromPlaylist(int index) {
-    if (isHost || true) {
-      playlist.removeAt(index);
-    }
+  Future<void> removeFromPlaylist(int index) async {
+    if (!isHost) return;
+    final video = playlist[index];
+    await _repo.removeFromPlaylist(video.id);
+    playlist.removeAt(index);
   }
 
   void playNext() {
@@ -115,8 +139,10 @@ class YouTubeController extends GetxController {
   // ══════════════════════════════════════════════════════════════
 
   void toggleWatchParty() {
-    if (hostId == currentUserId || isHost) {
-      synchronizedPlayback.value = !synchronizedPlayback.value;
+    if (hostId != currentUserId && !isHost) return;
+    synchronizedPlayback.value = !synchronizedPlayback.value;
+    if (roomId != null) {
+      _repo.emitToggleWatchParty(roomId!, synchronizedPlayback.value);
     }
   }
 
@@ -128,5 +154,42 @@ class YouTubeController extends GetxController {
 
   void leaveWatchParty(String userId) {
     participants.remove(userId);
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  // SOCKET LISTENERS
+  // ══════════════════════════════════════════════════════════════
+
+  void setupSocketListeners() {
+    _repo.listenToPlaybackSync((data) {
+      final isPlaying = data['isPlaying'] as bool? ?? false;
+      final position = (data['position'] as num?)?.toDouble() ?? 0.0;
+      this.isPlaying.value = isPlaying;
+      currentPosition.value = position;
+    });
+
+    _repo.listenToPlaylistUpdate((videos) {
+      playlist.assignAll(
+        videos.map((v) => YouTubeVideo.fromJson(Map<String, dynamic>.from(v as Map))).toList(),
+      );
+    });
+
+    _repo.listenToParticipantUpdate((users) {
+      participants.assignAll(
+        users.map((u) => u.toString()).toList(),
+      );
+    });
+
+    _repo.listenToVideoChange((data) {
+      final videoDto = Map<String, dynamic>.from(data);
+      currentVideo.value = YouTubeVideo.fromJson(videoDto);
+      isPlaying.value = true;
+      currentPosition.value = 0.0;
+    });
+    
+    _repo.listenToWatchPartyToggle((data) {
+      final enabled = data['enabled'] as bool? ?? false;
+      synchronizedPlayback.value = enabled;
+    });
   }
 }
