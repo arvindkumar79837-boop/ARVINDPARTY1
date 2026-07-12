@@ -21,6 +21,11 @@ jobs:
         with:
           channel: 'stable'
 
+      - name: Force Fix Font Awesome Package
+        run: |
+          flutter pub remove font_awesome_flutter || true
+          flutter pub add font_awesome_flutter:10.8.2
+
       - name: Install Dependencies
         run: flutter pub get
 
