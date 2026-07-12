@@ -21,8 +21,8 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Force Upgrade Font Awesome
-        run: flutter pub add font_awesome_flutter:10.8.0
+      - name: Force Install Latest Font Awesome
+        run: flutter pub add font_awesome_flutter:^10.8.2
 
       - name: Install Dependencies
         run: flutter pub get
