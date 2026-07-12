@@ -27,9 +27,6 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
 
-      - name: Give Gradle Executable Permissions
-        run: chmod +x android/gradlew
-
       - name: Clean Project Cache
         run: flutter clean
 
@@ -41,3 +38,4 @@ jobs:
         with:
           name: arvind-party-apk
           path: build/app/outputs/flutter-apk/app-debug.apk
+          
