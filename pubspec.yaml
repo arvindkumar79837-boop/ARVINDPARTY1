@@ -29,7 +29,7 @@ dependencies:
   cached_network_image: 3.4.1
   shimmer: ^3.0.0
   lottie: 3.3.2
-  font_awesome_flutter: ^10.7.0
+  font_awesome_flutter: ^10.8.2
 
   # Phone Auth
   pinput: ^3.0.1
