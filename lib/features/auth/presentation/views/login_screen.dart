@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:flutter_animate/flutter_animate.dart';
-import '../controllers/login_controller.dart';
+
 import '../controllers/auth_controller.dart';
+import '../controllers/login_controller.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -170,7 +171,7 @@ class _LoginScreenState extends State<LoginScreen> {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: Colors.black.withValues(alpha: 0.3),
-            border: Border.all(color: Colors.amber.withValues(alpha: 0.3), width: 1),
+            border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
           ),
           child: Image.asset(
             'assets/login/login_icon.png',
@@ -218,7 +219,7 @@ class _LoginScreenState extends State<LoginScreen> {
           style: TextStyle(
             fontSize: 34, fontWeight: FontWeight.w800, color: Colors.white,
             letterSpacing: 0.5,
-            shadows: [Shadow(color: Colors.black, blurRadius: 12, offset: Offset(0, 2))],
+            shadows: [Shadow(blurRadius: 12, offset: Offset(0, 2))],
           ),
         ),
         const SizedBox(height: 6),
@@ -245,7 +246,6 @@ class _LoginScreenState extends State<LoginScreen> {
             icon: Icons.email,
             color: Colors.white,
             textColor: Colors.black87,
-            isGoogle: false,
             onTap: () {
               showEmailLogin.value = !showEmailLogin.value;
             },

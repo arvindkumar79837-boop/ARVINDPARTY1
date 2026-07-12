@@ -5,8 +5,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../../core/localization/localization_service.dart';
+
 import '../../../../core/localization/languages.dart';
+import '../../../../core/localization/localization_service.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/services/auth_session_manager.dart';
 
@@ -142,7 +143,7 @@ class SettingsController extends GetxController {
     try {
       isLoading.value = true;
       final api = Get.find<ApiService>();
-      final Map<String, dynamic> body = {};
+      final body = <String, dynamic>{};
       if (data == null) return;
       if (data['name'] != null) body['name'] = data['name'];
       if (data['bio'] != null) body['bio'] = data['bio'];

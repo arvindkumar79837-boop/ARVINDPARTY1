@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controllers/room_controller.dart';
+
 import '../../models/room_models.dart';
+import '../controllers/room_controller.dart';
 
 // ─── EXTENSIONS ──────────────────────────────────────────────────────────────
 extension MemberRoleSecurityExtension on MemberRole {
@@ -317,7 +318,7 @@ class _OptionTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       onTap: onTap,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 4),
       leading: Container(
         width: 38,
         height: 38,

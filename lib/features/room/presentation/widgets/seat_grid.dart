@@ -1,3 +1,4 @@
+import 'package:arvind_party/features/room/models/room_models.dart';
 import 'package:arvind_party/features/room/presentation/controllers/live_room_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

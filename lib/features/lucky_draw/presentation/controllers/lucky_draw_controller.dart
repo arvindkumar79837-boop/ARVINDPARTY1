@@ -3,11 +3,12 @@
 // ARVIND PARTY - LUCKY DRAW CONTROLLER WITH REAL-TIME REWARD CONFIG
 // ═══════════════════════════════════════════════════════════════════════════
 
+import 'package:arvind_party/core/services/api_service.dart';
+import 'package:arvind_party/core/socket/socket_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import '../repositories/lucky_draw_repository.dart';
-import 'package:arvind_party/core/services/socket_service.dart';
-import 'package:arvind_party/core/services/api_service.dart';
 
 class LuckyDrawController extends GetxController {
   final LuckyDrawRepository _repo = LuckyDrawRepository();
@@ -143,7 +144,6 @@ class LuckyDrawController extends GetxController {
           'New configuration deployed! Check out the latest rewards.',
           backgroundColor: Colors.blue,
           colorText: Colors.white,
-          duration: const Duration(seconds: 3),
         );
         loadRewards();
       },
@@ -154,7 +154,6 @@ class LuckyDrawController extends GetxController {
           'New reward configuration is now active!',
           backgroundColor: Colors.purple,
           colorText: Colors.white,
-          duration: const Duration(seconds: 3),
         );
         loadRewards();
       },

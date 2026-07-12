@@ -12,7 +12,7 @@ class InventoryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final InventoryController controller = Get.find<InventoryController>();
+    final controller = Get.find<InventoryController>();
 
     return Scaffold(
       backgroundColor: const Color(0xFF1A1A2E),

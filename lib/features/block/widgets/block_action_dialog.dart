@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../models/block_model.dart';
+
 import '../controllers/block_controller.dart';
+import '../models/block_model.dart';
 
 class BlockActionDialog extends GetView<BlockController> {
   final String targetUserId;

@@ -12,7 +12,7 @@ class BroadcastScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final AdminController controller = Get.find<AdminController>();
+    final controller = Get.find<AdminController>();
 
     return Scaffold(
       backgroundColor: const Color(0xFF1A1A2E),

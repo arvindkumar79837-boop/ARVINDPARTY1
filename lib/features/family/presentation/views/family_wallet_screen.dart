@@ -12,7 +12,7 @@ class FamilyWalletScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final FamilyController controller = Get.find<FamilyController>();
+    final controller = Get.find<FamilyController>();
 
     return Scaffold(
       backgroundColor: const Color(0xFF1A1A2E),
@@ -648,9 +648,9 @@ class FamilyWalletScreen extends StatelessWidget {
   }
 
   void _showContributeDialog(FamilyController controller) {
-    var amountController = TextEditingController();
-    var noteController = TextEditingController();
-    var isProcessing = false.obs;
+    final amountController = TextEditingController();
+    final noteController = TextEditingController();
+    final isProcessing = false.obs;
 
     Get.dialog(
       AlertDialog(
@@ -758,9 +758,9 @@ class FamilyWalletScreen extends StatelessWidget {
   }
 
   void _showWithdrawDialog(FamilyController controller) {
-    var amountController = TextEditingController();
-    var reasonController = TextEditingController();
-    var isProcessing = false.obs;
+    final amountController = TextEditingController();
+    final reasonController = TextEditingController();
+    final isProcessing = false.obs;
 
     Get.dialog(
       AlertDialog(

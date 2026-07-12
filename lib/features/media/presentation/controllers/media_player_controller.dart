@@ -3,8 +3,9 @@
 // ARVIND PARTY - MEDIA PLAYER CONTROLLER
 // ═══════════════════════════════════════════════════════════════════════════
 
-import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
 import '../../domain/entities/media_item.dart';
 
 class MediaPlayerController extends GetxController {
@@ -52,9 +53,7 @@ class MediaPlayerController extends GetxController {
           artist: 'Arvind Official',
           audioUrl: 'https://example.com/track1.mp3',
           duration: Duration(minutes: 3, seconds: 45),
-          category: 'music',
           playCount: 15420,
-          coverUrl: null,
         ),
         const MediaItem(
           id: 'track_002',
@@ -62,9 +61,7 @@ class MediaPlayerController extends GetxController {
           artist: 'DJ Arvind',
           audioUrl: 'https://example.com/track2.mp3',
           duration: Duration(minutes: 4, seconds: 12),
-          category: 'music',
           playCount: 23100,
-          coverUrl: null,
         ),
         const MediaItem(
           id: 'track_003',
@@ -72,9 +69,7 @@ class MediaPlayerController extends GetxController {
           artist: 'Party Mix',
           audioUrl: 'https://example.com/track3.mp3',
           duration: Duration(minutes: 5, seconds: 30),
-          category: 'music',
           playCount: 8700,
-          coverUrl: null,
         ),
         const MediaItem(
           id: 'track_004',
@@ -84,7 +79,6 @@ class MediaPlayerController extends GetxController {
           duration: Duration(minutes: 6, seconds: 15),
           category: 'ambient',
           playCount: 4200,
-          coverUrl: null,
         ),
         const MediaItem(
           id: 'track_005',
@@ -92,9 +86,7 @@ class MediaPlayerController extends GetxController {
           artist: 'Electronic',
           audioUrl: 'https://example.com/track5.mp3',
           duration: Duration(minutes: 3, seconds: 22),
-          category: 'music',
           playCount: 18900,
-          coverUrl: null,
         ),
       ];
       if (playlist.isNotEmpty && currentMedia.value == null) {
@@ -118,7 +110,6 @@ class MediaPlayerController extends GetxController {
         duration: Duration(seconds: 3),
         category: 'soundEffect',
         playCount: 120000,
-        coverUrl: null,
       ),
       const MediaItem(
         id: 'sfx_002',
@@ -128,7 +119,6 @@ class MediaPlayerController extends GetxController {
         duration: Duration(seconds: 2),
         category: 'soundEffect',
         playCount: 98000,
-        coverUrl: null,
       ),
       const MediaItem(
         id: 'sfx_003',
@@ -138,7 +128,6 @@ class MediaPlayerController extends GetxController {
         duration: Duration(seconds: 1),
         category: 'soundEffect',
         playCount: 204000,
-        coverUrl: null,
       ),
       const MediaItem(
         id: 'sfx_004',
@@ -148,7 +137,6 @@ class MediaPlayerController extends GetxController {
         duration: Duration(seconds: 4),
         category: 'soundEffect',
         playCount: 56000,
-        coverUrl: null,
       ),
       const MediaItem(
         id: 'sfx_005',
@@ -158,7 +146,6 @@ class MediaPlayerController extends GetxController {
         duration: Duration(seconds: 3),
         category: 'soundEffect',
         playCount: 150000,
-        coverUrl: null,
       ),
     ];
   }
@@ -197,10 +184,10 @@ class MediaPlayerController extends GetxController {
   void next() {
     try {
       if (playlist.isEmpty) return;
-      int currentIndex = currentMedia.value != null
+      final currentIndex = currentMedia.value != null
           ? playlist.indexWhere((m) => m.id == currentMedia.value!.id)
           : -1;
-      int nextIndex = currentIndex >= 0 && currentIndex < playlist.length - 1
+      final nextIndex = currentIndex >= 0 && currentIndex < playlist.length - 1
           ? currentIndex + 1
           : 0;
       currentMedia.value = playlist[nextIndex];
@@ -215,10 +202,10 @@ class MediaPlayerController extends GetxController {
   void previous() {
     try {
       if (playlist.isEmpty) return;
-      int currentIndex = currentMedia.value != null
+      final currentIndex = currentMedia.value != null
           ? playlist.indexWhere((m) => m.id == currentMedia.value!.id)
           : -1;
-      int prevIndex = currentIndex > 0 ? currentIndex - 1 : playlist.length - 1;
+      final prevIndex = currentIndex > 0 ? currentIndex - 1 : playlist.length - 1;
       currentMedia.value = playlist[prevIndex];
       currentPosition.value = Duration.zero;
       totalDuration.value = playlist[prevIndex].duration;

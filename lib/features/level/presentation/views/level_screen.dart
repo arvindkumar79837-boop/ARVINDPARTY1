@@ -12,7 +12,7 @@ class LevelScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final LevelController controller = Get.find<LevelController>();
+    final controller = Get.find<LevelController>();
 
     return Scaffold(
       backgroundColor: const Color(0xFF1A1A2E),

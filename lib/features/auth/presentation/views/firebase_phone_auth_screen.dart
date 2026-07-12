@@ -6,8 +6,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pinput/pinput.dart';
-import '../services/firebase_auth_service.dart';
+
 import '../../../home/presentation/views/home_screen.dart';
+import '../services/firebase_auth_service.dart';
 
 class FirebasePhoneAuthScreen extends StatefulWidget {
   const FirebasePhoneAuthScreen({super.key});

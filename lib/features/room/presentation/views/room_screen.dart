@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import '../controllers/room_controller.dart'; // Safely targets your relative sub-folder layout
-import '../widgets/room_header_widget.dart';
 import '../widgets/room_banner_widget.dart';
-import '../widgets/seat_grid_widget.dart';
-import '../widgets/room_chat_widget.dart';
 import '../widgets/room_bottom_bar_widget.dart';
+import '../widgets/room_chat_widget.dart';
+import '../widgets/room_header_widget.dart';
+import '../widgets/seat_grid_widget.dart';
 
 class RoomScreen extends StatelessWidget {
   const RoomScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final RoomController ctrl = Get.find<RoomController>();
+    final ctrl = Get.find<RoomController>();
 
     // FIXED: Upgraded from legacy WillPopScope to state-safe PopScope API configuration
     return PopScope(

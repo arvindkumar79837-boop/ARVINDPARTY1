@@ -12,7 +12,7 @@ class PasswordResetScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final LoginController controller = Get.find<LoginController>();
+    final controller = Get.find<LoginController>();
 
     return Scaffold(
       backgroundColor: const Color(0xFF1A1A2E),
@@ -229,7 +229,6 @@ class PasswordResetScreen extends StatelessWidget {
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: Colors.green.withValues(alpha: 0.8),
       colorText: Colors.white,
-      duration: const Duration(seconds: 3),
     );
     Get.back();
   }

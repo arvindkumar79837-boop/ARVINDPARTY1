@@ -12,7 +12,7 @@ class ScratchCardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final GamesController controller = Get.find<GamesController>();
+    final controller = Get.find<GamesController>();
 
     return Scaffold(
       backgroundColor: const Color(0xFF1A1A2E),
@@ -120,10 +120,10 @@ class ScratchCardScreen extends StatelessWidget {
   }
 
   Widget _buildScratchCardGame(GamesController controller) {
-    var currentCard = 0.obs;
-    var isRevealed = false.obs;
-    var rewardAmount = 0.obs;
-    var isPlaying = false.obs;
+    final currentCard = 0.obs;
+    final isRevealed = false.obs;
+    final rewardAmount = 0.obs;
+    final isPlaying = false.obs;
 
     return Container(
       padding: const EdgeInsets.all(20),

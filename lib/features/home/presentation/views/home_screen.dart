@@ -5,10 +5,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import '../controllers/home_controller.dart';
-import '../widgets/home_search_bar.dart';
 import '../widgets/banner_slider.dart';
 import '../widgets/category_grid.dart';
+import '../widgets/home_search_bar.dart';
 import '../widgets/room_section_card.dart';
 
 class HomeScreen extends GetView<HomeController> {

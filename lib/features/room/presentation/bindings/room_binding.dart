@@ -1,18 +1,33 @@
-// ═══════════════════════════════════════════════════════════════════════════
-// FILE: lib/features/room/bindings/room_binding.dart
-// ARVIND PARTY - ROOM BINDING
-// ═══════════════════════════════════════════════════════════════════════════
+// Box drawing header
+// FILE: room_binding.dart
 
 import 'package:get/get.dart';
+
+import '../controllers/live_room_controller.dart';
 import '../controllers/room_controller.dart';
 
 class RoomBinding extends Bindings {
   final String roomId;
   final String roomOwnerId;
-  RoomBinding({this.roomId = '', this.roomOwnerId = ''});
+  final bool useLiveController;
+  RoomBinding({this.roomId = '', this.roomOwnerId = '', this.useLiveController = false});
 
   @override
   void dependencies() {
+    if (useLiveController) {
+      Get.lazyPut<LiveRoomController>(() => LiveRoomController(
+        roomId: roomId,
+        roomOwnerId: roomOwnerId,
+      ));
+    } else {
+      Get.lazyPut<RoomController>(() => RoomController(roomId: roomId, roomOwnerId: roomOwnerId));
+    }
+    
+    // Pre-bind both controllers to avoid runtime binding errors
+    Get.lazyPut<LiveRoomController>(() => LiveRoomController(
+      roomId: roomId,
+      roomOwnerId: roomOwnerId,
+    ));
     Get.lazyPut<RoomController>(() => RoomController(roomId: roomId, roomOwnerId: roomOwnerId));
   }
 }

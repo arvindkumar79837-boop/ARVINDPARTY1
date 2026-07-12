@@ -4,8 +4,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controllers/room_controller.dart';
+
 import '../../models/room_models.dart';
+import '../controllers/room_controller.dart';
 
 class SeatGridWidget extends StatelessWidget {
   const SeatGridWidget({super.key});
@@ -53,9 +54,9 @@ class _SeatTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ctrl = Get.find<RoomController>();
-    final bool occupied = seat.isOccupied;
+    final occupied = seat.isOccupied;
     // Check local fallback configurations safety mapping
-    final bool speaking = seat.isSpeaking && !seat.isMuted;
+    final speaking = seat.isSpeaking && !seat.isMuted;
 
     return GestureDetector(
       onTap: () => _onTap(ctrl),

@@ -12,7 +12,7 @@ class YoutubeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final MediaPlayerController controller = Get.find<MediaPlayerController>();
+    final controller = Get.find<MediaPlayerController>();
 
     return Scaffold(
       backgroundColor: const Color(0xFF1A1A2E),

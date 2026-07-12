@@ -1,12 +1,13 @@
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
-import '../../../../core/constants/env_config.dart';
+
+import '../../../../core/constants/api_constants.dart';
+import '../../../../core/services/api_service.dart';
 import '../../../../core/services/auth_session_manager.dart';
 import '../../../../core/utils/api_exception.dart';
-import '../../../../core/constants/api_constants.dart';
 
 class RankingRepository {
-  final Dio _dio =  Dio(BaseOptions(baseUrl: EnvConfig.plainApiBaseUrl));
+  final _api = Get.find<ApiService>();
 
   RankingRepository();
 
@@ -22,16 +23,16 @@ class RankingRepository {
   Future<List<Map<String, dynamic>>> fetchRankings(String type) async {
     try {
       final endpoint =  _endpointForType(type);
-      final response =  await _dio.get(
+      final response =  await _api.get(
         endpoint,
         options: Options(headers: {
           'Authorization': _getAuthHeader(),
         }),
       );
 
-      return _parseRankings(response.data);
-    } on DioException catch (e) {
-      throw ApiException.fromDioError(e.response?.data ?? {'message': e.message});
+      return _parseRankings(response);
+    } catch (e) {
+      throw ApiException(message: e.toString());
     }
   }
 

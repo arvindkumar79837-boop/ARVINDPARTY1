@@ -1,19 +1,19 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
-import '../../../../core/constants/env_config.dart';
+
+import '../../../../core/constants/api_constants.dart';
+import '../../../../core/services/api_service.dart';
 import '../../../../core/services/auth_session_manager.dart';
 import '../../../../core/utils/api_exception.dart';
-import '../../../../core/constants/api_constants.dart';
 
 class ShopRepository {
-  final Dio _dio = Dio(BaseOptions(baseUrl: EnvConfig.plainApiBaseUrl));
+  final _api = Get.find<ApiService>();
 
   String? _getToken() {
     try {
       return Get.find<AuthSessionManager>().token.value;
-    } catch (_) {
-      return null;
-    }
+    } catch (e) { debugPrint('Error: $e'); return null; }
   }
 
   Options _authOptions() => Options(headers: {
@@ -24,18 +24,18 @@ class ShopRepository {
   /// GET /api/shop/items
   Future<List<Map<String, dynamic>>> fetchItems() async {
     try {
-      final response = await _dio.get(
+      final response = await _api.get(
         ApiConstants.shopItems,
         options: _authOptions(),
       );
-      final data = response.data as Map<String, dynamic>;
+      final data = response as Map<String, dynamic>;
       if (data['items'] != null) {
         final items = data['items'] as List<dynamic>;
         return items.cast<Map<String, dynamic>>();
       }
       throw ApiException(message: data['message'] ?? 'Failed to fetch shop items');
-    } on DioException catch (e) {
-      throw ApiException.fromDioError(e.response?.data ?? {'message': e.message});
+    } catch (e) {
+      throw ApiException(message: e.toString());
     }
   }
 
@@ -43,14 +43,14 @@ class ShopRepository {
   /// POST /api/shop/purchase
   Future<Map<String, dynamic>> purchaseItem(String itemId) async {
     try {
-      final response = await _dio.post(
+      final response = await _api.post(
         ApiConstants.shopPurchase,
         data: {'itemId': itemId},
         options: _authOptions(),
       );
-      return response.data as Map<String, dynamic>;
-    } on DioException catch (e) {
-      throw ApiException.fromDioError(e.response?.data ?? {'message': e.message});
+      return response as Map<String, dynamic>;
+    } catch (e) {
+      throw ApiException(message: e.toString());
     }
   }
 }

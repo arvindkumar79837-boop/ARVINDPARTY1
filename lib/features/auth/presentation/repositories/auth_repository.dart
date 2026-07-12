@@ -5,14 +5,16 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
-import '../../../../core/constants/env_config.dart';
+
+import '../../../../core/services/api_service.dart';
 import '../../../../core/services/auth_session_manager.dart';
 import '../../../../core/utils/api_exception.dart';
 import '../../models/auth_model.dart';
 
 class AuthRepository {
-  final Dio _dio =  Dio(BaseOptions(baseUrl: EnvConfig.plainApiBaseUrl));
+  ApiService get _apiService => Get.find<ApiService>();
 
   AuthRepository();
 
@@ -21,7 +23,8 @@ class AuthRepository {
   }
 
   String _getAuthHeader() {
-    final token =  _session.token;
+    final token = _session.token.value;
+    if (token == null || token.isEmpty) return '';
     return 'Bearer $token';
   }
 
@@ -29,7 +32,7 @@ class AuthRepository {
   /// Matches backend: POST /api/auth/send-otp { phone: "9876543210" }
   Future<Map<String, dynamic>> sendOtp(String phone) async {
     try {
-      final response =  await _dio.post(
+      final response =  await _apiService.dio.post(
         '/auth/send-otp',
         data: {'phone': phone},
       );
@@ -46,7 +49,7 @@ class AuthRepository {
     required String otp,
   }) async {
     try {
-      final response =  await _dio.post(
+      final response =  await _apiService.dio.post(
         '/auth/otp-verify',
         data: {
           'phone': phone,
@@ -80,7 +83,7 @@ class AuthRepository {
   /// Matches backend: POST /api/auth/resend-otp { phone: "9876543210" }
   Future<Map<String, dynamic>> resendOtp(String phone) async {
     try {
-      final response =  await _dio.post(
+      final response =  await _apiService.dio.post(
         '/auth/resend-otp',
         data: {'phone': phone},
       );
@@ -99,7 +102,7 @@ class AuthRepository {
     DateTime? dob,
   }) async {
     try {
-      final response =  await _dio.post(
+      final response =  await _apiService.dio.post(
         '/auth/register',
         data: {
           'phone': phone,
@@ -133,7 +136,7 @@ class AuthRepository {
     required String otp,
   }) async {
     try {
-      final response =  await _dio.post(
+      final response =  await _apiService.dio.post(
         '/auth/login',
         data: {
           'phone': phone,
@@ -168,7 +171,7 @@ class AuthRepository {
   /// Matches backend: POST /api/auth/refresh-token { refreshToken }
   Future<String> refreshToken(String refreshToken) async {
     try {
-      final response =  await _dio.post(
+      final response =  await _apiService.dio.post(
         '/auth/refresh-token',
         data: {'refreshToken': refreshToken},
       );
@@ -188,15 +191,15 @@ class AuthRepository {
     try {
       final token =  _session.token.value;
       if (token != null && token.isNotEmpty) {
-        await _dio.post(
+        await _apiService.dio.post(
           '/auth/logout',
           options: Options(headers: {
             'Authorization': 'Bearer $token',
           }),
         );
       }
-    } on DioException catch (_) {
-      // Logout errors are non-fatal
+    } on DioException catch (e) {
+      debugPrint('Logout error: $e');
     } finally {
       await _session.clearSession();
     }
@@ -206,7 +209,7 @@ class AuthRepository {
   /// Matches backend: GET /api/auth/me
   Future<User> getCurrentUser() async {
     try {
-      final response =  await _dio.get(
+      final response =  await _apiService.dio.get(
         '/auth/me',
         options: Options(headers: {
           'Authorization': _getAuthHeader(),
@@ -234,7 +237,7 @@ class AuthRepository {
     Map<String, dynamic>? deviceInfo,
   }) async {
     try {
-      final response = await _dio.post(
+      final response = await _apiService.dio.post(
         '/auth/social/login',
         data: {
           'provider': provider,
@@ -268,7 +271,7 @@ class AuthRepository {
   /// Matches backend: POST /api/auth/social/guest-login
   Future<AuthResponse> guestLogin({Map<String, dynamic>? deviceInfo}) async {
     try {
-      final response = await _dio.post(
+      final response = await _apiService.dio.post(
         '/auth/social/guest-login',
         data: {
           if (deviceInfo != null) 'deviceInfo': deviceInfo,
@@ -297,7 +300,7 @@ class AuthRepository {
   /// Matches backend: GET /api/security/devices/sessions
   Future<List<Map<String, dynamic>>> getActiveSessions() async {
     try {
-      final response = await _dio.get(
+      final response = await _apiService.dio.get(
         '/security/devices/sessions',
         options: Options(headers: {'Authorization': _getAuthHeader()}),
       );
@@ -316,7 +319,7 @@ class AuthRepository {
   /// Matches backend: GET /api/security/login-history
   Future<Map<String, dynamic>> getLoginHistory({int page = 1, int limit = 50}) async {
     try {
-      final response = await _dio.get(
+      final response = await _apiService.dio.get(
         '/security/login-history',
         options: Options(headers: {'Authorization': _getAuthHeader()}),
         queryParameters: {'page': page, 'limit': limit},
@@ -336,7 +339,7 @@ class AuthRepository {
   /// Matches backend: POST /api/security/devices/sessions/:sessionId/logout
   Future<bool> logoutDevice(String sessionId) async {
     try {
-      final response = await _dio.post(
+      final response = await _apiService.dio.post(
         '/security/devices/sessions/$sessionId/logout',
         options: Options(headers: {'Authorization': _getAuthHeader()}),
       );
@@ -352,7 +355,7 @@ class AuthRepository {
   /// Matches backend: POST /api/security/devices/sessions/:sessionId/trust
   Future<bool> trustDevice(String sessionId) async {
     try {
-      final response = await _dio.post(
+      final response = await _apiService.dio.post(
         '/security/devices/sessions/$sessionId/trust',
         options: Options(headers: {'Authorization': _getAuthHeader()}),
       );
@@ -368,7 +371,7 @@ class AuthRepository {
   /// Matches backend: POST /api/security/forgot-password
   Future<bool> forgotPassword({String? email, String? phone}) async {
     try {
-      final response = await _dio.post(
+      final response = await _apiService.dio.post(
         '/security/forgot-password',
         data: {
           if (email != null) 'email': email,
@@ -387,7 +390,7 @@ class AuthRepository {
   /// Matches backend: GET /api/security/2fa/status
   Future<Map<String, dynamic>> get2FAStatus() async {
     try {
-      final response = await _dio.get(
+      final response = await _apiService.dio.get(
         '/security/2fa/status',
         options: Options(headers: {'Authorization': _getAuthHeader()}),
       );
@@ -406,7 +409,7 @@ class AuthRepository {
   /// Matches backend: POST /api/security/2fa/enable
   Future<Map<String, dynamic>> enable2FA({String method = 'totp', String? phone, String? email}) async {
     try {
-      final response = await _dio.post(
+      final response = await _apiService.dio.post(
         '/security/2fa/enable',
         options: Options(headers: {'Authorization': _getAuthHeader()}),
         data: {
@@ -430,7 +433,7 @@ class AuthRepository {
   /// Matches backend: POST /api/security/2fa/verify-enable
   Future<bool> verifyAndEnable2FA(String code) async {
     try {
-      final response = await _dio.post(
+      final response = await _apiService.dio.post(
         '/security/2fa/verify-enable',
         options: Options(headers: {'Authorization': _getAuthHeader()}),
         data: {'code': code},
@@ -447,7 +450,7 @@ class AuthRepository {
   /// Matches backend: POST /api/security/2fa/disable
   Future<bool> disable2FA(String code) async {
     try {
-      final response = await _dio.post(
+      final response = await _apiService.dio.post(
         '/security/2fa/disable',
         options: Options(headers: {'Authorization': _getAuthHeader()}),
         data: {'code': code},
@@ -464,7 +467,7 @@ class AuthRepository {
   /// Matches backend: GET /api/security/suspicious-alerts
   Future<List<Map<String, dynamic>>> getSuspiciousAlerts() async {
     try {
-      final response = await _dio.get(
+      final response = await _apiService.dio.get(
         '/security/suspicious-alerts',
         options: Options(headers: {'Authorization': _getAuthHeader()}),
       );
@@ -483,7 +486,7 @@ class AuthRepository {
   /// Matches backend: POST /api/security/terms/accept
   Future<bool> acceptTerms() async {
     try {
-      final response = await _dio.post(
+      final response = await _apiService.dio.post(
         '/security/terms/accept',
         options: Options(headers: {'Authorization': _getAuthHeader()}),
       );
@@ -499,7 +502,7 @@ class AuthRepository {
   /// Matches backend: POST /api/security/recovery/setup
   Future<bool> setupRecovery({String? recoveryEmail, String? recoveryPhone}) async {
     try {
-      final response = await _dio.post(
+      final response = await _apiService.dio.post(
         '/security/recovery/setup',
         options: Options(headers: {'Authorization': _getAuthHeader()}),
         data: {

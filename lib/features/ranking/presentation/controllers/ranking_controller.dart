@@ -16,7 +16,7 @@ class RankingController extends GetxController {
   final selectedType = 'wealth'.obs;
   final selectedPeriod = 'daily'.obs;
   final selectedCountry = 'global'.obs;
-  final errorMessage = RxnString();
+  final errorMessage = Rxn<String>();
   final myRanks = <String, int>{}.obs;
 
   final RankingRepository _rankingRepository;

@@ -41,7 +41,7 @@ class GiftCard extends StatelessWidget {
                     errorBuilder: (_, __, ___) => Container(color: Colors.grey.shade200),
                   ),
                 ),
-                _badge(gift.type.name.toUpperCase(), alignment: Alignment.topLeft),
+                _badge(gift.type.name.toUpperCase()),
                 if (gift.category != GiftCategory.basic)
                   _badge(gift.category.name.toUpperCase(), alignment: Alignment.topRight),
                 if (gift.isLucky)

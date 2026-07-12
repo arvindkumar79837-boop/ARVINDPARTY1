@@ -12,7 +12,7 @@ class RoomBackgroundScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final RoomController controller = Get.find<RoomController>();
+    final controller = Get.find<RoomController>();
 
     return Scaffold(
       backgroundColor: const Color(0xFF1A1A2E),

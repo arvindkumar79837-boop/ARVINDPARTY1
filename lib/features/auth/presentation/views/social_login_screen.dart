@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
-import 'package:flutter_animate/flutter_animate.dart';
+
 import '../controllers/login_controller.dart';
 
 class SocialLoginScreen extends StatefulWidget {
@@ -130,7 +131,7 @@ class _SocialLoginScreenState extends State<SocialLoginScreen> {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: Colors.black.withValues(alpha: 0.3),
-            border: Border.all(color: Colors.amber.withValues(alpha: 0.3), width: 1),
+            border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
           ),
           child: Image.asset(
             'assets/login/login_icon.png',

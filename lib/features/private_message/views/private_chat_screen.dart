@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import '../controllers/private_message_controller.dart';
 import '../models/private_message_model.dart';
+import '../widgets/file_picker_widget.dart';
 import '../widgets/message_bubble.dart';
 import '../widgets/typing_indicator.dart';
-import '../widgets/file_picker_widget.dart';
 
 class PrivateChatScreen extends StatefulWidget {
   final PrivateChatUser chatUser;

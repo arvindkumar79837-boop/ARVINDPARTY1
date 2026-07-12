@@ -7,7 +7,7 @@ class RoomSecurityCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final RoomSettingsController controller =
+    final controller =
         Get.find<RoomSettingsController>();
 
     return Container(
@@ -15,7 +15,7 @@ class RoomSecurityCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xff15141F),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.03), width: 1),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.03)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -24,7 +24,7 @@ class RoomSecurityCard extends StatelessWidget {
             children: [
               Icon(Icons.security_outlined, color: Colors.cyan, size: 20),
               SizedBox(width: 8),
-              Text("Privacy & Security Rules",
+              Text('Privacy & Security Rules',
                   style: TextStyle(
                       color: Colors.white,
                       fontSize: 15,
@@ -35,10 +35,10 @@ class RoomSecurityCard extends StatelessWidget {
 
           // 1. Private Room Toggle
           Obx(() => SwitchListTile.adaptive(
-                title: const Text("Private (Invite Only Modality)",
+                title: const Text('Private (Invite Only Modality)',
                     style: TextStyle(color: Colors.white, fontSize: 14)),
                 subtitle: const Text(
-                    "Hides room from general index lobby matching feeds",
+                    'Hides room from general index lobby matching feeds',
                     style: TextStyle(color: Colors.white54, fontSize: 11)),
                 contentPadding: EdgeInsets.zero,
                 activeThumbColor: const Color(0xffFF8906),
@@ -51,18 +51,18 @@ class RoomSecurityCard extends StatelessWidget {
 
           // 2. Password Protection Toggle
           Obx(() => SwitchListTile.adaptive(
-                title: const Text("Password Door Code Entry",
+                title: const Text('Password Door Code Entry',
                     style: TextStyle(color: Colors.white, fontSize: 14)),
                 subtitle: const Text(
-                    "Forced challenge keypad validation for entrants",
+                    'Forced challenge keypad validation for entrants',
                     style: TextStyle(color: Colors.white54, fontSize: 11)),
                 contentPadding: EdgeInsets.zero,
                 activeThumbColor: const Color(0xffFF8906),
                 value: controller.hasPassword.value,
                 onChanged: (bool v) {
                   if (controller.isPrivate.value) {
-                    Get.snackbar("Constraint",
-                        "Deactivate Invite-Only layout privacy protocols first.");
+                    Get.snackbar('Constraint',
+                        'Deactivate Invite-Only layout privacy protocols first.');
                     return;
                   }
                   controller.togglePasswordProtection(v);
@@ -83,7 +83,7 @@ class RoomSecurityCard extends StatelessWidget {
                 obscureText: true,
                 style: const TextStyle(color: Colors.white, fontSize: 14),
                 decoration: InputDecoration(
-                  hintText: "Setup numeric room password doorlock keys",
+                  hintText: 'Setup numeric room password doorlock keys',
                   hintStyle:
                       const TextStyle(color: Colors.white24, fontSize: 13),
                   filled: true,
@@ -96,7 +96,7 @@ class RoomSecurityCard extends StatelessWidget {
                   focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                       borderSide:
-                          const BorderSide(color: Colors.cyan, width: 1)),
+                          const BorderSide(color: Colors.cyan)),
                 ),
               ),
             );

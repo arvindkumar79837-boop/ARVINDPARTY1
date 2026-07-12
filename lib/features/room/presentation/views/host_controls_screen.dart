@@ -5,8 +5,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controllers/room_controller.dart';
+
 import '../../models/room_models.dart';
+import '../controllers/room_controller.dart';
 
 class HostControlsScreen extends StatelessWidget {
   final String roomId;
@@ -14,7 +15,7 @@ class HostControlsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final RoomController controller = Get.find<RoomController>();
+    final controller = Get.find<RoomController>();
 
     return Scaffold(
       backgroundColor: const Color(0xFF1A1A2E),
@@ -67,7 +68,6 @@ class HostControlsScreen extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: const Color(0xFF1E88E5).withValues(alpha: 0.3),
-            width: 1,
           ),
         ),
         child: Column(

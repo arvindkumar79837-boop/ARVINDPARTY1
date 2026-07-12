@@ -12,7 +12,7 @@ class GameLeaderboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final GamesController controller = Get.find<GamesController>();
+    final controller = Get.find<GamesController>();
 
     return DefaultTabController(
       length: 3,
@@ -66,6 +66,7 @@ class GameLeaderboardScreen extends StatelessWidget {
         );
       }
 
+      // Convert GameLeaderboardEntry objects to Map for display
       final players = leaderboard.isEmpty
           ? List.generate(10, (index) {
               final score = 10000 - (index * 750);
@@ -78,7 +79,14 @@ class GameLeaderboardScreen extends StatelessWidget {
                 'avatar': null,
               };
             })
-          : leaderboard;
+          : leaderboard.map((entry) => {
+                'rank': leaderboard.indexOf(entry) + 1,
+                'name': entry.name.isNotEmpty ? entry.name : 'Player ${leaderboard.indexOf(entry) + 1}',
+                'score': entry.totalWon,
+                'wins': entry.sessionsPlayed,
+                'gamesPlayed': entry.sessionsPlayed,
+                'avatar': entry.avatar.isNotEmpty ? entry.avatar : null,
+              }).toList();
 
       return SingleChildScrollView(
         padding: const EdgeInsets.all(16),

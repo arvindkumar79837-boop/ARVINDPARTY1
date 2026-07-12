@@ -36,7 +36,7 @@ class ChatScreen extends GetView<ChatController> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        msg['text'] ?? '',
+                        msg.text ?? '',
                         style: const TextStyle(color: Colors.white),
                       ),
                     ),

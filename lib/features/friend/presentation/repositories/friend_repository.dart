@@ -1,58 +1,59 @@
-import 'package:dio/dio.dart';
-import '../../../../core/constants/env_config.dart';
+import 'package:get/get.dart';
+
+import '../../../../core/services/api_service.dart';
 import '../../models/friend_model.dart';
 
 class FriendRepository {
-  final Dio _dio = Dio(BaseOptions(baseUrl: EnvConfig.plainApiBaseUrl));
+  final _api = Get.find<ApiService>();
 
   Future<List<FriendModel>> getFriends() async {
     try {
-      final response = await _dio.get('/friends');
-      return (response.data['data'] as List).map((e) => FriendModel.fromJson(e)).toList();
+      final response = await _api.get('/friends');
+      return (response['data'] as List).map((e) => FriendModel.fromJson(e)).toList();
     } catch (e) { return _mockFriends(FriendStatus.friends); }
   }
 
   Future<List<FriendModel>> getFollowers() async {
     try {
-      final response = await _dio.get('/friends/followers');
-      return (response.data['data'] as List).map((e) => FriendModel.fromJson(e)).toList();
+      final response = await _api.get('/friends/followers');
+      return (response['data'] as List).map((e) => FriendModel.fromJson(e)).toList();
     } catch (e) { return _mockFollowers(); }
   }
 
   Future<List<FriendModel>> getFollowing() async {
     try {
-      final response = await _dio.get('/friends/following');
-      return (response.data['data'] as List).map((e) => FriendModel.fromJson(e)).toList();
+      final response = await _api.get('/friends/following');
+      return (response['data'] as List).map((e) => FriendModel.fromJson(e)).toList();
     } catch (e) { return _mockFollowing(); }
   }
 
   Future<List<FriendModel>> getMutualFriends(String userId) async {
     try {
-      final response = await _dio.get('/friends/mutual', queryParameters: {'userId': userId});
-      return (response.data['data'] as List).map((e) => FriendModel.fromJson(e)).toList();
+      final response = await _api.get('/friends/mutual', queryParameters: {'userId': userId});
+      return (response['data'] as List).map((e) => FriendModel.fromJson(e)).toList();
     } catch (e) { return _mockMutual(); }
   }
 
   Future<List<FriendRequestModel>> getIncomingRequests() async {
     try {
-      final response = await _dio.get('/friends/requests/incoming');
-      return (response.data['data'] as List).map((e) => FriendRequestModel.fromJson(e)).toList();
+      final response = await _api.get('/friends/requests/incoming');
+      return (response['data'] as List).map((e) => FriendRequestModel.fromJson(e)).toList();
     } catch (e) { return _mockIncomingRequests(); }
   }
 
   Future<List<FriendRequestModel>> getOutgoingRequests() async {
     try {
-      final response = await _dio.get('/friends/requests/outgoing');
-      return (response.data['data'] as List).map((e) => FriendRequestModel.fromJson(e)).toList();
+      final response = await _api.get('/friends/requests/outgoing');
+      return (response['data'] as List).map((e) => FriendRequestModel.fromJson(e)).toList();
     } catch (e) { return _mockOutgoingRequests(); }
   }
 
-  Future<void> sendFriendRequest(String userId) async => await _dio.post('/friends/request', data: {'userId': userId});
-  Future<void> acceptFriendRequest(String requestId) async => await _dio.put('/friends/request/$requestId/accept');
-  Future<void> rejectFriendRequest(String requestId) async => await _dio.delete('/friends/request/$requestId');
-  Future<void> followUser(String userId) async => await _dio.post('/friends/follow', data: {'userId': userId});
-  Future<void> unfollowUser(String userId) async => await _dio.delete('/friends/follow', data: {'userId': userId});
-  Future<void> removeFriend(String userId) async => await _dio.delete('/friends/$userId');
+  Future<void> sendFriendRequest(String userId) async => await _api.post('/friends/request', data: {'userId': userId});
+  Future<void> acceptFriendRequest(String requestId) async => await _api.put('/friends/request/$requestId/accept');
+  Future<void> rejectFriendRequest(String requestId) async => await _api.delete('/friends/request/$requestId');
+  Future<void> followUser(String userId) async => await _api.post('/friends/follow', data: {'userId': userId});
+  Future<void> unfollowUser(String userId) async => await _api.delete('/friends/follow', data: {'userId': userId});
+  Future<void> removeFriend(String userId) async => await _api.delete('/friends/$userId');
 
   List<FriendModel> _mockFriends(FriendStatus status) => List.generate(8, (i) => FriendModel(
     id: 'f$i', username: 'Friend $i', avatarUrl: 'https://picsum.photos/seed/f$i/100',

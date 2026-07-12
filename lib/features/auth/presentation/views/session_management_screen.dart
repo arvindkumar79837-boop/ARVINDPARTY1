@@ -13,7 +13,7 @@ class SessionManagementScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final AuthController authController = Get.find<AuthController>();
+    final authController = Get.find<AuthController>();
     final storage = GetStorage();
 
     return Scaffold(
@@ -63,7 +63,6 @@ class SessionManagementScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: const Color(0xFF1E88E5).withValues(alpha: 0.3),
-          width: 1,
         ),
       ),
       child: Column(
@@ -247,7 +246,6 @@ class SessionManagementScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: Colors.orange.withValues(alpha: 0.3),
-          width: 1,
         ),
       ),
       child: Column(

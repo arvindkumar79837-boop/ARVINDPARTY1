@@ -296,7 +296,7 @@ class VipDashboardView extends GetView<VipSystemController> {
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.amber.shade700, width: 1),
+        border: Border.all(color: Colors.amber.shade700),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -348,7 +348,6 @@ class VipDashboardView extends GetView<VipSystemController> {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: status.isPremium ? Colors.purple.shade400 : Colors.grey.shade700,
-          width: 1,
         ),
       ),
       child: Column(

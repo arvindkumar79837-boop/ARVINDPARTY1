@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/coin_seller_controller.dart';
-import '../../models/coin_seller_model.dart';
 
 /// Main dashboard for the logged-in Coin Dealer.
 /// Shows their transaction history.
@@ -38,22 +37,22 @@ class CoinSellerHomeScreen extends GetView<CoinSellerController> {
           itemCount: controller.transactions.length,
           itemBuilder: (context, index) {
             final tx = controller.transactions[index];
-            final isCredit = tx.type == 'dealer_transfer_in';
+            final isCredit = tx['type'] == 'dealer_transfer_in';
             return Card(
               color: const Color(0xFF1A1A2E),
               margin: const EdgeInsets.only(bottom: 12),
               child: ListTile(
                 leading: CircleAvatar(
-                  backgroundColor: isCredit ? Colors.green.withAlpha(50) : Colors.red.withAlpha(50),
+                  backgroundColor: isCredit ? Colors.green.withValues(alpha: 50/255) : Colors.red.withValues(alpha: 50/255),
                   child: Icon(isCredit ? Icons.add : Icons.remove, color: isCredit ? Colors.green : Colors.red),
                 ),
-                title: Text(tx.description, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                title: Text(tx['description'] ?? '', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                 subtitle: Text(
-                  'To: ${tx.metadata['targetUid'] ?? 'N/A'}',
+                  'To: ${(tx['metadata'] as Map<String, dynamic>?)?['targetUid'] ?? 'N/A'}',
                   style: const TextStyle(color: Colors.grey, fontSize: 12),
                 ),
                 trailing: Text(
-                  '${isCredit ? '+' : '-'}${tx.amount} coins',
+                  '${isCredit ? '+' : '-'}${tx['amount']} coins',
                   style: TextStyle(color: isCredit ? Colors.green : Colors.red, fontWeight: FontWeight.bold),
                 ),
               ),
@@ -64,8 +63,8 @@ class CoinSellerHomeScreen extends GetView<CoinSellerController> {
       floatingActionButton: FloatingActionButton(
         onPressed: () => Get.to(() => const TransferCoinsScreen()),
         backgroundColor: const Color(0xFFFF8906),
-        child: const Icon(Icons.send),
         tooltip: 'Transfer Coins',
+        child: const Icon(Icons.send),
       ),
     );
   }
@@ -171,17 +170,17 @@ class CoinSellerProfileScreen extends GetView<CoinSellerController> {
                       children: [
                         const CircleAvatar(radius: 40, backgroundColor: Colors.amber, child: Icon(Icons.store, color: Colors.black, size: 40)),
                         const SizedBox(height: 8),
-                        Text(wallet.uid, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
-                        Text('${wallet.level.toUpperCase()} SELLER', style: const TextStyle(color: Colors.amber, fontSize: 14)),
+                        Text(wallet['uid'] ?? '', style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                        Text('${(wallet['level'] ?? '').toString().toUpperCase()} SELLER', style: const TextStyle(color: Colors.amber, fontSize: 14)),
                       ],
                     ),
                   ),
                   const Divider(height: 32),
-                  _infoRow('Balance', '${wallet.balance.toStringAsFixed(2)} Coins'),
-                  _infoRow('Commission Rate', '${(wallet.commissionPercent * 100).toStringAsFixed(1)}%'),
-                  _infoRow('Max Transfer/Transaction', '${wallet.maxTransferPerTransaction} Coins'),
-                  _infoRow('Daily Transfer Limit', '${wallet.dailyTransferLimit} Coins'),
-                  _infoRow('Today\'s Transfers', '${wallet.currentDailyTransfer} Coins'),
+                  _infoRow('Balance', '${(wallet['balance'] as num? ?? 0).toStringAsFixed(2)} Coins'),
+                  _infoRow('Commission Rate', '${((wallet['commissionPercent'] as num? ?? 0) * 100).toStringAsFixed(1)}%'),
+                  _infoRow('Max Transfer/Transaction', '${wallet['maxTransferPerTransaction'] ?? 0} Coins'),
+                  _infoRow('Daily Transfer Limit', '${wallet['dailyTransferLimit'] ?? 0} Coins'),
+                  _infoRow('Today\'s Transfers', '${wallet['currentDailyTransfer'] ?? 0} Coins'),
                 ],
               ),
             ),

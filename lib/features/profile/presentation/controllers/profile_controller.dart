@@ -3,8 +3,9 @@
 // ARVIND PARTY - UNIFIED PROFILE CONTROLLER (REFACTORED WITH USER MODEL)
 // ═══════════════════════════════════════════════════════════════════════════
 
-import 'package:get/get.dart';
 import 'package:flutter/foundation.dart';
+import 'package:get/get.dart';
+
 import '../../../../core/services/api_service.dart';
 import '../../../../core/services/auth_session_manager.dart';
 import '../../../auth/models/auth_model.dart'; // Import the User model

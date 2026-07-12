@@ -12,7 +12,7 @@ class EmailLoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final LoginController controller = Get.find<LoginController>();
+    final controller = Get.find<LoginController>();
 
     return Scaffold(
       backgroundColor: const Color(0xFF1A1A2E),

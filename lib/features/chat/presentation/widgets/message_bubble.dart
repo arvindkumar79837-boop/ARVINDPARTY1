@@ -82,15 +82,15 @@ class MessageBubble extends GetView<ChatController> {
       maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.grey.shade700, fontSize: 12)),
   );
 
-  Widget _buildReactions() => Wrap(spacing: 4, children: message.reactions.entries.map((entry) {
+  Widget _buildReactions() => Wrap(spacing: 4, children: message.reactions.map((emoji) {
     return GestureDetector(
-      onTap: () => controller.toggleReaction(message.id, entry.key),
+      onTap: () => controller.toggleReaction(message.id, emoji),
       child: Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-          color: entry.value.userIds.contains('currentUserId') ? Colors.blue.shade100 : Colors.grey.shade200,
+          color: Colors.grey.shade200,
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Text('${entry.key} ${entry.value.userIds.length}'),
+        child: Text(emoji),
       ),
     );
   }).toList());

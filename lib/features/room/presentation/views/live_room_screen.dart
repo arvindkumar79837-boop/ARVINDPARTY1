@@ -3,10 +3,10 @@
 // ARVIND PARTY - LIVE ROOM SCREEN (REBUILT WITH FULL UI & GetX)
 // ═══════════════════════════════════════════════════════════════════════════
 
-import 'package:agora_uikit/agora_uikit.dart';
 import 'package:arvind_party/features/room/presentation/controllers/live_room_controller.dart';
 import 'package:arvind_party/features/room/presentation/widgets/chat_box.dart';
 import 'package:arvind_party/features/room/presentation/widgets/gift_animation_overlay.dart';
+import 'package:arvind_party/features/room/presentation/widgets/live_kit_video_placeholder.dart';
 import 'package:arvind_party/features/room/presentation/widgets/seat_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -17,8 +17,8 @@ class LiveRoomScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // The controller is initialized via GetX bindings, we just find it.
-    final LiveRoomController controller = Get.find<LiveRoomController>();
-    final TextEditingController chatInputController = TextEditingController();
+    final controller = Get.find<LiveRoomController>();
+    final chatInputController = TextEditingController();
 
     return WillPopScope(
       onWillPop: () async {
@@ -30,7 +30,7 @@ class LiveRoomScreen extends StatelessWidget {
         backgroundColor: Colors.black,
         body: Obx(
           () {
-            if (!controller.isAgoraInitialized.value || !controller.isConnected.value) {
+            if (!controller.isLiveKitInitialized.value || !controller.isConnected.value) {
               return const Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -45,15 +45,8 @@ class LiveRoomScreen extends StatelessWidget {
             return SafeArea(
               child: Stack(
                 children: [
-                  // Layer 1: Agora Video Viewer (the video streams)
-                  AgoraVideoViewer(
-                    client: controller.client,
-                    layoutType: Layout.grid,
-                    // We will build our own floating view for better control
-                    floatingLayoutContainerHeight: 0,
-                    floatingLayoutContainerWidth: 0,
-                    showNumberOfUsers: false,
-                  ),
+                  // Layer 1: LiveKit video placeholder (streaming handled via LiveKit tracks)
+                  const LiveKitVideoPlaceholder(),
 
                   // Layer 2: Main Room UI (Header, Seats, Chat, Controls)
                   Column(
@@ -61,10 +54,10 @@ class LiveRoomScreen extends StatelessWidget {
                       _buildHeader(controller),
                       const SizedBox(height: 16),
                       // The dynamic grid of seats
-                      SeatGrid(),
+                      const SeatGrid(),
                       const Spacer(),
                       // The scrolling list of chat messages
-                      ChatBox(),
+                      const ChatBox(),
                     ],
                   ),
                   
@@ -72,7 +65,7 @@ class LiveRoomScreen extends StatelessWidget {
                   _buildBottomBar(context, controller, chatInputController),
 
                   // Layer 4: Gift Animation Overlay
-                  GiftAnimationOverlay(),
+                  const GiftAnimationOverlay(),
                 ],
               ),
             );

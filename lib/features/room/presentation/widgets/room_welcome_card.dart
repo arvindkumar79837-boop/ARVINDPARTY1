@@ -7,7 +7,7 @@ class RoomWelcomeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final RoomSettingsController controller =
+    final controller =
         Get.find<RoomSettingsController>();
 
     return Container(
@@ -16,7 +16,7 @@ class RoomWelcomeCard extends StatelessWidget {
         color: const Color(0xff15141F),
         borderRadius: BorderRadius.circular(14),
         // ✅ Fix 1
-        border: Border.all(color: Colors.white.withValues(alpha: 0.03), width: 1),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.03)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -26,7 +26,7 @@ class RoomWelcomeCard extends StatelessWidget {
               Icon(Icons.chat_bubble_outline,
                   color: Colors.greenAccent, size: 20),
               SizedBox(width: 8),
-              Text("Auto-Greet Entry Guidelines",
+              Text('Auto-Greet Entry Guidelines',
                   style: TextStyle(
                       color: Colors.white,
                       fontSize: 15,
@@ -40,7 +40,7 @@ class RoomWelcomeCard extends StatelessWidget {
             style: const TextStyle(color: Colors.white, fontSize: 13),
             onChanged: (v) => controller.welcomeMessage.value = v,
             decoration: InputDecoration(
-              hintText: "Enter entry welcome greeting logs...",
+              hintText: 'Enter entry welcome greeting logs...',
               hintStyle: const TextStyle(color: Colors.white24, fontSize: 13),
               filled: true,
               fillColor: const Color(0xff0F0E17),
@@ -51,7 +51,7 @@ class RoomWelcomeCard extends StatelessWidget {
               focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                   borderSide:
-                      const BorderSide(color: Colors.greenAccent, width: 1)),
+                      const BorderSide(color: Colors.greenAccent)),
             ),
           ),
         ],

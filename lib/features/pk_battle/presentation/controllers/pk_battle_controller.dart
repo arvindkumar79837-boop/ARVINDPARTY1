@@ -4,7 +4,7 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import 'package:get/get.dart';
-import '../../../../core/services/socket_service.dart';
+import '../../../../core/socket/socket_service.dart';
 import '../repositories/pk_battle_repository.dart';
 
 class PkBattleController extends GetxController {

@@ -12,7 +12,7 @@ class SupportScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final SupportController controller = Get.find<SupportController>();
+    final controller = Get.find<SupportController>();
 
     return DefaultTabController(
       length: 3,

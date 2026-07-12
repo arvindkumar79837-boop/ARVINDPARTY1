@@ -133,9 +133,9 @@ class GameScreen extends GetView<GamesController> {
                 separatorBuilder: (_, __) => const SizedBox(height: 8),
                 itemBuilder: (context, index) {
                   final entry = controller.leaderboard[index];
-                  final name = entry['name'] as String? ?? 'Player ${index + 1}';
-                  final avatar = entry['avatar'] as String?;
-                  final won = entry['totalWon'] as int? ?? 0;
+                  final name = entry.name.isNotEmpty ? entry.name : 'Player ${index + 1}';
+                  final avatar = entry.avatar.isNotEmpty ? entry.avatar : null;
+                  final won = entry.totalWon;
                   final rankColors = [const Color(0xFFFFD700), const Color(0xFFC0C0C0), const Color(0xFFCD7F32)];
                   final rankColor = index < 3 ? rankColors[index] : Colors.grey;
 

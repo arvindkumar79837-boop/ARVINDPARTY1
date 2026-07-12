@@ -5,7 +5,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../auth/models/auth_model.dart'; // Import the User model
+// Import the User model
 import '../controllers/profile_controller.dart';
 import 'placeholder_screen.dart'; // Keep for now
 
@@ -130,7 +130,6 @@ class ProfileScreen extends GetView<ProfileController> {
                         const SizedBox(height: 4),
                         // Display user's coins
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             const Icon(Icons.monetization_on, color: Color(0xFFD4AF37), size: 16),
                             const SizedBox(width: 4),

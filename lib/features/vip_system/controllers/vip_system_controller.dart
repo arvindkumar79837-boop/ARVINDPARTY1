@@ -66,7 +66,6 @@ class VipSystemController extends GetxController {
             'Welcome to VIP Level ${data['vip_level']}!',
             backgroundColor: Colors.amber,
             colorText: Colors.black,
-            duration: const Duration(seconds: 3),
           );
         }
         await fetchVipStatus();
@@ -88,7 +87,6 @@ class VipSystemController extends GetxController {
           'Premium active for $months month(s)',
           backgroundColor: Colors.purple,
           colorText: Colors.white,
-          duration: const Duration(seconds: 3),
         );
         await fetchVipStatus();
       }

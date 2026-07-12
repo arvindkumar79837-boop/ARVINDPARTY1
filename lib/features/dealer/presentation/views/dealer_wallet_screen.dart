@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controllers/dealer_controller.dart';
+
 import '../../models/dealer_model.dart';
+import '../controllers/dealer_controller.dart';
 
 class DealerWalletScreen extends StatelessWidget {
   const DealerWalletScreen({super.key});

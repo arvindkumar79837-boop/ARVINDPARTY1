@@ -5,15 +5,16 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controllers/wallet_controller.dart';
+
 import '../../services/payment_service.dart';
+import '../controllers/wallet_controller.dart';
 
 class CoinWalletScreen extends StatelessWidget {
   const CoinWalletScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final WalletController controller = Get.find<WalletController>();
+    final controller = Get.find<WalletController>();
 
     return Scaffold(
       backgroundColor: const Color(0xFF1A1A2E),
@@ -67,7 +68,6 @@ class CoinWalletScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: Colors.orange.withValues(alpha: 0.3),
-          width: 1,
         ),
       ),
       child: Column(
@@ -289,7 +289,7 @@ class CoinWalletScreen extends StatelessWidget {
   }
 
   Widget _buildCoinPackagesSection(BuildContext context, WalletController controller) {
-    final PaymentService paymentService = Get.find<PaymentService>();
+    final paymentService = Get.find<PaymentService>();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -455,7 +455,7 @@ class CoinWalletScreen extends StatelessWidget {
       );
 
       // Refresh balance after successful payment
-      controller.fetchCoinWallet();
+      controller.loadAllData();
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

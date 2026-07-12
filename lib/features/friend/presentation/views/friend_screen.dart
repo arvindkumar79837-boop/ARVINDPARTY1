@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controllers/friend_controller.dart';
+
 import '../../models/friend_model.dart';
-import '../widgets/friend_tile.dart';
+import '../controllers/friend_controller.dart';
 import '../widgets/friend_request_tile.dart';
+import '../widgets/friend_tile.dart';
 
 class FriendScreen extends GetView<FriendController> {
   const FriendScreen({super.key});
@@ -49,7 +50,7 @@ class FriendScreen extends GetView<FriendController> {
     return ListView(padding: const EdgeInsets.all(12), children: [
       if (controller.incomingRequests.isNotEmpty) ...[
         const Padding(padding: EdgeInsets.only(top: 8, bottom: 4), child: Text('Incoming', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue))),
-        ...controller.incomingRequests.map((r) => FriendRequestTile(request: r, isIncoming: true)),
+        ...controller.incomingRequests.map((r) => FriendRequestTile(request: r)),
         const Divider(),
       ],
       if (controller.outgoingRequests.isNotEmpty) ...[

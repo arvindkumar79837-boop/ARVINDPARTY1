@@ -12,7 +12,7 @@ class GameRewardStoreScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final GamesController controller = Get.find<GamesController>();
+    final controller = Get.find<GamesController>();
 
     return DefaultTabController(
       length: 4,

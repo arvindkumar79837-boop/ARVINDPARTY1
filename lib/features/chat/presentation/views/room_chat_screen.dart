@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import '../controllers/chat_controller.dart';
-import '../../models/chat_model.dart';
-import '../widgets/message_bubble.dart' as msg;
 import '../widgets/chat_input_bar.dart';
+import '../widgets/message_bubble.dart' as msg;
 
 class RoomChatScreen extends GetView<ChatController> {
   final String roomId;
@@ -21,7 +21,7 @@ class RoomChatScreen extends GetView<ChatController> {
         return Column(children: [
           Expanded(child: ListView.builder(reverse: true, itemCount: controller.messages.length, itemBuilder: (context, index) {
             final message = controller.messages[controller.messages.length - 1 - index];
-            return msg.MessageBubble(message: MessageModel.fromJson(message), isMe: message['senderId'] == 'currentUserId');
+            return msg.MessageBubble(message: message, isMe: message.senderId == 'currentUserId');
           })),
           const ChatInputBar(),
         ]);

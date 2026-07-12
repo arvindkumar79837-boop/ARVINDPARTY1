@@ -12,7 +12,7 @@ class RoomAnalyticsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final RoomController controller = Get.find<RoomController>();
+    final controller = Get.find<RoomController>();
 
     return Scaffold(
       backgroundColor: const Color(0xFF1A1A2E),
@@ -64,7 +64,6 @@ class RoomAnalyticsScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: Colors.green.withValues(alpha: 0.3),
-          width: 1,
         ),
       ),
       child: Column(
@@ -262,7 +261,6 @@ class RoomAnalyticsScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: Colors.pink.withValues(alpha: 0.3),
-          width: 1,
         ),
       ),
       child: Column(

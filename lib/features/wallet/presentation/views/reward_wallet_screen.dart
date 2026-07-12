@@ -12,7 +12,7 @@ class RewardWalletScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final WalletController controller = Get.find<WalletController>();
+    final controller = Get.find<WalletController>();
 
     return Scaffold(
       backgroundColor: const Color(0xFF1A1A2E),
@@ -68,7 +68,6 @@ class RewardWalletScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: Colors.purple.withValues(alpha: 0.3),
-          width: 1,
         ),
       ),
       child: Column(
@@ -188,8 +187,8 @@ class RewardWalletScreen extends StatelessWidget {
   }
 
   Widget _buildConversionCard(WalletController controller) {
-    var convertAmount = 0.obs;
-    var isConverting = false.obs;
+    final convertAmount = 0.obs;
+    final isConverting = false.obs;
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -304,7 +303,7 @@ class RewardWalletScreen extends StatelessWidget {
                       onPressed: (convertAmount.value >= min && !isConverting.value)
                           ? () async {
                               isConverting.value = true;
-                              await controller.convertRewardsToCoins(convertAmount.value);
+                              await controller.convertRewardsToCoins();
                               convertAmount.value = 0;
                               isConverting.value = false;
                             }
@@ -548,7 +547,7 @@ class RewardWalletScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            tx.description ?? 'Gift Reward',
+                            tx['description'] as String? ?? 'Gift Reward',
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
@@ -557,7 +556,7 @@ class RewardWalletScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            _formatDate(tx.createdAt),
+                            _formatDate(DateTime.tryParse(tx['createdAt'] ?? '') ?? DateTime.now()),
                             style: TextStyle(
                               fontSize: 11,
                               color: Colors.white.withValues(alpha: 0.5),
@@ -573,7 +572,7 @@ class RewardWalletScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        '+${tx.amount} pts',
+                        '+${tx['amount']} pts',
                         style: const TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,

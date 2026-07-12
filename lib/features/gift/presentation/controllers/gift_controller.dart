@@ -3,8 +3,9 @@
 // ARVIND PARTY - GIFT CONTROLLER (Extended: Lucky, Treasure, Combo, Collection, Goals)
 // ═══════════════════════════════════════════════════════════════════════════
 
-import 'package:get/get.dart';
 import 'package:flutter/foundation.dart';
+import 'package:get/get.dart';
+
 import '../../../../core/services/api_service.dart';
 import '../../models/gift_model.dart';
 
@@ -119,7 +120,6 @@ class GiftController extends GetxController {
             receiverId: receiverId,
             receiverName: 'Receiver',
             coinCost: (gift.coinPrice * quantity).toInt(),
-            diamondEarned: 0,
             isLucky: true,
             luckyMultiplier: multiplier,
             luckyWinAmount: winAmount,

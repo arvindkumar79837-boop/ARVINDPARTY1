@@ -25,7 +25,7 @@ class _OtpScreenState extends State<OtpScreen> {
   // Updated function to handle OTP verification with the controller
   void _verifyOtp(String pin) async {
     // The phone number is already stored in the controller from the previous screen
-    final String phoneNumber = authController.phoneNumber.value;
+    final phoneNumber = authController.phoneNumber.value;
 
     if (phoneNumber.isEmpty) {
       Get.snackbar(
@@ -38,7 +38,7 @@ class _OtpScreenState extends State<OtpScreen> {
     }
 
     // Call the verifyOtp method from the controller
-    final bool success = await authController.verifyOtp(phoneNumber, pin);
+    final success = await authController.verifyOtp(phoneNumber, pin);
 
     if (success) {
       // On success, navigate to the home screen, clearing the auth stack
@@ -62,8 +62,8 @@ class _OtpScreenState extends State<OtpScreen> {
 
   // Function to handle resending OTP
   void _resendOtp() async {
-    final String phoneNumber = authController.phoneNumber.value;
-    final bool success = await authController.resendOtp(phoneNumber);
+    final phoneNumber = authController.phoneNumber.value;
+    final success = await authController.resendOtp(phoneNumber);
     if (success) {
       Get.snackbar(
         'Success',
@@ -100,7 +100,7 @@ class _OtpScreenState extends State<OtpScreen> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.white24),
-        color: Colors.white.withAlpha(12),
+        color: Colors.white.withValues(alpha: 12/255),
       ),
     );
 
@@ -114,7 +114,6 @@ class _OtpScreenState extends State<OtpScreen> {
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const SizedBox(height: 40),
             const Text(
@@ -150,10 +149,9 @@ class _OtpScreenState extends State<OtpScreen> {
                 ),
                 submittedPinTheme: defaultPinTheme.copyWith(
                   decoration: defaultPinTheme.decoration!.copyWith(
-                    color: Colors.white.withAlpha(20),
+                    color: Colors.white.withValues(alpha: 20/255),
                   ),
                 ),
-                showCursor: true,
                 onCompleted: (pin) {
                   // Trigger OTP verification when the user completes entering the pin
                   _verifyOtp(pin);

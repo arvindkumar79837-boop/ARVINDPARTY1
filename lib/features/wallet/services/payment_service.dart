@@ -160,7 +160,6 @@ class PaymentService extends GetxService {
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: Colors.red.withValues(alpha: 0.9),
       colorText: Colors.white,
-      duration: const Duration(seconds: 3),
     );
   }
 
@@ -187,7 +186,7 @@ class PaymentService extends GetxService {
     required String userPhone,
   }) {
     return {
-      'key': 'YOUR_RAZORPAY_KEY',
+      'key': 'YOUR_RAZORPAY_KEY', // ⚠️ CONFIGURE: Replace with actual Razorpay key from dashboard
       'amount': amount,
       'currency': 'INR',
       'name': 'Arvind Party',

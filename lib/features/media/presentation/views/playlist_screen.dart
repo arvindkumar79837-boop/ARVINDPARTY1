@@ -6,8 +6,9 @@ import 'package:arvind_party/features/media/presentation/views/media_player_scre
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controllers/media_player_controller.dart';
+
 import '../../domain/entities/media_item.dart';
+import '../controllers/media_player_controller.dart';
 
 
 
@@ -16,7 +17,7 @@ class PlaylistScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final MediaPlayerController controller = Get.find<MediaPlayerController>();
+    final controller = Get.find<MediaPlayerController>();
 
     return Scaffold(
       backgroundColor: const Color(0xFF1A1A2E),

@@ -4,21 +4,21 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
-import '../../../../core/constants/env_config.dart';
+
+import '../../../../core/constants/api_constants.dart';
+import '../../../../core/services/api_service.dart';
 import '../../../../core/services/auth_session_manager.dart';
 import '../../../../core/utils/api_exception.dart';
-import '../../../../core/constants/api_constants.dart';
 
 class PkBattleRepository {
-  final Dio _dio = Dio(BaseOptions(baseUrl: EnvConfig.plainApiBaseUrl));
+  final _api = Get.find<ApiService>();
 
   String? _getToken() {
     try {
       return Get.find<AuthSessionManager>().token.value;
-    } catch (_) {
-      return null;
-    }
+    } catch (e) { debugPrint('Error: $e'); return null; }
   }
 
   Options _authOptions() => Options(headers: {
@@ -29,7 +29,7 @@ class PkBattleRepository {
   /// POST /api/pk-battles/request
   Future<Map<String, dynamic>> requestBattle({required String opponentId, required String roomId, int? durationMinutes}) async {
     try {
-      final response = await _dio.post(
+      final response = await _api.post(
         ApiConstants.pkRequest,
         data: {
           'opponentId': opponentId,
@@ -38,9 +38,9 @@ class PkBattleRepository {
         },
         options: _authOptions(),
       );
-      return response.data as Map<String, dynamic>;
-    } on DioException catch (e) {
-      throw ApiException.fromDioError(e.response?.data ?? {'message': e.message});
+      return response as Map<String, dynamic>;
+    } catch (e) {
+      throw ApiException(message: e.toString());
     }
   }
 
@@ -48,14 +48,14 @@ class PkBattleRepository {
   /// POST /api/pk-battles/accept
   Future<Map<String, dynamic>> acceptBattle(String battleId) async {
     try {
-      final response = await _dio.post(
+      final response = await _api.post(
         ApiConstants.pkAccept,
         data: {'battleId': battleId},
         options: _authOptions(),
       );
-      return response.data as Map<String, dynamic>;
-    } on DioException catch (e) {
-      throw ApiException.fromDioError(e.response?.data ?? {'message': e.message});
+      return response as Map<String, dynamic>;
+    } catch (e) {
+      throw ApiException(message: e.toString());
     }
   }
 
@@ -63,14 +63,14 @@ class PkBattleRepository {
   /// POST /api/pk-battles/end
   Future<Map<String, dynamic>> endBattle(String battleId) async {
     try {
-      final response = await _dio.post(
+      final response = await _api.post(
         ApiConstants.pkEnd,
         data: {'battleId': battleId},
         options: _authOptions(),
       );
-      return response.data as Map<String, dynamic>;
-    } on DioException catch (e) {
-      throw ApiException.fromDioError(e.response?.data ?? {'message': e.message});
+      return response as Map<String, dynamic>;
+    } catch (e) {
+      throw ApiException(message: e.toString());
     }
   }
 }

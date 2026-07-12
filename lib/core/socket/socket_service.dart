@@ -1,13 +1,16 @@
-// ═══════════════════════════════════════════════════════════════════════════
-// FILE: lib/core/services/socket_service.dart
+// ---------------------------------------------------------------------------
+// FILE: lib/core/socket/socket_service.dart
 // ARVIND PARTY - PRODUCTION SOCKET SERVICE
-// ═══════════════════════════════════════════════════════════════════════════
+// ---------------------------------------------------------------------------
 
 import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
-import 'package:flutter/foundation.dart';
+
 import '../constants/env_config.dart';
+import '../services/auth_session_manager.dart';
 
 class SocketService extends GetxService {
   io.Socket? _socket;
@@ -21,6 +24,8 @@ class SocketService extends GetxService {
   static const int _reconnectDelayMs = 3000;
   static const int _heartbeatIntervalMs = 25000;
 
+  String? _currentToken;
+
   io.Socket get socket {
     if (_socket == null) {
       throw Exception('SocketService: Call connect() first');
@@ -30,8 +35,22 @@ class SocketService extends GetxService {
 
   @override
   void onInit() {
-    super.onInit();
-    connect();
+    _waitForAuthAndConnect();
+  }
+
+  Future<void> _waitForAuthAndConnect() async {
+    final authSession = Get.find<AuthSessionManager>();
+
+    if (authSession.token.value != null && authSession.token.value!.isNotEmpty) {
+      await connect(token: authSession.token.value!);
+      return;
+    }
+
+    ever(authSession.token, (String? token) {
+      if (token != null && token.isNotEmpty) {
+        connect(token: token);
+      }
+    });
   }
 
   @override
@@ -42,8 +61,10 @@ class SocketService extends GetxService {
     super.onClose();
   }
 
-  void connect() {
+  Future<void> connect({String? token}) async {
     if (_socket != null && _socket!.connected) return;
+
+    _currentToken = token;
 
     _socket = io.io(
       EnvConfig.socketUrl,
@@ -53,6 +74,9 @@ class SocketService extends GetxService {
           .enableReconnection()
           .setReconnectionAttempts(_maxReconnectAttempts)
           .setReconnectionDelay(_reconnectDelayMs)
+          .setExtraHeaders({
+            if (_currentToken != null) 'Authorization': 'Bearer ${_currentToken!}',
+          })
           .build(),
     );
 
@@ -88,7 +112,7 @@ class SocketService extends GetxService {
     _reconnectTimer?.cancel();
     _reconnectTimer = Timer(
       Duration(milliseconds: _reconnectDelayMs * (connectionAttempts.value + 1)),
-      () => connect(),
+      () => connect(token: _currentToken),
     );
   }
 
@@ -111,17 +135,19 @@ class SocketService extends GetxService {
 
   void disconnect() {
     _stopHeartbeat();
+    _reconnectTimer?.cancel();
     _socket?.disconnect();
     _socket?.dispose();
     _socket = null;
     isConnected.value = false;
+    connectionAttempts.value = 0;
   }
 
   void emit(String event, dynamic data) {
     if (_socket != null && _socket!.connected) {
       _socket!.emit(event, data);
     } else {
-      debugPrint('[Socket] Cannot emit "$event", disconnected');
+      debugPrint('[Socket] Cannot emit $event, disconnected');
     }
   }
 
@@ -137,63 +163,58 @@ class SocketService extends GetxService {
     _socket?.once(event, callback);
   }
 
-  // ─── ROOM EVENTS ─────────────────────────────────────────────────
-  void joinRoom(String roomId) {
-    emit('room:join', {'roomId': roomId});
+  // Emit with acknowledgment (for request-response pattern)
+  Future<dynamic> emitWithAck(String event, dynamic data, {Duration timeout = const Duration(seconds: 5)}) async {
+    if (_socket == null || !_socket!.connected) {
+      throw Exception('Socket not connected');
+    }
+
+    final completer = Completer<dynamic>();
+
+    try {
+      _socket!.emitWithAck(event, data, ack: (data) {
+        if (!completer.isCompleted) {
+          completer.complete(data);
+        }
+      });
+
+      return await completer.future.timeout(timeout);
+    } catch (e) {
+      if (!completer.isCompleted) {
+        completer.completeError(e);
+      }
+      rethrow;
+    }
   }
 
-  void leaveRoom(String roomId) {
-    emit('room:leave', {'roomId': roomId});
-  }
-
+  // --- ROOM EVENTS -------------------------------------------------
+  void joinRoom(String roomId) { emit('room:join', {'roomId': roomId}); }
+  void leaveRoom(String roomId) { emit('room:leave', {'roomId': roomId}); }
   void sendRoomMessage(String roomId, String message, String messageType) {
-    emit('room:message', {
-      'roomId': roomId,
-      'message': message,
-      'messageType': messageType,
-    });
+    emit('room:message', {'roomId': roomId, 'message': message, 'messageType': messageType});
   }
-
-  void raiseHand(String roomId) {
-    emit('seat:raise_hand', {'roomId': roomId});
-  }
-
+  void raiseHand(String roomId) { emit('seat:raise_hand', {'roomId': roomId}); }
   void approveHand(String roomId, String userId) {
     emit('seat:approve', {'roomId': roomId, 'userId': userId});
   }
-
   void joinSeat(String roomId, int seatNumber) {
     emit('seat:join', {'roomId': roomId, 'seatNumber': seatNumber});
   }
-
   void leaveSeat(String roomId, int seatNumber) {
     emit('seat:leave', {'roomId': roomId, 'seatNumber': seatNumber});
   }
-
   void toggleSeatMute(String roomId, int seatNumber, bool muted) {
     emit('seat:mute', {'roomId': roomId, 'seatNumber': seatNumber, 'muted': muted});
   }
-
   void lockSeat(String roomId, int seatNumber, bool locked) {
     emit('seat:lock', {'roomId': roomId, 'seatNumber': seatNumber, 'locked': locked});
   }
-
   void sendGift(String roomId, String giftId, String receiverId, int quantity) {
-    emit('gift:send', {
-      'roomId': roomId,
-      'giftId': giftId,
-      'receiverId': receiverId,
-      'quantity': quantity,
-    });
+    emit('gift:send', {'roomId': roomId, 'giftId': giftId, 'receiverId': receiverId, 'quantity': quantity});
   }
-
   void sendPrivateMessage(String receiverId, String message) {
-    emit('chat:private', {
-      'receiverId': receiverId,
-      'message': message,
-    });
+    emit('chat:private', {'receiverId': receiverId, 'message': message});
   }
-
   void sendTypingIndicator(String chatId, bool isTyping) {
     emit('chat:typing', {'chatId': chatId, 'isTyping': isTyping});
   }
@@ -207,7 +228,7 @@ class SocketService extends GetxService {
   void onTypingIndicator(Function(dynamic) callback) => on('chat:typing', callback);
   void onError(Function(dynamic) callback) => on('error', callback);
 
-  // ─── LEGACY BACKWARD COMPATIBILITY ────────────────────────────────
+  // --- LEGACY BACKWARD COMPATIBILITY --------------------------------
   void onReceiveMessage(Function(dynamic) callback) => on('receive_message', callback);
   void onRoomOnlineUpdate(Function(dynamic) callback) => on('room_online_update', callback);
   void onNewRaiseHand(Function(dynamic) callback) => on('new_raise_hand', callback);

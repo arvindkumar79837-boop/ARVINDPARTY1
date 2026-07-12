@@ -13,7 +13,7 @@ class AccountSecurityScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final AuthController authController = Get.find<AuthController>();
+    final authController = Get.find<AuthController>();
     final storage = GetStorage();
 
     return Scaffold(
@@ -61,7 +61,6 @@ class AccountSecurityScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: Colors.green.withValues(alpha: 0.3),
-          width: 1,
         ),
       ),
       child: Column(
@@ -466,9 +465,9 @@ class AccountSecurityScreen extends StatelessWidget {
   }
 
   void _showSecurityAlertsDialog() {
-    var enableLoginAlerts = true.obs;
-    var enableDeviceAlerts = true.obs;
-    var enableSuspiciousActivityAlerts = true.obs;
+    final enableLoginAlerts = true.obs;
+    final enableDeviceAlerts = true.obs;
+    final enableSuspiciousActivityAlerts = true.obs;
 
     Get.dialog(
       AlertDialog(
@@ -536,7 +535,7 @@ class AccountSecurityScreen extends StatelessWidget {
   }
 
   void _showDeleteAccountDialog() {
-    var confirmText = ''.obs;
+    final confirmText = ''.obs;
 
     Get.dialog(
       AlertDialog(

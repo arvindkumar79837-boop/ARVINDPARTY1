@@ -15,9 +15,8 @@ dependencies:
   # State Management
   get: ^4.7.3
 
-  # Video / Live Streaming (Agora + Video Player)
-  agora_rtc_engine: ^6.5.4
-  agora_uikit: ^1.3.10
+  # Video / Live Streaming (LiveKit + Video Player)
+  livekit_client: ^2.3.1
   video_player: ^2.8.6
 
   # Firebase Auth (Phone OTP + Google Login only)
@@ -69,21 +68,33 @@ dependencies:
   percent_indicator: ^4.2.5
   glassmorphism: ^2.0.0
   scratcher: ^2.5.0
+
+  # WebView
+  webview_flutter: ^4.10.0
   confetti: ^0.8.0
   shimmer_animation: ^2.2.1
 
+  # --- NEW DEPENDENCIES (Code Quality & Security) ------------------
+  flutter_secure_storage: ^9.2.4
+  freezed_annotation: ^2.4.4
+  json_annotation: ^4.9.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
+  build_runner: ^2.4.13
+  freezed: ^2.5.7
+  json_serializable: ^6.8.0
+
 
 flutter:
   uses-material-design: true
 
   assets:
     - assets/login/videos/lion_bg.mp4
-    - assets/images/
+    - assets/images/icon.png
     - assets/login/login_icon.png
+    - assets/splash/logo.png
   fonts:
     - family: Poppins
       fonts:

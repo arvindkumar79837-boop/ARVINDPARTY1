@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controllers/friend_controller.dart';
+
 import '../../models/friend_model.dart';
+import '../controllers/friend_controller.dart';
 import '../widgets/friend_tile.dart';
 
 class FriendSearchScreen extends GetView<FriendController> {

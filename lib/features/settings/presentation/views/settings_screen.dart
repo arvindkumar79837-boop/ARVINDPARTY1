@@ -12,7 +12,7 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final SettingsController controller = Get.find<SettingsController>();
+    final controller = Get.find<SettingsController>();
 
     return Scaffold(
       backgroundColor: const Color(0xFF1A1A2E),

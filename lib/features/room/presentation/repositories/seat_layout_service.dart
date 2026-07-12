@@ -11,7 +11,7 @@ class SeatLayoutService {
   static List<SeatModel> generateInitialSeats(int count) {
     return List.generate(
       count,
-      (i) => SeatModel(index: i, isOccupied: false, isLocked: false),
+      (i) => SeatModel(index: i),
     );
   }
 

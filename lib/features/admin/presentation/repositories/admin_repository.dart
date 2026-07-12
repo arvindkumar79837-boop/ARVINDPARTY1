@@ -3,108 +3,89 @@
 // ARVIND PARTY - ADMIN REPOSITORY
 // ═══════════════════════════════════════════════════════════════════════════
 
-import 'package:dio/dio.dart';
 import 'package:get/get.dart';
-import '../../../../core/constants/env_config.dart';
-import '../../../../core/services/auth_session_manager.dart';
-import '../../../../core/utils/api_exception.dart';
 import '../../../../core/constants/api_constants.dart';
+import '../../../../core/services/api_service.dart';
+import '../../../../core/utils/api_exception.dart';
 
 class AdminRepository {
-  final Dio _dio = Dio(BaseOptions(baseUrl: EnvConfig.plainApiBaseUrl));
-
-  String? _getToken() {
-    try {
-      return Get.find<AuthSessionManager>().token.value;
-    } catch (_) {
-      return null;
-    }
-  }
-
-  Options _authOptions() => Options(headers: {
-        if (_getToken() != null) 'Authorization': 'Bearer ${_getToken()}',
-      });
+  final _api = Get.find<ApiService>();
 
   /// Get admin dashboard stats
   Future<Map<String, dynamic>> getStats() async {
     try {
-      final response = await _dio.get(ApiConstants.adminStats, options: _authOptions());
-      final data = response.data as Map<String, dynamic>;
+      final response = await _api.get(ApiConstants.adminStats);
+      final data = response as Map<String, dynamic>;
       if (data['success'] == true) return data['data'] as Map<String, dynamic>;
       throw ApiException(message: data['message'] ?? 'Failed to fetch stats');
-    } on DioException catch (e) {
-      throw ApiException.fromDioError(e.response?.data ?? {'message': e.message});
+    } catch (e) {
+      throw ApiException(message: e.toString());
     }
   }
 
   /// Get all users
   Future<List<Map<String, dynamic>>> getUsers() async {
     try {
-      final response = await _dio.get(ApiConstants.adminUsers, options: _authOptions());
-      final data = response.data as Map<String, dynamic>;
+      final response = await _api.get(ApiConstants.adminUsers);
+      final data = response as Map<String, dynamic>;
       if (data['success'] == true) {
         final users = data['data'] as List<dynamic>? ?? [];
         return users.cast<Map<String, dynamic>>();
       }
       throw ApiException(message: data['message'] ?? 'Failed to fetch users');
-    } on DioException catch (e) {
-      throw ApiException.fromDioError(e.response?.data ?? {'message': e.message});
+    } catch (e) {
+      throw ApiException(message: e.toString());
     }
   }
 
   /// Toggle user block/unblock
   Future<Map<String, dynamic>> toggleBlock(String userId) async {
     try {
-      final response = await _dio.post(
-        '${ApiConstants.adminUserBlock}/$userId',
-        options: _authOptions(),
-      );
-      return response.data as Map<String, dynamic>;
-    } on DioException catch (e) {
-      throw ApiException.fromDioError(e.response?.data ?? {'message': e.message});
+      final response = await _api.post('${ApiConstants.adminUserBlock}/$userId');
+      return response as Map<String, dynamic>;
+    } catch (e) {
+      throw ApiException(message: e.toString());
     }
   }
 
   /// Generate coins for a user
   Future<Map<String, dynamic>> generateCoins(String uid, int amount, String reason) async {
     try {
-      final response = await _dio.post(
+      final response = await _api.post(
         ApiConstants.adminCoinsGenerate,
-        data: {'uid': uid, 'amount': amount, 'reason': reason},
-        options: _authOptions(),
+        body: {'uid': uid, 'amount': amount, 'reason': reason},
       );
-      return response.data as Map<String, dynamic>;
-    } on DioException catch (e) {
-      throw ApiException.fromDioError(e.response?.data ?? {'message': e.message});
+      return response as Map<String, dynamic>;
+    } catch (e) {
+      throw ApiException(message: e.toString());
     }
   }
 
   /// Deduct coins from a user
   Future<Map<String, dynamic>> deductCoins(String uid, int amount, String reason) async {
     try {
-      final response = await _dio.post(
+      final response = await _api.post(
         ApiConstants.adminCoinsDeduct,
-        data: {'uid': uid, 'amount': amount, 'reason': reason},
-        options: _authOptions(),
+        body: {'uid': uid, 'amount': amount, 'reason': reason},
       );
-      return response.data as Map<String, dynamic>;
-    } on DioException catch (e) {
-      throw ApiException.fromDioError(e.response?.data ?? {'message': e.message});
+      return response as Map<String, dynamic>;
+    } catch (e) {
+      throw ApiException(message: e.toString());
     }
   }
 
   /// Get pending withdrawals
   Future<List<Map<String, dynamic>>> getWithdrawals() async {
     try {
-      final response = await _dio.get(ApiConstants.adminWithdrawalsPending, options: _authOptions());
-      final data = response.data as Map<String, dynamic>;
+      final response = await _api.get(ApiConstants.adminWithdrawalsPending);
+      final data = response as Map<String, dynamic>;
       if (data['success'] == true) {
         final withdrawals = data['data'] as List<dynamic>? ?? [];
         return withdrawals.cast<Map<String, dynamic>>();
       }
       throw ApiException(message: data['message'] ?? 'Failed to fetch withdrawals');
-    } on DioException catch (e) {
-      throw ApiException.fromDioError(e.response?.data ?? {'message': e.message});
+    } catch (e) {
+      throw ApiException(message: e.toString());
     }
   }
 
@@ -114,24 +95,23 @@ class AdminRepository {
       final endpoint = status == 'approved'
           ? '${ApiConstants.adminWithdrawalApprove}/$id'
           : '${ApiConstants.adminWithdrawalReject}/$id';
-      final response = await _dio.post(endpoint, options: _authOptions());
-      return response.data as Map<String, dynamic>;
-    } on DioException catch (e) {
-      throw ApiException.fromDioError(e.response?.data ?? {'message': e.message});
+      final response = await _api.post(endpoint);
+      return response as Map<String, dynamic>;
+    } catch (e) {
+      throw ApiException(message: e.toString());
     }
   }
 
   /// Send reward to a user
   Future<Map<String, dynamic>> sendReward(Map<String, dynamic> rewardData) async {
     try {
-      final response = await _dio.post(
+      final response = await _api.post(
         ApiConstants.adminRewardSend,
-        data: rewardData,
-        options: _authOptions(),
+        body: rewardData,
       );
-      return response.data as Map<String, dynamic>;
-    } on DioException catch (e) {
-      throw ApiException.fromDioError(e.response?.data ?? {'message': e.message});
+      return response as Map<String, dynamic>;
+    } catch (e) {
+      throw ApiException(message: e.toString());
     }
   }
 }

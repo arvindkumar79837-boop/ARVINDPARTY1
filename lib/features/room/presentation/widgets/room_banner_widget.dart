@@ -97,7 +97,7 @@ class RoomBannerWidget extends StatelessWidget {
                 color: Colors.purpleAccent.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                    color: Colors.purpleAccent.withValues(alpha: 0.25), width: 1),
+                    color: Colors.purpleAccent.withValues(alpha: 0.25)),
               ),
               child: Row(
                 children: [
@@ -126,7 +126,7 @@ class RoomBannerWidget extends StatelessWidget {
                 color: const Color(0xFF15141F),
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                    color: const Color(0xFFFF8906).withValues(alpha: 0.2), width: 1),
+                    color: const Color(0xFFFF8906).withValues(alpha: 0.2)),
               ),
               child: Row(
                 children: [

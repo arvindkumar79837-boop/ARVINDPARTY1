@@ -482,17 +482,17 @@ class RoomPermissionModel {
       case MemberRole.host:
       case MemberRole.coHost:
       case MemberRole.admin:
-        return const RoomPermissionModel(canSpeak: true, canShareVideo: true, canSendGifts: true, canChat: true, canInvite: true);
+        return const RoomPermissionModel(canShareVideo: true, canInvite: true);
       case MemberRole.moderator:
-        return const RoomPermissionModel(canSpeak: true, canShareVideo: false, canSendGifts: true, canChat: true, canInvite: false);
+        return const RoomPermissionModel();
       case MemberRole.speaker:
-        return const RoomPermissionModel(canSpeak: true, canShareVideo: true, canSendGifts: true, canChat: true, canInvite: false);
+        return const RoomPermissionModel(canShareVideo: true);
       case MemberRole.listener:
       case MemberRole.muted:
       case MemberRole.visitor:
       case MemberRole.member:
       default:
-        return const RoomPermissionModel(canSpeak: false, canShareVideo: false, canSendGifts: false, canChat: true, canInvite: false);
+        return const RoomPermissionModel(canSpeak: false, canSendGifts: false);
     }
   }
 }

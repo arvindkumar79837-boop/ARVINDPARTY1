@@ -12,7 +12,7 @@ class AgencyLeaderboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final AgencyController controller = Get.find<AgencyController>();
+    final controller = Get.find<AgencyController>();
 
     return DefaultTabController(
       length: 3,

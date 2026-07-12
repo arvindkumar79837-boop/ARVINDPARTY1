@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import '../../controllers/game_controller.dart';
+
 import '../../models/webview_game_model.dart';
+import '../controllers/game_controller.dart';
 
 class GameBottomSheet extends StatefulWidget {
   final WebViewGameModel game;
@@ -33,8 +34,8 @@ class _GameBottomSheetState extends State<GameBottomSheet> {
     });
 
     try {
-      final session = await _gameController.startGameSession();
-      await _setupWebViewController(session.gameUrl);
+      await _gameController.startGameSession();
+      await _setupWebViewController(widget.game.gameUrl);
     } catch (e) {
       setState(() {
         _isLoading = false;
@@ -98,7 +99,6 @@ class _GameBottomSheetState extends State<GameBottomSheet> {
           winAmount > 0 ? 'You won $winAmount ${widget.game.rewardType}!' : 'Better luck next time!',
           backgroundColor: winAmount > 0 ? Colors.green : Colors.red,
           colorText: Colors.white,
-          duration: const Duration(seconds: 3),
         );
       }
     } catch (e) {
@@ -217,9 +217,9 @@ class _GameBottomSheetState extends State<GameBottomSheet> {
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: _initializeWebView,
-                style: ElevatedButton(
-                  backgroundColor: Colors.orange,
-                ),
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                  ),
                 child: const Text('Retry', style: TextStyle(color: Colors.white)),
               ),
             ],

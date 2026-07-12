@@ -221,7 +221,7 @@ class RoomController extends LiveRoomController {
       if (category != null) queryParams['category'] = category;
       if (search != null) queryParams['search'] = search;
 
-      final response = await _apiService.get('/rooms/live', query: queryParams);
+      final response = await _apiService.get('/rooms/live', queryParams: queryParams);
       if (response is Map && response['success'] == true) {
         final List<dynamic> roomList = response['rooms'] ?? response['data'] ?? [];
         rooms.assignAll(
@@ -396,7 +396,7 @@ class RoomController extends LiveRoomController {
   Future<void> fetchRoomRanking({String type = 'gift'}) async {
     rankingType.value = type;
     try {
-      final response = await _apiService.get('/rooms/ranking', query: {'type': type, 'limit': '50'});
+      final response = await _apiService.get('/rooms/ranking', queryParams: {'type': type, 'limit': '50'});
       if (response is Map && response['success'] == true) {
         final List<dynamic> roomList = response['rooms'] ?? [];
         roomRankings.assignAll(
@@ -434,12 +434,12 @@ class RoomController extends LiveRoomController {
 
   void loadAvailableBackgrounds() {
     availableBackgrounds.assignAll([
-      const RoomBackground(backgroundId: 'default', backgroundName: 'Default', backgroundUrl: '', costCoins: 0),
+      const RoomBackground(backgroundId: 'default', backgroundName: 'Default', backgroundUrl: ''),
       const RoomBackground(backgroundId: 'space', backgroundName: 'Space Galaxy', backgroundUrl: 'assets/backgrounds/space.jpg', costCoins: 100, isAnimated: true, themeColor: '#0D0D2B'),
       const RoomBackground(backgroundId: 'casino', backgroundName: 'Casino Royale', backgroundUrl: 'assets/backgrounds/casino.jpg', costCoins: 200, isAnimated: true, themeColor: '#FFD700'),
-      const RoomBackground(backgroundId: 'nature', backgroundName: 'Forest Vibes', backgroundUrl: 'assets/backgrounds/nature.jpg', costCoins: 50, isAnimated: false, themeColor: '#2E7D32'),
+      const RoomBackground(backgroundId: 'nature', backgroundName: 'Forest Vibes', backgroundUrl: 'assets/backgrounds/nature.jpg', costCoins: 50, themeColor: '#2E7D32'),
       const RoomBackground(backgroundId: 'party', backgroundName: 'Neon Party', backgroundUrl: 'assets/backgrounds/party.gif', costCoins: 150, isAnimated: true, themeColor: '#FF1493'),
-      const RoomBackground(backgroundId: 'ocean', backgroundName: 'Deep Ocean', backgroundUrl: 'assets/backgrounds/ocean.jpg', costCoins: 80, isAnimated: false, themeColor: '#006064'),
+      const RoomBackground(backgroundId: 'ocean', backgroundName: 'Deep Ocean', backgroundUrl: 'assets/backgrounds/ocean.jpg', costCoins: 80, themeColor: '#006064'),
       const RoomBackground(backgroundId: 'festival', backgroundName: 'Festival Lights', backgroundUrl: 'assets/backgrounds/festival.gif', costCoins: 120, isAnimated: true, themeColor: '#FF6F00'),
     ]);
   }

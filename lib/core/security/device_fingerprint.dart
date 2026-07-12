@@ -36,7 +36,7 @@ class DeviceFingerprint {
       }
 
       // Collect device information
-      Map<String, dynamic> deviceData = {};
+      var deviceData = <String, dynamic>{};
 
       if (defaultTargetPlatform == TargetPlatform.android) {
         deviceData = await _getAndroidFingerprint();

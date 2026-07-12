@@ -265,7 +265,7 @@ class RoomSocketService extends GetxService {
   // ═══════ EVENT HANDLERS ════════════════════════════════════════════════
 
   void _handleUserJoined(dynamic data) {
-    final Map<String, dynamic> event = Map<String, dynamic>.from(data);
+    final event = Map<String, dynamic>.from(data);
     final roomId = event['roomId']?.toString() ?? '';
     final userId = event['userId']?.toString() ?? '';
 
@@ -284,7 +284,7 @@ class RoomSocketService extends GetxService {
   }
 
   void _handleUserLeft(dynamic data) {
-    final Map<String, dynamic> event = Map<String, dynamic>.from(data);
+    final event = Map<String, dynamic>.from(data);
     final roomId = event['roomId']?.toString() ?? '';
     final userId = event['userId']?.toString() ?? '';
 
@@ -295,12 +295,12 @@ class RoomSocketService extends GetxService {
   }
 
   void _handleRoomUpdated(dynamic data) {
-    final Map<String, dynamic> event = Map<String, dynamic>.from(data);
+    final event = Map<String, dynamic>.from(data);
     _memberController.add(event);
   }
 
   void _handleNewMessage(dynamic data) {
-    final Map<String, dynamic> msg = Map<String, dynamic>.from(data);
+    final msg = Map<String, dynamic>.from(data);
     final roomId = msg['roomId']?.toString() ?? '';
 
     if (roomId.isNotEmpty) {
@@ -313,12 +313,12 @@ class RoomSocketService extends GetxService {
   }
 
   void _handlePrivateMessage(dynamic data) {
-    final Map<String, dynamic> msg = Map<String, dynamic>.from(data);
+    final msg = Map<String, dynamic>.from(data);
     _messageController.add(msg);
   }
 
   void _handleGiftReceived(dynamic data) {
-    final Map<String, dynamic> gift = Map<String, dynamic>.from(data);
+    final gift = Map<String, dynamic>.from(data);
     final roomId = gift['roomId']?.toString() ?? '';
 
     if (roomId.isNotEmpty) {
@@ -331,12 +331,12 @@ class RoomSocketService extends GetxService {
   }
 
   void _handleGiftAnimation(dynamic data) {
-    final Map<String, dynamic> gift = Map<String, dynamic>.from(data);
+    final gift = Map<String, dynamic>.from(data);
     _giftController.add(gift);
   }
 
   void _handleSeatOccupied(dynamic data) {
-    final Map<String, dynamic> seat = Map<String, dynamic>.from(data);
+    final seat = Map<String, dynamic>.from(data);
     final roomId = seat['roomId']?.toString() ?? '';
 
     if (roomId.isNotEmpty) {
@@ -357,7 +357,7 @@ class RoomSocketService extends GetxService {
   }
 
   void _handleSeatVacant(dynamic data) {
-    final Map<String, dynamic> seat = Map<String, dynamic>.from(data);
+    final seat = Map<String, dynamic>.from(data);
     final roomId = seat['roomId']?.toString() ?? '';
 
     if (roomId.isNotEmpty && seats.containsKey(roomId)) {
@@ -368,7 +368,7 @@ class RoomSocketService extends GetxService {
   }
 
   void _handleMediaUpdated(dynamic data) {
-    final Map<String, dynamic> update = Map<String, dynamic>.from(data);
+    final update = Map<String, dynamic>.from(data);
     final roomId = update['roomId']?.toString() ?? '';
 
     if (roomId.isNotEmpty && seats.containsKey(roomId)) {
@@ -390,17 +390,17 @@ class RoomSocketService extends GetxService {
   }
 
   void _handleSeatMuted(dynamic data) {
-    final Map<String, dynamic> seat = Map<String, dynamic>.from(data);
+    final seat = Map<String, dynamic>.from(data);
     _seatController.add(seat);
   }
 
   void _handleSeatUpdate(dynamic data) {
-    final Map<String, dynamic> update = Map<String, dynamic>.from(data);
+    final update = Map<String, dynamic>.from(data);
     _seatController.add(update);
   }
 
   void _handleUserKicked(dynamic data) {
-    final Map<String, dynamic> event = Map<String, dynamic>.from(data);
+    final event = Map<String, dynamic>.from(data);
     final roomId = event['roomId']?.toString() ?? '';
     final userId = event['userId']?.toString() ?? '';
 
@@ -411,7 +411,7 @@ class RoomSocketService extends GetxService {
   }
 
   void _handleKickedFromRoom(dynamic data) {
-    final Map<String, dynamic> event = Map<String, dynamic>.from(data);
+    final event = Map<String, dynamic>.from(data);
     final roomId = event['roomId']?.toString() ?? '';
 
     if (roomId.isNotEmpty) {

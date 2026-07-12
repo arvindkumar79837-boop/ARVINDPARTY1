@@ -3,6 +3,8 @@
 // ARVIND PARTY - CENTRALIZED ENVIRONMENT CONFIGURATION
 // ═══════════════════════════════════════════════════════════════════════════
 
+import 'package:flutter/foundation.dart';
+
 class EnvConfig {
   EnvConfig._();
 
@@ -14,11 +16,34 @@ class EnvConfig {
   // ─── API URLs ──────────────────────────────────────────────────────
   static String get currentEnv => isProduction ? 'production' : isStaging ? 'staging' : 'development';
 
-  static const String devBaseUrl = 'http://192.168.1.100:5000';
+  // Fallback dev URL for physical device on same LAN
+  // ⚠️ CONFIGURE YOUR BACKEND URL HERE — REPLACE WITH YOUR ACTUAL DEV SERVER IP
+  static const String devBaseUrl = 'http://222.167.207.78:5000/api';
   static const String stagingBaseUrl = 'https://staging-api.arvindparty.com';
   static const String prodBaseUrl = 'https://api.arvindparty.com';
 
-  static String get baseUrl => isProduction ? prodBaseUrl : isStaging ? stagingBaseUrl : devBaseUrl;
+  /// Auto-detects appropriate dev URL based on platform:
+  /// - Android emulator → 10.0.2.2 (special alias to host localhost)
+  /// - iOS simulator → localhost
+  /// - Physical device / desktop → hardcoded dev IP fallback
+  static String get effectiveDevBaseUrl {
+    if (kIsWeb) {
+      // Web running on desktop or device browser
+      return devBaseUrl;
+    }
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      // Android emulator cannot reach 127.0.0.1 of the host machine
+      return 'http://10.0.2.2:5000';
+    }
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      // iOS simulator can reach host via localhost
+      return 'http://localhost:5000';
+    }
+    // Physical device, desktop, or unknown platform
+    return devBaseUrl;
+  }
+
+  static String get baseUrl => isProduction ? prodBaseUrl : isStaging ? stagingBaseUrl : effectiveDevBaseUrl;
 
   /// API base URL (used by ApiService via ApiConstants)
   static String get apiBaseUrl => '$baseUrl/api';
@@ -59,7 +84,13 @@ class EnvConfig {
   static const int maxLoginAttempts = 5;
   static const int sessionTimeoutHours = 24;
 
-  // ─── AGORA ──────────────────────────────────────────────────────────
-  // INSERT YOUR AGORA APP ID HERE
-  static const String agoraAppId = 'INSERT_YOUR_AGORA_APP_ID_HERE';
+  // ─── LIVEKIT ──────────────────────────────────────────────────────────
+  // LiveKit server/API base (used for token fetching)
+  static String get liveKitApiBaseUrl => baseUrl;
+
+  /// LiveKit WebSocket URL for client connections — REPLACE WITH YOUR LIVEKIT DOMAIN
+  static const String liveKitWsUrl = 'wss://YOUR_LIVEKIT_DOMAIN';
+
+  /// If your mobile client negotiates tokens from backend using a room ref, keep this path aligned with backend route.
+  static String get liveKitTokenPath => '/room';
 }

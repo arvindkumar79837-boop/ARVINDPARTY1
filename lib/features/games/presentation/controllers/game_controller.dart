@@ -1,12 +1,11 @@
+import 'package:arvind_party/core/socket/socket_service.dart';
 import 'package:get/get.dart';
-import 'package:arvind_party/core/services/api_service.dart';
-import 'package:arvind_party/core/services/socket_service.dart';
-import '../repositories/game_repository.dart';
+
 import '../../models/webview_game_model.dart';
+import '../repositories/games_repository.dart';
 
 class GameController extends GetxController {
-  final GameRepository _repository = GameRepository();
-  final ApiService _apiService = Get.find<ApiService>();
+  final GamesRepository _repository = GamesRepository();
   final SocketService _socketService = Get.find<SocketService>();
 
   var isLoadingGames = true.obs;
@@ -57,7 +56,7 @@ class GameController extends GetxController {
   Future<void> selectGame(WebViewGameModel game) async {
     selectedGame.value = game;
     currentBetAmount.value = game.minBetAmount;
-    await _repository.getGameById(game.id);
+      await _repository.getGameById(game.id);
   }
 
   Future<void> startGameSession() async {
@@ -115,7 +114,6 @@ class GameController extends GetxController {
       final entries = await _repository.getLeaderboard(
         period: selectedLeaderboardPeriod.value,
         gameId: gameId,
-        limit: 50,
       );
       leaderboard.assignAll(entries);
     } catch (e) {
@@ -132,12 +130,12 @@ class GameController extends GetxController {
 
   void _listenToSocketEvents() {
     _socketService.on('game_update', (data) {
-      final Map<String, dynamic> event = Map<String, dynamic>.from(data);
+      final event = Map<String, dynamic>.from(data);
       Get.log('Game update received: $event');
     });
 
     _socketService.on('game_completed', (data) {
-      final Map<String, dynamic> event = Map<String, dynamic>.from(data);
+      final event = Map<String, dynamic>.from(data);
       Get.log('Game completed: $event');
       coins.value = event['balance']['coins'] ?? coins.value;
       diamonds.value = event['balance']['diamonds'] ?? diamonds.value;
@@ -145,7 +143,7 @@ class GameController extends GetxController {
     });
 
     _socketService.on('game_ended', (data) {
-      final Map<String, dynamic> event = Map<String, dynamic>.from(data);
+      final event = Map<String, dynamic>.from(data);
       if (event['success'] == true) {
         coins.value = event['balance']['coins'] ?? coins.value;
         diamonds.value = event['balance']['diamonds'] ?? diamonds.value;
@@ -154,7 +152,7 @@ class GameController extends GetxController {
     });
 
     _socketService.on('error', (data) {
-      final Map<String, dynamic> event = Map<String, dynamic>.from(data);
+      final event = Map<String, dynamic>.from(data);
       errorMessage.value = event['message'] ?? 'Game error occurred';
     });
   }

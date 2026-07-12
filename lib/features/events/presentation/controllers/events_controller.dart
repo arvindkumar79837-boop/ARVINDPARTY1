@@ -1,5 +1,6 @@
-import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
 import '../repositories/events_repository.dart';
 
 class EventsController extends GetxController {
@@ -11,7 +12,7 @@ class EventsController extends GetxController {
   final events = <Map<String, dynamic>>[].obs;
   final selectedType = ''.obs;
   final selectedStatus = ''.obs;
-  final errorMessage = RxnString();
+  final errorMessage = Rxn<String>();
   final activeEvents = <Map<String, dynamic>>[].obs;
   final dailyTasks = <Map<String, dynamic>>[].obs;
   final tournaments = <Map<String, dynamic>>[].obs;
@@ -69,7 +70,7 @@ class EventsController extends GetxController {
       final result = await _repo.fetchActiveEvents();
       activeEvents.assignAll(result);
     } catch (e) {
-      // silently fail
+      debugPrint('[EventsController] fetchActiveEvents error: $e');
     }
   }
 
@@ -78,7 +79,7 @@ class EventsController extends GetxController {
       final result = await _repo.fetchTournaments();
       tournaments.assignAll(result);
     } catch (e) {
-      // silently fail
+      debugPrint('[EventsController] fetchTournaments error: $e');
     }
   }
 
@@ -87,7 +88,7 @@ class EventsController extends GetxController {
       final result = await _repo.fetchChampionships();
       championships.assignAll(result);
     } catch (e) {
-      // silently fail
+      debugPrint('[EventsController] fetchChampionships error: $e');
     }
   }
 
@@ -96,7 +97,7 @@ class EventsController extends GetxController {
       final result = await _repo.fetchTreasureHunts();
       treasureHunts.assignAll(result);
     } catch (e) {
-      // silently fail
+      debugPrint('[EventsController] fetchTreasureHunts error: $e');
     }
   }
 
@@ -106,7 +107,7 @@ class EventsController extends GetxController {
       final result = await _repo.fetchActiveLuckyDraws();
       luckyDraws.assignAll(result);
     } catch (e) {
-      // silently fail
+      debugPrint('[EventsController] fetchLuckyDraws error: $e');
     }
   }
 
@@ -131,7 +132,6 @@ class EventsController extends GetxController {
           'JACKPOT!',
           'You hit the jackpot!',
           backgroundColor: Colors.amber,
-          duration: const Duration(seconds: 3),
         );
       } else {
         final prize = result['prize'] as Map<String, dynamic>?;
@@ -166,7 +166,7 @@ class EventsController extends GetxController {
 
   Future<void> updateTaskProgress(String taskId, {int increment = 1}) async {
     try {
-      await _repo.updateTaskProgress(taskId, increment: increment);
+      await _repo.updateTaskProgress(taskId, increment);
       await fetchDailyTasks();
     } catch (e) {
       Get.snackbar('Error', 'Failed to update progress');
@@ -190,7 +190,7 @@ class EventsController extends GetxController {
   // ─── NEW: INVITE METHODS ─────────────────────────────────────────────
   Future<void> generateInviteLink({int commissionPercent = 5}) async {
     try {
-      final result = await _repo.generateInviteLink(commissionPercent: commissionPercent);
+      final result = await _repo.generateInviteLink(commissionPercent);
       inviteLink.value = result;
       await getInviteStats();
       Get.snackbar('Invite Link', 'Link generated successfully!');
@@ -228,7 +228,7 @@ class EventsController extends GetxController {
       } else {
         final reward = result['reward'] as Map<String, dynamic>? ?? {};
         final special = result['special_reward'];
-        String msg = '+${reward['coins'] ?? 0} Coins, +${reward['xp'] ?? 0} XP';
+        var msg = '+${reward['coins'] ?? 0} Coins, +${reward['xp'] ?? 0} XP';
         if (special != null) {
           msg += '\n🎁 ${special['name'] ?? 'Special Reward'} unlocked!';
         }
@@ -301,15 +301,16 @@ class EventsController extends GetxController {
 
     try {
       isCreating.value = true;
-      final createdEvent = await _repo.createEvent(
-        title: title.trim(),
-        description: description.trim(),
-        type: type,
-        startDate: startDate,
-        endDate: endDate,
-        coverImage: coverImage?.trim(),
-        maxParticipants: maxParticipants,
-      );
+      final eventData = {
+        'title': title.trim(),
+        'description': description.trim(),
+        'type': type,
+        'startDate': startDate.toIso8601String(),
+        'endDate': endDate.toIso8601String(),
+        if (coverImage != null && coverImage.trim().isNotEmpty) 'coverImage': coverImage.trim(),
+        'maxParticipants': maxParticipants,
+      };
+      final createdEvent = await _repo.createEvent(eventData);
 
       events.insert(0, createdEvent);
       Get.back();
@@ -338,7 +339,7 @@ class EventsController extends GetxController {
       final result = await _repo.fetchMasterActiveEvents();
       activeEvents.assignAll(result);
     } catch (e) {
-      // silently fail
+      debugPrint('[EventsController] fetchMasterActiveEvents error: $e');
     }
   }
 
@@ -367,7 +368,7 @@ class EventsController extends GetxController {
     try {
       final result = await _repo.claimEventReward(eventId);
       final rewards = result['rewards'] as Map<String, dynamic>? ?? {};
-      String msg = '';
+      var msg = '';
       if ((rewards['coins'] ?? 0) > 0) msg += '+${rewards['coins']} Coins\n';
       if ((rewards['diamonds'] ?? 0) > 0) msg += '+${rewards['diamonds']} Diamonds\n';
       if ((rewards['xp'] ?? 0) > 0) msg += '+${rewards['xp']} XP';
@@ -386,7 +387,7 @@ class EventsController extends GetxController {
       Get.put<EventsController>(this, permanent: true);
       // Controller will expose these via observables in next iteration
     } catch (e) {
-      // silently fail
+      debugPrint('[EventsController] fetchEventsDashboard error: $e');
     }
   }
 
@@ -395,25 +396,25 @@ class EventsController extends GetxController {
       final tasks = await _repo.getWelcomeWeekTasks();
       // Will be exposed via observable in next iteration
     } catch (e) {
-      // silently fail
+      debugPrint('[EventsController] fetchWelcomeWeekTasks error: $e');
     }
   }
 
   Future<void> fetchFestivalGifts({String? festivalType}) async {
     try {
-      final gifts = await _repo.getFestivalGifts(festivalType: festivalType);
+      final gifts = await _repo.getFestivalGifts(festivalType);
       // Will be exposed via observable in next iteration
     } catch (e) {
-      // silently fail
+      debugPrint('[EventsController] fetchFestivalGifts error: $e');
     }
   }
 
   Future<void> fetchAnniversaryRewards({int? year}) async {
     try {
-      final rewards = await _repo.getAnniversaryRewards(year: year);
+      final rewards = await _repo.getAnniversaryRewards(year);
       // Will be exposed via observable in next iteration
     } catch (e) {
-      // silently fail
+      debugPrint('[EventsController] fetchAnniversaryRewards error: $e');
     }
   }
 }

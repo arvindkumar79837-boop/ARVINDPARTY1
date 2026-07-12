@@ -37,6 +37,7 @@ class InventoryController extends GetxController {
       isLoading.value = true;
       errorMessage.value = null;
 
+      // TODO: Replace hardcoded items with API call to _repo.getInventory()
       frames.value = [
         InventoryItem('frame_001', 'Gold Frame', 'frame', 'Premium Gold', 'common',
             DateTime.now().add(const Duration(days: 30)), true),

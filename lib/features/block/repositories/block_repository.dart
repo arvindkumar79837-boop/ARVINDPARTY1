@@ -1,26 +1,27 @@
-import 'package:dio/dio.dart';
-import '../../../core/constants/env_config.dart';
+import 'package:get/get.dart';
+
+import '../../../../core/services/api_service.dart';
 import '../models/block_model.dart';
 
 class BlockRepository {
-  final Dio _dio = Dio(BaseOptions(baseUrl: EnvConfig.plainApiBaseUrl));
+  final _api = Get.find<ApiService>();
 
   Future<List<BlockedUserModel>> getBlockedUsers() async {
     try {
-      final response = await _dio.get('/block');
-      return (response.data['data'] as List).map((e) => BlockedUserModel.fromJson(e)).toList();
+      final response = await _api.get('/block');
+      return (response['data'] as List).map((e) => BlockedUserModel.fromJson(e)).toList();
     } catch (e) { return _mockBlockedUsers(); }
   }
 
   Future<List<MutedUserModel>> getMutedUsers() async {
     try {
-      final response = await _dio.get('/mute');
-      return (response.data['data'] as List).map((e) => MutedUserModel.fromJson(e)).toList();
+      final response = await _api.get('/mute');
+      return (response['data'] as List).map((e) => MutedUserModel.fromJson(e)).toList();
     } catch (e) { return _mockMutedUsers(); }
   }
 
-  Future<void> blockUser(String userId) async => await _dio.post('/block', data: {'targetUserId': userId});
-  Future<void> unblockUser(String userId) async => await _dio.delete('/block/$userId');
+  Future<void> blockUser(String userId) async => await _api.post('/block', body: {'targetUserId': userId});
+  Future<void> unblockUser(String userId) async => await _api.delete('/block/$userId');
   Future<void> muteUser(String userId, MuteDuration duration) async {
     int seconds;
     switch (duration) {
@@ -31,9 +32,9 @@ class BlockRepository {
       case MuteDuration.oneWeek: seconds = 7 * 24 * 60 * 60; break;
       case MuteDuration.forever: seconds = -1; break;
     }
-    await _dio.post('/mute', data: {'targetUserId': userId, 'durationSeconds': seconds});
+    await _api.post('/mute', body: {'targetUserId': userId, 'durationSeconds': seconds});
   }
-  Future<void> unmuteUser(String userId) async => await _dio.delete('/mute/$userId');
+  Future<void> unmuteUser(String userId) async => await _api.delete('/mute/$userId');
 
   List<BlockedUserModel> _mockBlockedUsers() => List.generate(3, (i) => BlockedUserModel(
     userId: 'blocked_$i', username: 'Blocked User $i', avatarUrl: 'https://picsum.photos/seed/b$i/100',

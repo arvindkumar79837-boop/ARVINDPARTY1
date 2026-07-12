@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../../core/constants/app_constants.dart';
-import '../repositories/family_repository.dart';
+
 import '../../../../core/socket/socket_service.dart';
-import '../../models/family_invitation_model.dart';
-import '../../models/family_leaderboard_model.dart';
-import '../../models/family_model.dart';
+import '../repositories/family_repository.dart';
 
 class FamilyController extends GetxController {
   final FamilyRepository _repo = FamilyRepository();
@@ -358,7 +355,7 @@ class FamilyController extends GetxController {
       currentAdminCount.value = data['currentAdminCount'] ?? 0;
       maxAdminSlots.value = data['maxAdminSlots'] ?? 5;
     } catch (e) {
-      print('Error fetching admin list: $e');
+      debugPrint('Error fetching admin list: $e');
     }
   }
 
@@ -546,7 +543,7 @@ class FamilyController extends GetxController {
       isStayActive.value = staySession.value != null;
       stayHistory.assignAll(List<Map<String, dynamic>>.from(data['history'] ?? []));
     } catch (e) {
-      print('Error fetching stay session: $e');
+      debugPrint('Error fetching stay session: $e');
     }
   }
 
@@ -557,7 +554,7 @@ class FamilyController extends GetxController {
       final config = await _repo.getRewardConfig();
       rewardConfig.value = config;
     } catch (e) {
-      print('Error fetching reward config: $e');
+      debugPrint('Error fetching reward config: $e');
     }
   }
 
@@ -668,7 +665,7 @@ class FamilyController extends GetxController {
       final items = await _repo.getShopItems();
       shopItems.assignAll(items);
     } catch (e) {
-      print('Error fetching shop items: $e');
+      debugPrint('Error fetching shop items: $e');
     }
   }
 
@@ -688,7 +685,7 @@ class FamilyController extends GetxController {
       final inventory = await _repo.getShopItems(category: 'inventory');
       familyInventory.assignAll(inventory);
     } catch (e) {
-      print('Error fetching inventory: $e');
+      debugPrint('Error fetching inventory: $e');
     }
   }
 
@@ -699,7 +696,7 @@ class FamilyController extends GetxController {
       final pk = await _repo.getPKBattle('current');
       activePK.value = pk;
     } catch (e) {
-      print('Error fetching active PK: $e');
+      debugPrint('Error fetching active PK: $e');
     }
   }
 
@@ -708,7 +705,7 @@ class FamilyController extends GetxController {
       final history = await _repo.getPKBattle('history');
       pkHistory.assignAll(history['data'] as List<Map<String, dynamic>>? ?? []);
     } catch (e) {
-      print('Error fetching PK history: $e');
+      debugPrint('Error fetching PK history: $e');
     }
   }
 
@@ -719,7 +716,7 @@ class FamilyController extends GetxController {
       final wars = await _repo.getFamilyWars();
       activeWars.assignAll(wars);
     } catch (e) {
-      print('Error fetching active wars: $e');
+      debugPrint('Error fetching active wars: $e');
     }
   }
 
@@ -728,7 +725,7 @@ class FamilyController extends GetxController {
       final history = await _repo.getMyActiveWars();
       warHistory.assignAll(history);
     } catch (e) {
-      print('Error fetching war history: $e');
+      debugPrint('Error fetching war history: $e');
     }
   }
 

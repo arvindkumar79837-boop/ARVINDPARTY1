@@ -99,7 +99,6 @@ class VipShopView extends GetView<VipSystemController> {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: item.isOwned ? Colors.green.shade400 : item.rarityColor.withValues(alpha: 0.3),
-            width: 1,
           ),
         ),
         child: Column(

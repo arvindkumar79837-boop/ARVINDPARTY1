@@ -12,7 +12,7 @@ class AgencySalaryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final AgencyController controller = Get.find<AgencyController>();
+    final controller = Get.find<AgencyController>();
 
     return Scaffold(
       backgroundColor: const Color(0xFF1A1A2E),

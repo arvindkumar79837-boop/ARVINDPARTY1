@@ -39,10 +39,7 @@ class HomeController extends GetxController {
   final TextEditingController searchController =
       TextEditingController();
 
-  final TextEditingController searchCtrl =
-      TextEditingController();
-
-  var searchQuery = ''.obs;
+    var searchQuery = ''.obs;
 
   // ==========================
   // CATEGORY (Existing)
@@ -154,7 +151,7 @@ class HomeController extends GetxController {
         userCoins.value =
             response['data']['coins'] ?? 0;
       }
-    } catch (_) {}
+    } catch (e) { debugPrint('Fetch discover error: $e'); }
   }
 
   // ==========================
@@ -190,7 +187,7 @@ class HomeController extends GetxController {
         'Failed to fetch rooms',
       );
     } finally {
-      isLoading(false);
+      isLoading.value = false;
     }
   }
 
@@ -215,7 +212,7 @@ class HomeController extends GetxController {
           ),
         );
       }
-    } catch (_) {} finally {
+    } catch (e) { debugPrint('Fetch discover error: $e'); } finally {
       isRoomsLoading(false);
     }
   }
@@ -249,13 +246,13 @@ class HomeController extends GetxController {
           ),
         );
       }
-    } catch (_) {
+    } catch (e) {
       Get.snackbar(
         'Search Error',
-        'Failed to search rooms',
+        'Failed to search rooms: $e',
       );
     } finally {
-      isLoading(false);
+      isLoading.value = false;
     }
   }
 
@@ -267,7 +264,6 @@ class HomeController extends GetxController {
   }
 
   void clearSearch() {
-    searchCtrl.clear();
     searchController.clear();
 
     searchQuery.value = '';
@@ -335,7 +331,6 @@ class HomeController extends GetxController {
   @override
   void onClose() {
     searchController.dispose();
-    searchCtrl.dispose();
 
     super.onClose();
   }

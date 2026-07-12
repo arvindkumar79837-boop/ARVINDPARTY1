@@ -3,7 +3,10 @@
 // ARVIND PARTY - GAMES CONTROLLER
 // ═══════════════════════════════════════════════════════════════════════════
 
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
+
+import '../../models/webview_game_model.dart';
 import '../repositories/games_repository.dart';
 
 class GamesController extends GetxController {
@@ -11,7 +14,7 @@ class GamesController extends GetxController {
   final isPlaying = false.obs;
   final lastReward = Rxn<Map<String, dynamic>>();
   final balance = Rxn<Map<String, dynamic>>();
-  final leaderboard = <Map<String, dynamic>>[].obs;
+  final leaderboard = <GameLeaderboardEntry>[].obs;
   final errorMessage = RxString('');
 
   final GamesRepository _repo = GamesRepository();
@@ -27,8 +30,8 @@ class GamesController extends GetxController {
     try {
       final list = await _repo.getLeaderboard();
       leaderboard.assignAll(list);
-    } catch (_) {
-      // Silent fail — leaderboard is supplementary content
+    } catch (e) {
+      debugPrint('Leaderboard error: $e');
     }
   }
 

@@ -3,16 +3,17 @@
 // ARVIND PARTY - FIREBASE AUTH SERVICE (Multi-Platform: Phone/Google/Apple)
 // ═══════════════════════════════════════════════════════════════════════════
 
-import 'dart:io';
 import 'dart:async';
-import 'package:flutter/foundation.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:device_info_plus/device_info_plus.dart';
-import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
+import 'dart:io';
+
 import 'package:arvind_party/core/services/api_service.dart';
 import 'package:arvind_party/core/services/auth_session_manager.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
+import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class FirebaseAuthService extends GetxService {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
@@ -84,7 +85,7 @@ class FirebaseAuthService extends GetxService {
     errorMessage.value = '';
 
     try {
-      Completer<String?> verificationCompleter = Completer<String?>();
+      final verificationCompleter = Completer<String?>();
       await _firebaseAuth.verifyPhoneNumber(
         phoneNumber: phoneNumber,
         verificationCompleted: (PhoneAuthCredential credential) async {
@@ -133,13 +134,13 @@ class FirebaseAuthService extends GetxService {
     errorMessage.value = '';
 
     try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      final googleUser = await _googleSignIn.signIn();
       if (googleUser == null) {
         isLoading.value = false;
         return null;
       }
 
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final googleAuth = await googleUser.authentication;
 
       final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,

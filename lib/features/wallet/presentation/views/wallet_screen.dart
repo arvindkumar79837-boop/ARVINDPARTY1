@@ -45,13 +45,13 @@ class WalletScreen extends GetView<WalletController> {
               ),
               const SizedBox(height: 20),
               Row(children: [
-                Expanded(child: CurrencyCard(type: CurrencyType.coins, amount: controller.balance.coins)),
+                Expanded(child: CurrencyCard(type: CurrencyType.coins, amount: controller.coinBalance.value)),
                 const SizedBox(width: 12),
-                Expanded(child: CurrencyCard(type: CurrencyType.diamonds, amount: controller.balance.diamonds)),
+                Expanded(child: CurrencyCard(type: CurrencyType.diamonds, amount: controller.diamondBalance.value)),
               ]),
               const SizedBox(height: 12),
               Row(children: [
-                Expanded(child: CurrencyCard(type: CurrencyType.beans, amount: controller.balance.beans)),
+                Expanded(child: CurrencyCard(type: CurrencyType.beans, amount: controller.rewardBalance.value)),
                 const Spacer(),
               ]),
               const SizedBox(height: 24),

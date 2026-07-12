@@ -5,9 +5,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../../core/services/api_service.dart';
-import '../controllers/power_matrix_controller.dart';
+
 import '../../models/power_matrix_model.dart';
+import '../controllers/power_matrix_controller.dart';
 
 class PowerMatrixView extends GetView<PowerMatrixController> {
   const PowerMatrixView({super.key});
@@ -84,7 +84,7 @@ class PowerMatrixView extends GetView<PowerMatrixController> {
   }
 
   Widget _buildUserPowerCheckSection(BuildContext context) {
-    final TextEditingController targetUserIdController = TextEditingController();
+    final targetUserIdController = TextEditingController();
     return Card(
       elevation: 4,
       child: Padding(

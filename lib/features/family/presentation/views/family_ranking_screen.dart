@@ -132,7 +132,7 @@ class FamilyRankingScreen extends GetView<FamilyController> {
       rankIcon = null;
     }
 
-    bool isVip = rank <= 3;
+    final bool isVip = rank <= 3;
 
     return Container(
       margin: EdgeInsets.only(

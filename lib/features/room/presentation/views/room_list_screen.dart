@@ -5,9 +5,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
+import '../../models/room_models.dart';
 import '../controllers/room_controller.dart';
 import '../widgets/room_card.dart';
-import '../../models/room_models.dart';
 
 class RoomListScreen extends GetView<RoomController> {
   const RoomListScreen({super.key});

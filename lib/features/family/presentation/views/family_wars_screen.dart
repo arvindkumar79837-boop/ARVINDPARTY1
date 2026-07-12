@@ -12,7 +12,7 @@ class FamilyWarsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final FamilyController controller = Get.find<FamilyController>();
+    final controller = Get.find<FamilyController>();
 
     return Scaffold(
       backgroundColor: const Color(0xFF1A1A2E),
@@ -253,7 +253,7 @@ class FamilyWarsScreen extends StatelessWidget {
   }
 
   Widget _buildCountdownTimer() {
-    var timeRemaining = const Duration(minutes: 5, seconds: 30).obs;
+    final timeRemaining = const Duration(minutes: 5, seconds: 30).obs;
 
     return Container(
       padding: const EdgeInsets.all(20),

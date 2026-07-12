@@ -5,8 +5,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controllers/home_controller.dart';
+
 import '../../models/home_model.dart';
+import '../controllers/home_controller.dart';
 
 class BannerSlider extends StatelessWidget {
   final HomeController controller = Get.find<HomeController>();

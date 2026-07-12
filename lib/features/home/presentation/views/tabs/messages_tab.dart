@@ -7,7 +7,7 @@ class MessagesTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Center(
       child: Text(
-        "Messages",
+        'Messages',
         style: TextStyle(fontSize: 20),
       ),
     );

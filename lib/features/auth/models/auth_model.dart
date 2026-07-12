@@ -4,6 +4,8 @@
 // MATCHES BACKEND RESPONSE: { success, message, data: { token, refreshToken, user: { _id, phone, name, avatar, arvindId, level, ... } } }
 // ═══════════════════════════════════════════════════════════════════════════
 
+import 'package:flutter/foundation.dart';
+
 class User {
   final String id;
   final String username;
@@ -57,6 +59,17 @@ class User {
     this.dob,
   });
 
+  
+  static DateTime _parseDate(dynamic value) {
+    if (value == null) return DateTime.now();
+    try {
+      return DateTime.parse(value.toString());
+    } catch (e) {
+      debugPrint('[AuthModel] Invalid date format: \$value');
+      return DateTime.now();
+    }
+  }
+
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: json['_id'] ?? json['id'] ?? '',
@@ -66,13 +79,13 @@ class User {
       bio: json['bio'],
       vipTier: json['vipTier'] ?? 'free',
       vipExpiryDate: json['vipExpiryDate'] != null
-          ? DateTime.parse(json['vipExpiryDate'])
+          ? _parseDate(json['vipExpiryDate'])
           : null,
       followers: List<String>.from(json['followers'] ?? []),
       following: List<String>.from(json['following'] ?? []),
       isVerified: json['isVerified'] ?? false,
       isBlocked: json['isBlocked'] ?? false,
-      createdAt: DateTime.parse(json['createdAt'] ?? DateTime.now().toIso8601String()),
+      createdAt: _parseDate(json['createdAt']),
       phone: json['phone'],
       name: json['name'],
       avatar: json['avatar'],
@@ -83,7 +96,7 @@ class User {
       diamonds: json['diamonds'] ?? 0,
       isProfileComplete: json['isProfileComplete'] ?? false,
       gender: json['gender'],
-      dob: json['dob'] != null ? DateTime.parse(json['dob']) : null,
+      dob: json['dob'] != null ? _parseDate(json['dob']) : null,
     );
   }
 
@@ -97,13 +110,13 @@ class User {
       bio: json['bio'],
       vipTier: json['vipTier'] ?? 'free',
       vipExpiryDate: json['vipExpiryDate'] != null
-          ? DateTime.parse(json['vipExpiryDate'])
+          ? _parseDate(json['vipExpiryDate'])
           : null,
       followers: List<String>.from(json['followers'] ?? []),
       following: List<String>.from(json['following'] ?? []),
       isVerified: json['isVerified'] ?? false,
       isBlocked: json['isBlocked'] ?? false,
-      createdAt: DateTime.parse(json['createdAt'] ?? DateTime.now().toIso8601String()),
+      createdAt: _parseDate(json['createdAt']),
       phone: json['phone'],
       name: json['name'],
       avatar: json['avatar'],
@@ -114,7 +127,7 @@ class User {
       diamonds: json['diamonds'] ?? 0,
       isProfileComplete: json['isProfileComplete'] ?? false,
       gender: json['gender'],
-      dob: json['dob'] != null ? DateTime.parse(json['dob']) : null,
+      dob: json['dob'] != null ? _parseDate(json['dob']) : null,
     );
   }
 
@@ -175,7 +188,7 @@ class AuthResponse {
 }
 
 // Extension to safely get last N chars from string
-extension _StringSlice on String {
+extension StringSlice on String {
   String slice(int start, [int? end]) {
     if (start < 0) start = length + start;
     end ??= length;

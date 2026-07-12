@@ -54,7 +54,7 @@ class ApiListResponse<T> {
   });
 
   factory ApiListResponse.fromJson(Map<String, dynamic> json, {required T Function(dynamic) fromJsonT}) {
-    final List<dynamic> rawData = json['data'] as List<dynamic>? ?? [];
+    final rawData = json['data'] as List<dynamic>? ?? [];
     return ApiListResponse(
       success: json['success'] as bool? ?? false,
       message: json['message'] as String? ?? '',

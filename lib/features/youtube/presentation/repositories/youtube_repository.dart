@@ -4,9 +4,10 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import 'package:get/get.dart';
-import '../../models/youtube_video_model.dart';
+
 import '../../../../core/services/api_service.dart';
-import '../../../../core/services/socket_service.dart';
+import '../../../../core/socket/socket_service.dart';
+import '../../models/youtube_video_model.dart';
 
 class YouTubeRepository {
   final ApiService _api = Get.find<ApiService>();

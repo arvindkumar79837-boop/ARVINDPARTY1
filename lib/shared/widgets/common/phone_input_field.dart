@@ -25,7 +25,7 @@ class PhoneInputField extends StatelessWidget {
       child: Row(
         children: [
           const Text(
-            "+91",
+            '+91',
             style: TextStyle(
               color: Colors.white,
               fontSize: 16,
@@ -50,10 +50,10 @@ class PhoneInputField extends StatelessWidget {
                 LengthLimitingTextInputFormatter(10),
               ],
               decoration: InputDecoration(
-                hintText: hintText ?? "Enter Mobile Number",
+                hintText: hintText ?? 'Enter Mobile Number',
                 hintStyle: TextStyle(color: Colors.grey[500], fontSize: 15),
                 border: InputBorder.none,
-                counterText: "",
+                counterText: '',
               ),
             ),
           ),

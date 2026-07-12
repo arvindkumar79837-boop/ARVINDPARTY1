@@ -5,13 +5,14 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import '../controllers/family_controller.dart';
 import 'create_family_screen.dart';
-import 'join_family_screen.dart';
-import 'family_members_screen.dart';
-import 'family_tasks_screen.dart';
 import 'family_chat_screen.dart';
+import 'family_members_screen.dart';
 import 'family_ranking_screen.dart';
+import 'family_tasks_screen.dart';
+import 'join_family_screen.dart';
 
 class FamilyScreen extends GetView<FamilyController> {
   const FamilyScreen({super.key});
@@ -174,7 +175,6 @@ class FamilyScreen extends GetView<FamilyController> {
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
                                 color: isLeader ? Colors.purple : Colors.blue,
-                                width: 1,
                               ),
                             ),
                             child: Text(
@@ -278,7 +278,6 @@ class FamilyScreen extends GetView<FamilyController> {
             crossAxisCount: 3,
             mainAxisSpacing: 12,
             crossAxisSpacing: 12,
-            childAspectRatio: 1.0,
             children: [
               _buildQuickAction(
                 context,
@@ -369,7 +368,7 @@ class FamilyScreen extends GetView<FamilyController> {
                           style: const TextStyle(fontSize: 11),
                         ),
                         backgroundColor: Colors.deepPurple.withValues(alpha: 0.3),
-                        side: const BorderSide(color: Colors.deepPurple, width: 1),
+                        side: const BorderSide(color: Colors.deepPurple),
                       ))
                   .toList(),
             ),

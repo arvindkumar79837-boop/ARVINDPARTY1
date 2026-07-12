@@ -4,10 +4,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import '../../../../room/models/room_models.dart';
 import '../../controllers/home_controller.dart';
-import '../../widgets/room_card_widget.dart';
 import '../../widgets/home_top_bar_widget.dart';
+import '../../widgets/room_card_widget.dart';
 
 class DiscoverTab extends StatelessWidget {
   const DiscoverTab({super.key});
@@ -100,7 +101,7 @@ class _SearchBar extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: TextField(
-                controller: ctrl.searchCtrl,
+                controller: ctrl.searchController,
                 onChanged: ctrl.onSearchChanged,
                 style: const TextStyle(color: Colors.white, fontSize: 14),
                 decoration: const InputDecoration(

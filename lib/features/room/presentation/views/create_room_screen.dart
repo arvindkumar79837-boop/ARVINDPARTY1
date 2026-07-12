@@ -48,7 +48,7 @@ class CreateRoomScreen extends StatelessWidget {
                     // FIXED: Replaced legacy withOpacity with clean withValues API
                     color: Colors.white.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFFFFC107), width: 1),
+                    border: Border.all(color: const Color(0xFFFFC107)),
                     image: controller.selectedImagePath.value.isNotEmpty
                         ? DecorationImage(
                             image: FileImage(File(controller.selectedImagePath.value)),

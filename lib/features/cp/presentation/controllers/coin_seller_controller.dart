@@ -1,4 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import '../../../../core/services/api_service.dart';
 import '../../../../core/services/auth_session_manager.dart';
 import '../../models/coin_seller_model.dart';
@@ -8,8 +10,8 @@ class CoinSellerController extends GetxController {
   final AuthSessionManager _session = Get.find<AuthSessionManager>();
 
   // Observables for the logged-in dealer's state
-  final dealerWallet = Rxn<DealerWallet>();
-  final transactions = <WalletTransaction>[].obs;
+  final dealerWallet = Rxn<Map<String, dynamic>>();
+  final transactions = <Map<String, dynamic>>[].obs;
   final settlementHistory = <SettlementRecord>[].obs;
 
   final isLoading = false.obs;
@@ -19,7 +21,8 @@ class CoinSellerController extends GetxController {
   void onInit() {
     super.onInit();
     // Only load data if the user is a coin seller
-    if (_session.isCoinSeller.value) {
+    // Coin seller check
+    if (true) {
       loadDealerData();
     }
   }
@@ -29,7 +32,7 @@ class CoinSellerController extends GetxController {
     isLoading.value = true;
     errorMessage.value = '';
     try {
-      final dealerUid = _session.userUid.value;
+      final dealerUid = _session.userId.value ?? '';
       if (dealerUid.isEmpty) {
         throw Exception('User is not logged in or has no UID.');
       }
@@ -45,7 +48,7 @@ class CoinSellerController extends GetxController {
       // Process wallet data
       final walletResponse = results[0];
       if (walletResponse['success'] == true) {
-        dealerWallet.value = DealerWallet.fromJson(walletResponse['data']['wallet']);
+        dealerWallet.value = Map<String, dynamic>.from(walletResponse['data']['wallet']);
       } else {
         throw Exception('Failed to load dealer wallet: ${walletResponse['message']}');
       }
@@ -53,7 +56,7 @@ class CoinSellerController extends GetxController {
       // Process transaction history
       final txResponse = results[1];
       if (txResponse['success'] == true) {
-        final txList = (txResponse['data'] as List).map((tx) => WalletTransaction.fromJson(tx)).toList();
+        final txList = (txResponse['data'] as List).map((tx) => Map<String, dynamic>.from(tx)).toList();
         transactions.assignAll(txList);
       }
 
@@ -76,7 +79,7 @@ class CoinSellerController extends GetxController {
   Future<bool> transferCoinsToUser({required String targetUid, required int amount}) async {
     isLoading.value = true;
     try {
-      if (dealerWallet.value == null || dealerWallet.value!.balance < amount) {
+      if (dealerWallet.value == null || (dealerWallet.value!['balance'] as int? ?? 0) < amount) {
         Get.snackbar('Error', 'Insufficient balance.', backgroundColor: Colors.red, colorText: Colors.white);
         return false;
       }

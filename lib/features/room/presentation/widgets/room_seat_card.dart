@@ -7,9 +7,9 @@ class RoomSeatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final RoomSettingsController controller =
+    final controller =
         Get.find<RoomSettingsController>();
-    final List<int> seatChoices = [8, 10, 15, 20, 25];
+    final seatChoices = <int>[8, 10, 15, 20, 25];
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -17,7 +17,7 @@ class RoomSeatCard extends StatelessWidget {
         color: const Color(0xff15141F),
         borderRadius: BorderRadius.circular(14),
         // ✅ Fix 1
-        border: Border.all(color: Colors.white.withValues(alpha: 0.03), width: 1),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.03)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -27,7 +27,7 @@ class RoomSeatCard extends StatelessWidget {
               Icon(Icons.grid_view_rounded,
                   color: Colors.purpleAccent, size: 20),
               SizedBox(width: 8),
-              Text("Mic Seat Multi-Grid Rules",
+              Text('Mic Seat Multi-Grid Rules',
                   style: TextStyle(
                       color: Colors.white,
                       fontSize: 15,
@@ -36,7 +36,7 @@ class RoomSeatCard extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           const Text(
-            "Dynamically scale room layouts. Changing seats will shift real-time streams instantly.",
+            'Dynamically scale room layouts. Changing seats will shift real-time streams instantly.',
             style: TextStyle(color: Colors.white38, fontSize: 11),
           ),
           const SizedBox(height: 14),
@@ -50,11 +50,11 @@ class RoomSeatCard extends StatelessWidget {
               itemBuilder: (context, index) {
                 final count = seatChoices[index];
                 return Obx(() {
-                  bool isSelected = controller.seatCount.value == count;
+                  final isSelected = controller.seatCount.value == count;
                   return Padding(
                     padding: const EdgeInsets.only(right: 8.0),
                     child: ChoiceChip(
-                      label: Text("$count Mics Grid"),
+                      label: Text('$count Mics Grid'),
                       labelStyle: TextStyle(
                         color: isSelected ? Colors.black : Colors.white70,
                         fontWeight:

@@ -335,10 +335,10 @@ class AgencyController extends GetxController {
     try {
       isLoading.value = true;
       final result = await _agencyRepository.getHostAgencyDashboard();
-      if (result['success'] == true) {
-        return result['data'] as Map<String, dynamic>?;
+      if (result == null || result['success'] != true) {
+        return null;
       }
-      return null;
+      return result['data'] as Map<String, dynamic>?;
     } catch (e) {
       Get.snackbar('Error', 'Failed to load host dashboard');
       return null;
@@ -351,10 +351,10 @@ class AgencyController extends GetxController {
     try {
       isLoading.value = true;
       final result = await _agencyRepository.getOwnerAgencyDashboard();
-      if (result['success'] == true) {
-        return result['data'] as Map<String, dynamic>?;
+      if (result == null || result['success'] != true) {
+        return null;
       }
-      return null;
+      return result['data'] as Map<String, dynamic>?;
     } catch (e) {
       Get.snackbar('Error', 'Failed to load owner dashboard');
       return null;
@@ -367,12 +367,7 @@ class AgencyController extends GetxController {
     try {
       isLoading.value = true;
       final result = await _agencyRepository.getAgencyMonthlyHistory(months: months);
-      if (result['success'] == true) {
-        final historyData = result['data'] as Map<String, dynamic>?;
-        final history = historyData?['history'] as List<dynamic>? ?? [];
-        return List<Map<String, dynamic>>.from(history);
-      }
-      return [];
+      return result;
     } catch (e) {
       Get.snackbar('Error', 'Failed to load monthly history');
       return [];

@@ -3,17 +3,17 @@
 // ARVIND PARTY - ROOM DETAIL SCREEN (Voice, Seats, Info TabBar)
 // ═══════════════════════════════════════════════════════════════════════════
 
+import 'package:arvind_party/features/room/models/room_models.dart';
+import 'package:arvind_party/features/room/presentation/controllers/room_controller.dart';
+import 'package:arvind_party/features/room/presentation/widgets/member_list.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:arvind_party/features/room/presentation/controllers/room_controller.dart';
-import 'package:arvind_party/features/room/models/room_models.dart';
-import 'package:arvind_party/features/room/presentation/widgets/member_list.dart';
 class RoomDetailScreen extends GetView<RoomController> {
   const RoomDetailScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    Get.put(RoomController(roomId: '', roomOwnerId: ''));
+    Get.put(RoomController());
 
     return Scaffold(
       appBar: AppBar(
@@ -76,7 +76,7 @@ class RoomDetailScreen extends GetView<RoomController> {
                     Obx(() => GridView.builder(
                       padding: const EdgeInsets.all(12),
                       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 4, childAspectRatio: 1,
+                        crossAxisCount: 4,
                       ),
                       itemCount: controller.seats.length,
                       itemBuilder: (context, index) {

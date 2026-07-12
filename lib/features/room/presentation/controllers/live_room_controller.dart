@@ -5,9 +5,9 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import 'dart:async';
-import 'package:agora_uikit/agora_uikit.dart';
 import 'package:arvind_party/core/constants/env_config.dart';
 import 'package:arvind_party/core/services/api_service.dart';
+import 'package:arvind_party/core/services/livekit_service.dart';
 import 'package:arvind_party/features/room/models/room_models.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -18,8 +18,8 @@ class LiveRoomController extends GetxController {
   final ApiService _apiService = Get.find<ApiService>();
   final GetStorage _storage = GetStorage();
 
-  // ─── Agora Client ──────────────────────────────────────────
-  late final AgoraClient client;
+  // ─── LiveKit Service ───────────────────────────────────────
+  final LiveKitService liveKitService = Get.find<LiveKitService>();
 
   // ─── Room Identity ──────────────────────────────────────────
   final String roomId;
@@ -39,8 +39,8 @@ class LiveRoomController extends GetxController {
 
   // ─── Connection States ──────────────────────────────────────
   final isConnected = false.obs;
-  final isAgoraInitialized = false.obs;
-  final agoraError = Rxn<String>();
+  final isLiveKitInitialized = false.obs;
+  final liveKitError = Rxn<String>();
   final connectionRetryCount = 0.obs;
   static const int maxRetries = 3;
   Timer? _reconnectTimer;
@@ -65,8 +65,8 @@ class LiveRoomController extends GetxController {
   final isVideoEnabled = false.obs;
   final isSpeakerEnabled = true.obs;
 
-  // ─── Remote Users (Agora) ──────────────────────────────────
-  final remoteVideoUids = <int>[].obs;
+  // ─── Remote Users (LiveKit) ────────────────────────────────
+  final remoteUsers = <String>[].obs;
   final mutedRemoteUsers = <int>[].obs;
 
   // ─── Moderation ─────────────────────────────────────────────
@@ -79,23 +79,12 @@ class LiveRoomController extends GetxController {
     _initializeSeats(initialSeatCount);
     _initSocket();
     _fetchAvailableGifts();
-    _initAgora();
+    _initLiveKit();
   }
 
-  Future<void> _initAgora() async {
-    client = AgoraClient(
-      agoraConnectionData: AgoraConnectionData(
-        appId: EnvConfig.agoraAppId,
-        channelName: roomId,
-        username: currentUserName,
-      ),
-      enabledPermission: [
-        Permission.camera,
-        Permission.microphone,
-      ],
-    );
-    await client.initialize();
-    isAgoraInitialized.value = true;
+  Future<void> _initLiveKit() async {
+    await liveKitService.initialize();
+    isLiveKitInitialized.value = true;
   }
 
   /// Initialize dynamic seat layout (8-30 seats) using SeatLayoutService
@@ -272,7 +261,6 @@ class LiveRoomController extends GetxController {
           '${data['userName'] ?? 'Someone'} wants to speak',
           backgroundColor: Colors.orangeAccent.withValues(alpha: 0.9),
           colorText: Colors.white,
-          duration: const Duration(seconds: 3),
         );
       }
     });
@@ -370,8 +358,7 @@ class LiveRoomController extends GetxController {
         if (userId == currentUserId) {
           Get.snackbar('Promoted', 'You have been promoted to ${newRole.name}',
               backgroundColor: Colors.blueAccent,
-              colorText: Colors.white,
-              duration: const Duration(seconds: 3));
+              colorText: Colors.white);
         }
       }
     });
@@ -387,8 +374,7 @@ class LiveRoomController extends GetxController {
         if (userId == currentUserId) {
           Get.snackbar('Demoted', 'You have been demoted to ${newRole.name}',
               backgroundColor: Colors.orangeAccent,
-              colorText: Colors.white,
-              duration: const Duration(seconds: 3));
+              colorText: Colors.white);
         }
       }
     });
@@ -432,9 +418,6 @@ class LiveRoomController extends GetxController {
         final seatIndex = data['seatIndex'] as int?;
         if (seatIndex != null && seatIndex < seats.length) {
           seats[seatIndex] = seats[seatIndex].copyWith(
-            userId: null,
-            userName: null,
-            userAvatar: null,
             role: 'empty',
             isMuted: false,
           );
@@ -454,10 +437,11 @@ class LiveRoomController extends GetxController {
         }
 
         // Track remote user mute state
-        if (isMutedRemote && !mutedRemoteUsers.contains(userId.hashCode)) {
-          mutedRemoteUsers.add(userId.hashCode);
+        final hash = userId.hashCode;
+        if (isMutedRemote && !mutedRemoteUsers.contains(hash)) {
+          mutedRemoteUsers.add(hash);
         } else if (!isMutedRemote) {
-          mutedRemoteUsers.removeWhere((uid) => uid == userId.hashCode);
+          mutedRemoteUsers.removeWhere((uid) => uid == hash);
         }
       }
     });
@@ -581,9 +565,6 @@ class LiveRoomController extends GetxController {
     final idx = activeSeat.value;
     if (idx == null || idx < 0 || idx >= seats.length) return;
     seats[idx] = seats[idx].copyWith(
-      userId: null,
-      userName: null,
-      userAvatar: null,
       role: 'empty',
     );
     activeSeat.value = null;
@@ -633,9 +614,6 @@ class LiveRoomController extends GetxController {
       return;
     }
     seats[seatIndex] = seats[seatIndex].copyWith(
-      userId: null,
-      userName: null,
-      userAvatar: null,
       isMuted: false,
       role: 'empty',
     );
@@ -667,22 +645,22 @@ class LiveRoomController extends GetxController {
   // ══════════════════════════════════════════════════════════════════
 
   void toggleMute() {
-    if (isAgoraInitialized.value) {
-      client.sessionController.toggleMute();
+    if (isLiveKitInitialized.value) {
+      liveKitService.toggleMicrophone(!isMuted.value);
       isMuted.value = !isMuted.value;
     }
   }
 
   void toggleVideo() {
-    if (isAgoraInitialized.value) {
-      client.sessionController.toggleCamera();
+    if (isLiveKitInitialized.value) {
+      liveKitService.toggleCamera(!isVideoEnabled.value);
       isVideoEnabled.value = !isVideoEnabled.value;
     }
   }
 
   void toggleSpeaker() {
-    if (isAgoraInitialized.value) {
-      client.sessionController.toggleSpeaker();
+    if (isLiveKitInitialized.value) {
+      liveKitService.toggleSpeaker(!isSpeakerEnabled.value);
       isSpeakerEnabled.value = !isSpeakerEnabled.value;
     }
   }
@@ -738,18 +716,32 @@ class LiveRoomController extends GetxController {
     Get.back();
   }
 
+  // List of registered socket event names for symmetric cleanup
+  static const List<String> _socketEvents = [
+    'room_joined', 'room_error', 'seat_updated', 'seat_locked', 'seat_unlocked',
+    'user_kicked', 'user_muted', 'user_unmuted',
+    'member_joined', 'member_left', 'members_list',
+    'member_promoted', 'member_demoted',
+    'gift_received', 'live_gift_effect', 'gift_goal_updated',
+    'send_gift',
+  ];
+
   @override
   void onClose() {
     _reconnectTimer?.cancel();
     if (socket != null) {
+      // Remove all registered listeners before disconnecting
+      for (final event in _socketEvents) {
+        socket!.off(event);
+      }
       if (isConnected.value) {
         socket!.emit('leave_room', {'roomId': roomId, 'userId': currentUserId});
       }
       socket!.disconnect();
       socket!.dispose();
     }
-    if (isAgoraInitialized.value) {
-      client.release();
+    if (isLiveKitInitialized.value) {
+      liveKitService.leaveRoom();
     }
     super.onClose();
   }

@@ -5,15 +5,16 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controllers/media_player_controller.dart';
+
 import '../../domain/entities/media_item.dart';
+import '../controllers/media_player_controller.dart';
 
 class MediaPlayerScreen extends StatelessWidget {
   const MediaPlayerScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final MediaPlayerController controller = Get.find<MediaPlayerController>();
+    final controller = Get.find<MediaPlayerController>();
 
     return Scaffold(
       backgroundColor: const Color(0xFF1A1A2E),
@@ -129,7 +130,6 @@ class MediaPlayerScreen extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 32),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
                         media.title,

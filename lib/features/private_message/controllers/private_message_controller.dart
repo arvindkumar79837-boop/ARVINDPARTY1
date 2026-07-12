@@ -65,7 +65,6 @@ class PrivateMessageController extends GetxController {
       final message = await messageRepository.sendMessage(
         recipientId: recipientId,
         content: content,
-        messageType: 'text',
       );
       messages.add(message);
     } catch (e) {

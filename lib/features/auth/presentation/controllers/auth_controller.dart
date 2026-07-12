@@ -1,17 +1,17 @@
-// ═══════════════════════════════════════════════════════════════════════════
+﻿// ═══════════════════════════════════════════════════════════════════════════
 // FILE: lib/features/auth/presentation/controllers/auth_controller.dart
 // ARVIND PARTY - AUTH CONTROLLER (Phone OTP Auth with Node.js Backend)
-// Flow: Phone → sendOtp → Backend SMS → OTP → verifyOtp → JWT → Home
 // ═══════════════════════════════════════════════════════════════════════════
 
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
+import '../../../../core/services/auth_session_manager.dart';
 import '../../models/auth_model.dart';
 import '../repositories/auth_repository.dart';
 
 class AuthController extends GetxController {
   final authRepository = AuthRepository();
-  final storage = GetStorage();
+  final AuthSessionManager _session = Get.find<AuthSessionManager>();
 
   var isLoggedIn = false.obs;
   var currentUser = Rxn<User>();
@@ -29,7 +29,7 @@ class AuthController extends GetxController {
   }
 
   void checkLoginStatus() async {
-    final savedToken = storage.read('token');
+    final savedToken = _session.token.value;
     if (savedToken != null && savedToken.isNotEmpty) {
       token.value = savedToken;
       isLoggedIn.value = true;
@@ -37,12 +37,9 @@ class AuthController extends GetxController {
     }
   }
 
-  /// Step 1: Send OTP to phone number
-  /// Sends phone to backend: POST /api/auth/send-otp { phone }
   Future<bool> sendOtp(String phone) async {
     isLoading.value = true;
     errorMessage.value = '';
-
     try {
       final response = await authRepository.sendOtp(phone);
       if (response['success'] == true) {
@@ -62,33 +59,24 @@ class AuthController extends GetxController {
     }
   }
 
-  /// Step 2: Verify OTP - THE single entry point
-  /// Phone + OTP → Backend auto-creates user if new, returns JWT
   Future<bool> verifyOtp(String phone, String otp) async {
     isLoading.value = true;
     errorMessage.value = '';
-
     try {
-      final response = await authRepository.verifyOtp(
-        phone: phone,
-        otp: otp,
-      );
-
+      final response = await authRepository.verifyOtp(phone: phone, otp: otp);
       if (response.success) {
         token.value = response.token;
         currentUser.value = response.user;
         isLoggedIn.value = true;
         isNewUser.value = response.isNewUser;
-
-        // Save to local storage
-        await storage.write('token', response.token);
-        if (response.refreshToken != null) {
-          await storage.write('refreshToken', response.refreshToken);
-        }
-        await storage.write('userId', response.user.id);
-        await storage.write('phone', phone);
-        await storage.write('isLoggedIn', true);
-
+        await _session.saveSession(
+          token: response.token,
+          userId: response.user.id,
+          userName: response.user.username,
+          userEmail: response.user.email,
+          userAvatar: response.user.profileImage ?? '',
+          userPhone: phone,
+        );
         isLoading.value = false;
         return true;
       } else {
@@ -103,10 +91,8 @@ class AuthController extends GetxController {
     }
   }
 
-  /// Resend OTP
   Future<bool> resendOtp(String phone) async {
     isLoading.value = true;
-
     try {
       final response = await authRepository.resendOtp(phone);
       isLoading.value = false;
@@ -118,32 +104,23 @@ class AuthController extends GetxController {
     }
   }
 
-  /// Register / Complete profile after OTP
-  Future<bool> register({
-    required String phone,
-    required String name,
-    String? gender,
-    DateTime? dob,
-  }) async {
+  Future<bool> register({required String phone, required String name, String? gender, DateTime? dob}) async {
     isLoading.value = true;
     errorMessage.value = '';
-
     try {
-      final response = await authRepository.register(
-        phone: phone,
-        name: name,
-        gender: gender,
-        dob: dob,
-      );
-
+      final response = await authRepository.register(phone: phone, name: name, gender: gender, dob: dob);
       if (response.success) {
         token.value = response.token;
         currentUser.value = response.user;
         isLoggedIn.value = true;
-
-        await storage.write('token', response.token);
-        await storage.write('userId', response.user.id);
-
+        await _session.saveSession(
+          token: response.token,
+          userId: response.user.id,
+          userName: response.user.username,
+          userEmail: response.user.email,
+          userAvatar: response.user.profileImage ?? '',
+          userPhone: phone,
+        );
         isLoading.value = false;
         return true;
       } else {
@@ -158,16 +135,10 @@ class AuthController extends GetxController {
     }
   }
 
-  /// Traditional email/password login (for web admin)
-  Future<bool> emailLogin({
-    required String email,
-    required String password,
-  }) async {
+  Future<bool> emailLogin({required String email, required String password}) async {
     isLoading.value = true;
     errorMessage.value = '';
-
     try {
-      // For mobile: Delegate to web admin, redirect to phone login
       Get.snackbar('Info', 'Please use phone login for mobile app');
       isLoading.value = false;
       return false;
@@ -180,22 +151,19 @@ class AuthController extends GetxController {
 
   void logout() async {
     isLoading.value = true;
-
     try {
       await authRepository.logout();
     } catch (e) {
-      // Continue with local logout even if API fails
+      debugPrint('Error during token validation: $e');
+    } finally {
+      isLoggedIn.value = false;
     }
-
-    // Clear all local data
-    isLoggedIn.value = false;
     currentUser.value = null;
     token.value = '';
     phoneNumber.value = '';
     otpSent.value = false;
     isNewUser.value = false;
-    await storage.erase();
-
+    await _session.clearSession();
     isLoading.value = false;
     Get.offAllNamed('/login');
   }
@@ -206,33 +174,27 @@ class AuthController extends GetxController {
       currentUser.value = user;
       isLoggedIn.value = true;
     } catch (e) {
-      // Token might be expired - try refresh
-      final savedRefreshToken = storage.read('refreshToken');
-      if (savedRefreshToken != null) {
+      final savedRefreshToken = _session.refreshToken.value;
+      if (savedRefreshToken != null && savedRefreshToken.isNotEmpty) {
         try {
           final newToken = await authRepository.refreshToken(savedRefreshToken);
           token.value = newToken;
-          await storage.write('token', newToken);
-          // Retry fetch
+          await _session.saveSession(token: newToken);
           final user = await authRepository.getCurrentUser();
           currentUser.value = user;
           return;
-        } catch (_) {}
+        } catch (e) {
+          debugPrint('Auth error: $e');
+        }
       }
-      // If all fails, logout
       isLoggedIn.value = false;
       currentUser.value = null;
       token.value = '';
-      await storage.erase();
+      await _session.clearSession();
       Get.offAllNamed('/login');
     }
   }
 
-  String getAuthToken() {
-    return storage.read('token') ?? token.value;
-  }
-
-  String getUserId() {
-    return storage.read('userId') ?? currentUser.value?.id ?? '';
-  }
+  String getAuthToken() => _session.token.value ?? token.value;
+  String getUserId() => _session.userId.value ?? currentUser.value?.id ?? '';
 }

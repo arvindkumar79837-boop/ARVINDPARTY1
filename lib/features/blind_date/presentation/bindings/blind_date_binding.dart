@@ -5,10 +5,12 @@
 
 import 'package:get/get.dart';
 import '../controllers/blind_date_controller.dart';
+import '../repositories/blind_date_repository.dart';
 
 class BlindDateBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<BlindDateController>(() => BlindDateController());
+    Get.lazyPut<BlindDateRepository>(() => BlindDateRepository());
+    Get.lazyPut<BlindDateController>(() => BlindDateController(Get.find<BlindDateRepository>()));
   }
 }

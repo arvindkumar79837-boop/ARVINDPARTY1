@@ -31,10 +31,10 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
     if (formKey.currentState!.validate()) {
       // Assuming a default country code for simplicity. 
       // In a real app, use a country code picker.
-      final String fullPhoneNumber = '+91${phoneController.text}';
+      final fullPhoneNumber = '+91${phoneController.text}';
 
       // Call the sendOtp method from the controller
-      final bool success = await authController.sendOtp(fullPhoneNumber);
+      final success = await authController.sendOtp(fullPhoneNumber);
 
       if (success) {
         // Navigate to OTP screen only on success
@@ -71,7 +71,6 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
         child: Form(
           key: formKey,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 40),
               const Icon(
@@ -127,7 +126,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                     borderSide: const BorderSide(color: Colors.redAccent),
                   ),
                   filled: true,
-                  fillColor: Colors.white.withAlpha(12),
+                  fillColor: Colors.white.withValues(alpha: 12/255),
                 ),
                 validator: (value) {
                   if (value?.isEmpty ?? true) {

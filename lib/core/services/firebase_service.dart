@@ -70,13 +70,7 @@ class FirebaseService extends GetxService {
   Future<void> _requestNotificationPermissions() async {
     try {
       final settings = await _messaging.requestPermission(
-        alert: true,
-        announcement: false,
-        badge: true,
-        carPlay: false,
-        criticalAlert: false,
-        provisional: false,
-        sound: true,
+        
       );
 
       pushNotificationsEnabled.value =
@@ -249,7 +243,7 @@ class FirebaseService extends GetxService {
     String smsCode,
   ) async {
     try {
-      PhoneAuthCredential credential = PhoneAuthProvider.credential(
+      final credential = PhoneAuthProvider.credential(
         verificationId: verificationId,
         smsCode: smsCode,
       );

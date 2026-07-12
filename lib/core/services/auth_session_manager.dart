@@ -5,15 +5,20 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
-import 'package:get/get.dart';
+
 import 'package:crypto/crypto.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:get/get.dart';
+
 import '../constants/env_config.dart';
 import '../services/api_service.dart';
 
 class AuthSessionManager extends GetxService {
   static AuthSessionManager get to => Get.find<AuthSessionManager>();
+
+  // Secure storage for sensitive data
+  static const _secureStorage = FlutterSecureStorage();
 
   // Session state
   var token = Rxn<String>();
@@ -60,15 +65,15 @@ class AuthSessionManager extends GetxService {
   /// Load session from storage
   Future<void> _loadSession() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
       
-      token.value = prefs.getString(EnvConfig.tokenKey);
-      refreshToken.value = prefs.getString(EnvConfig.refreshTokenKey);
-      userId.value = prefs.getString(EnvConfig.userIdKey);
-      userName.value = prefs.getString(EnvConfig.userNameKey);
-      userEmail.value = prefs.getString(EnvConfig.userEmailKey);
-      userPhone.value = prefs.getString(EnvConfig.userPhoneKey);
-      userAvatar.value = prefs.getString(EnvConfig.userAvatarKey);
+      
+      token.value = await _secureStorage.read(key: EnvConfig.tokenKey);
+      refreshToken.value = await _secureStorage.read(key: EnvConfig.refreshTokenKey);
+      userId.value = await _secureStorage.read(key: EnvConfig.userIdKey);
+      userName.value = await _secureStorage.read(key: EnvConfig.userNameKey);
+      userEmail.value = await _secureStorage.read(key: EnvConfig.userEmailKey);
+      userPhone.value = await _secureStorage.read(key: EnvConfig.userPhoneKey);
+      userAvatar.value = await _secureStorage.read(key: EnvConfig.userAvatarKey);
 
       isLoggedIn.value = token.value != null && token.value!.isNotEmpty;
       
@@ -90,7 +95,7 @@ class AuthSessionManager extends GetxService {
     bool isGuest = false,
   }) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
+      
       
       this.token.value = token;
       refreshToken.value = refreshTokenValue;
@@ -100,16 +105,16 @@ class AuthSessionManager extends GetxService {
       this.userPhone.value = userPhone;
       this.userAvatar.value = userAvatar;
 
-      await prefs.setString(EnvConfig.tokenKey, token);
+      await _secureStorage.write(key: EnvConfig.tokenKey, value: token);
       if (refreshTokenValue != null) {
-        await prefs.setString(EnvConfig.refreshTokenKey, refreshTokenValue);
+        await _secureStorage.write(key: EnvConfig.refreshTokenKey, value: refreshTokenValue);
       }
-      if (userId != null) await prefs.setString(EnvConfig.userIdKey, userId);
-      if (userName != null) await prefs.setString(EnvConfig.userNameKey, userName);
-      if (userEmail != null) await prefs.setString(EnvConfig.userEmailKey, userEmail);
-      if (userPhone != null) await prefs.setString(EnvConfig.userPhoneKey, userPhone);
-      if (userAvatar != null) await prefs.setString(EnvConfig.userAvatarKey, userAvatar);
-      await prefs.setBool('is_guest', isGuest);
+      if (userId != null) await _secureStorage.write(key: EnvConfig.userIdKey, value: userId);
+      if (userName != null) await _secureStorage.write(key: EnvConfig.userNameKey, value: userName);
+      if (userEmail != null) await _secureStorage.write(key: EnvConfig.userEmailKey, value: userEmail);
+      if (userPhone != null) await _secureStorage.write(key: EnvConfig.userPhoneKey, value: userPhone);
+      if (userAvatar != null) await _secureStorage.write(key: EnvConfig.userAvatarKey, value: userAvatar);
+      await _secureStorage.write(key: 'is_guest', value: isGuest.toString());
 
       isLoggedIn.value = true;
       
@@ -125,15 +130,15 @@ class AuthSessionManager extends GetxService {
   /// Clear session (logout)
   Future<void> clearSession() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
       
-      await prefs.remove(EnvConfig.tokenKey);
-      await prefs.remove(EnvConfig.refreshTokenKey);
-      await prefs.remove(EnvConfig.userIdKey);
-      await prefs.remove(EnvConfig.userNameKey);
-      await prefs.remove(EnvConfig.userEmailKey);
-      await prefs.remove(EnvConfig.userPhoneKey);
-      await prefs.remove(EnvConfig.userAvatarKey);
+      
+      await _secureStorage.delete(key: EnvConfig.tokenKey);
+      await _secureStorage.delete(key: EnvConfig.refreshTokenKey);
+      await _secureStorage.delete(key: EnvConfig.userIdKey);
+      await _secureStorage.delete(key: EnvConfig.userNameKey);
+      await _secureStorage.delete(key: EnvConfig.userEmailKey);
+      await _secureStorage.delete(key: EnvConfig.userPhoneKey);
+      await _secureStorage.delete(key: EnvConfig.userAvatarKey);
 
       token.value = null;
       refreshToken.value = null;
@@ -289,8 +294,8 @@ class AuthSessionManager extends GetxService {
   /// Generate device fingerprint
   Future<String> getDeviceFingerprint() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final cached = prefs.getString('device_fingerprint');
+      
+      final cached = await _secureStorage.read(key: 'device_fingerprint');
       
       if (cached != null && cached.isNotEmpty) {
         return cached;
@@ -304,7 +309,7 @@ class AuthSessionManager extends GetxService {
       final hash = sha256.convert(bytes);
       final fingerprint = hash.toString().substring(0, 32);
 
-      await prefs.setString('device_fingerprint', fingerprint);
+      await _secureStorage.write(key: 'device_fingerprint', value: fingerprint);
       
       return fingerprint;
     } catch (e) {
@@ -339,23 +344,23 @@ class AuthSessionManager extends GetxService {
     String? userPhone,
     String? userAvatar,
   }) async {
-    final prefs = await SharedPreferences.getInstance();
+    
     
     if (userName != null) {
       this.userName.value = userName;
-      await prefs.setString(EnvConfig.userNameKey, userName);
+      await _secureStorage.write(key: EnvConfig.userNameKey, value: userName);
     }
     if (userEmail != null) {
       this.userEmail.value = userEmail;
-      await prefs.setString(EnvConfig.userEmailKey, userEmail);
+      await _secureStorage.write(key: EnvConfig.userEmailKey, value: userEmail);
     }
     if (userPhone != null) {
       this.userPhone.value = userPhone;
-      await prefs.setString(EnvConfig.userPhoneKey, userPhone);
+      await _secureStorage.write(key: EnvConfig.userPhoneKey, value: userPhone);
     }
     if (userAvatar != null) {
       this.userAvatar.value = userAvatar;
-      await prefs.setString(EnvConfig.userAvatarKey, userAvatar);
+      await _secureStorage.write(key: EnvConfig.userAvatarKey, value: userAvatar);
     }
   }
 

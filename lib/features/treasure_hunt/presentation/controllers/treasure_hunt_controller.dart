@@ -3,10 +3,11 @@
 // ARVIND PARTY - TREASURE HUNT CONTROLLER WITH REAL-TIME REWARD CONFIG
 // ═══════════════════════════════════════════════════════════════════════════
 
+import 'package:arvind_party/core/socket/socket_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import '../repositories/treasure_hunt_repository.dart';
-import 'package:arvind_party/core/services/socket_service.dart';
 
 class TreasureHuntController extends GetxController {
   final TreasureHuntRepository _repo = TreasureHuntRepository();

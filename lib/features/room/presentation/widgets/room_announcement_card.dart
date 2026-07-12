@@ -7,7 +7,7 @@ class RoomAnnouncementCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final RoomSettingsController controller =
+    final controller =
         Get.find<RoomSettingsController>();
 
     return Container(
@@ -15,7 +15,7 @@ class RoomAnnouncementCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xff15141F),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.03), width: 1),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.03)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -25,7 +25,7 @@ class RoomAnnouncementCard extends StatelessWidget {
               Icon(Icons.campaign_outlined,
                   color: Colors.amberAccent, size: 20),
               SizedBox(width: 8),
-              Text("Pinned Room Announcement Board",
+              Text('Pinned Room Announcement Board',
                   style: TextStyle(
                       color: Colors.white,
                       fontSize: 15,
@@ -39,7 +39,7 @@ class RoomAnnouncementCard extends StatelessWidget {
             style: const TextStyle(color: Colors.white, fontSize: 13),
             onChanged: (v) => controller.roomAnnouncement.value = v,
             decoration: InputDecoration(
-              hintText: "Broadcast dynamic events info tickers...",
+              hintText: 'Broadcast dynamic events info tickers...',
               hintStyle: const TextStyle(color: Colors.white24, fontSize: 13),
               filled: true,
               fillColor: const Color(0xff0F0E17),
@@ -50,7 +50,7 @@ class RoomAnnouncementCard extends StatelessWidget {
               focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                   borderSide:
-                      const BorderSide(color: Colors.amberAccent, width: 1)),
+                      const BorderSide(color: Colors.amberAccent)),
             ),
           ),
         ],

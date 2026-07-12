@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../core/services/api_service.dart';
-import '../../../../core/services/socket_service.dart';
+import '../../../../core/socket/socket_service.dart';
 import '../models/wallet_model.dart';
 
 class WalletController extends GetxController {
@@ -521,4 +521,86 @@ class WalletController extends GetxController {
     if (amount >= 1000) return '${(amount / 1000).toStringAsFixed(1)}K';
     return amount.toStringAsFixed(2);
   }
+
+  // ===================== MISSING GETTERS/METHODS =====================
+
+  Balance get balance => Balance(
+    coins: coinBalance.value,
+    diamonds: diamondBalance.value,
+    beans: rewardBalance.value,
+  );
+
+  Future<void> fetchCoinWallet() async => loadAllData();
+  Future<void> fetchDiamondWallet() async => loadAllData();
+  Future<void> fetchTreasuryData() async => loadAllData();
+
+  var treasuryBalance = 0.obs;
+  var totalTransactions = 0.obs;
+  var totalRevenue = 0.0.obs;
+  var isTreasuryLoading = false.obs;
+  var treasuryTransactions = <Map<String, dynamic>>[].obs;
+  var rewardConversionRate = 100.obs;
+  var minConversionAmount = 100.obs;
+  var rewardTransactions = <Map<String, dynamic>>[].obs;
+
+  Future<void> fetchRewardTransactions() async {
+    try {
+      final response = await _api.get('/api/wallet/rewards/transactions');
+      if (response['success'] == true && response['data'] != null) {
+        rewardTransactions.value = List<Map<String, dynamic>>.from(response['data']);
+      }
+    } catch (e) {
+      debugPrint('Failed to fetch reward transactions: $e');
+    }
+  }
+
+  Future<void> convertRewardsToCoins() async {
+    try {
+      final response = await _api.post('/api/wallet/rewards/convert', body: {});
+      if (response['success'] == true) {
+        Get.snackbar('Success', 'Rewards converted to coins');
+        loadAllData();
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Conversion failed: $e');
+    }
+  }
+
+  Future<void> creditTreasury(double amount, String description) async {
+    try {
+      final response = await _api.post('/api/wallet/treasury/credit', body: {
+        'amount': amount,
+        'description': description,
+      });
+      if (response['success'] == true) {
+        Get.snackbar('Success', 'Credited $amount to treasury');
+        loadAllData();
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to credit treasury: $e');
+    }
+  }
+
+  Future<void> debitTreasury(double amount, String description) async {
+    try {
+      final response = await _api.post('/api/wallet/treasury/debit', body: {
+        'amount': amount,
+        'description': description,
+      });
+      if (response['success'] == true) {
+        Get.snackbar('Success', 'Debited $amount from treasury');
+        loadAllData();
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to debit treasury: $e');
+    }
+  }
+}
+
+class Balance {
+  final int coins;
+  final int diamonds;
+  final int beans;
+
+  Balance({required this.coins, required this.diamonds, required this.beans});
 }

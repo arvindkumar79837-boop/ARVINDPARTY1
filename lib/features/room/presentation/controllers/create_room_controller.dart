@@ -13,7 +13,7 @@ class CreateRoomController extends GetxController {
 
   Future<void> pickImage() async {
     try {
-      final XFile? image = await _picker.pickImage(
+      final image = await _picker.pickImage(
         source: ImageSource.gallery,
         imageQuality: 70, 
       );
@@ -31,7 +31,7 @@ class CreateRoomController extends GetxController {
   }
 
   Future<void> createRoom() async {
-    String name = nameController.text.trim();
+    final name = nameController.text.trim();
     
     if (name.isEmpty) {
       Get.snackbar('Required ⚠️', 'Please enter a catchy room name.');
@@ -41,7 +41,7 @@ class CreateRoomController extends GetxController {
     try {
       isLoading.value = true;
       
-      String finalCoverUrl = '';
+      var finalCoverUrl = '';
       if (selectedImagePath.value.isNotEmpty) {
         final response = await _apiService.uploadFile(
           'uploadroom-cover',

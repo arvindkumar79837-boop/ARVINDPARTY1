@@ -3,7 +3,7 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import 'package:arvind_party/core/services/api_service.dart';
-import 'package:arvind_party/core/services/socket_service.dart';
+import 'package:arvind_party/core/socket/socket_service.dart';
 import 'package:get/get.dart';
 
 class LuckyDrawRepository {

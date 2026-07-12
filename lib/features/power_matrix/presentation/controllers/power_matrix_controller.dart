@@ -6,11 +6,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../core/services/api_service.dart';
-import '../../../data/repositories/power_matrix_repository.dart';
+// repository import removed - using ApiService directly
 import '../../models/power_matrix_model.dart';
 
 class PowerMatrixController extends GetxController {
-  final PowerMatrixRepository _repository = PowerMatrixRepository();
+  final ApiService _api = Get.find<ApiService>();
 
   // ─── Power Matrix State ──────────────────────────────────────
   final Rx<PowerMatrix?> powerMatrix = Rxn<PowerMatrix?>();
@@ -46,13 +46,20 @@ class PowerMatrixController extends GetxController {
     isLoading.value = true;
     errorMessage.value = '';
     try {
-      final result = await _repository.getPowerMatrix();
-      if (result != null) {
-        powerMatrix.value = result;
-        rules.assignAll(result.rules);
-        globalSettings.value = result.globalSettings;
-        isActive.value = result.isActive;
-        version.value = result.version;
+      final response = await _api.get('/api/power-matrix');
+      if (response != null && response['success'] == true) {
+        final data = response['data'] as Map<String, dynamic>? ?? response;
+        if (data is Map<String, dynamic>) {
+          powerMatrix.value = PowerMatrix.fromJson(data);
+          if (data['rules'] != null) {
+            rules.assignAll((data['rules'] as List).map((r) => PowerMatrixRule.fromJson(r)));
+          }
+          if (data['globalSettings'] != null) {
+            globalSettings.value = PowerMatrixGlobalSettings.fromJson(data['globalSettings']);
+          }
+          isActive.value = data['isActive'] ?? true;
+          version.value = data['version'] ?? 1;
+        }
       } else {
         errorMessage.value = 'Failed to load power matrix configuration.';
       }
@@ -74,7 +81,8 @@ class PowerMatrixController extends GetxController {
     isLoading.value = true;
     errorMessage.value = '';
     try {
-      final success = await _repository.updatePowerMatrix(rules.toList(), globalSettings.value);
+      final response = await _api.post('/api/power-matrix/update', body: {'rules': rules.map((r) => r.toJson()).toList(), 'globalSettings': globalSettings.value.toJson()});
+      final success = response['success'] == true;
       if (success) {
         Get.snackbar('Success', 'Power matrix updated successfully.',
             backgroundColor: Colors.greenAccent, colorText: Colors.black);
@@ -100,7 +108,8 @@ class PowerMatrixController extends GetxController {
     isLoading.value = true;
     errorMessage.value = '';
     try {
-      final success = await _repository.resetPowerMatrix();
+      final response = await _api.post('/api/power-matrix/reset');
+      final success = response['success'] == true;
       if (success) {
         Get.snackbar('Success', 'Power matrix reset to defaults.',
             backgroundColor: Colors.greenAccent, colorText: Colors.black);
@@ -132,9 +141,10 @@ class PowerMatrixController extends GetxController {
     isLoading.value = true;
     lastCheckResult.value = null;
     try {
-      final result = await _repository.checkUserPower(targetUserId, action);
-      if (result != null) {
-        lastCheckResult.value = result;
+      final response = await _api.get('/api/power-matrix/check', queryParams: {'userId': targetUserId, 'action': action});
+      if (response != null && response['success'] == true) {
+        final data = response['data'] as Map<String, dynamic>? ?? response;
+        lastCheckResult.value = PowerCheckResult.fromJson(data);
       } else {
         Get.snackbar('Error', 'Failed to check power.',
             backgroundColor: Colors.redAccent, colorText: Colors.white);
@@ -151,9 +161,10 @@ class PowerMatrixController extends GetxController {
   Future<void> fetchHistory() async {
     isLoadingHistory.value = true;
     try {
-      final result = await _repository.getPowerMatrixHistory();
-      if (result != null) {
-        history.assignAll(result);
+      final response = await _api.get('/api/power-matrix/history');
+      if (response != null && response['success'] == true) {
+        final data = response['data'] as List<dynamic>? ?? [];
+        history.assignAll(data.map((h) => PowerMatrixHistory.fromJson(h)).toList());
       }
     } catch (e) {
       debugPrint('[PowerMatrixController] fetchHistory error: $e');

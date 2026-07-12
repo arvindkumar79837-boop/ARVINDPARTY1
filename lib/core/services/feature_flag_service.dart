@@ -100,8 +100,8 @@ class FeatureFlagService extends GetxService {
   }
   
   int _hashUserId(String userId) {
-    int hash = 0;
-    for (int i = 0; i < userId.length; i++) {
+    var hash = 0;
+    for (var i = 0; i < userId.length; i++) {
       hash = ((hash << 5) - hash) + userId.codeUnitAt(i);
       hash = hash & hash;
     }

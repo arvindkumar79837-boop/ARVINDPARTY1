@@ -5,8 +5,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../repositories/level_repository.dart';
 
 class LevelController extends GetxController {
+  final LevelRepository _repo = LevelRepository();
+  
   final currentLevel = 1.obs;
   final currentXp = 0.obs;
   final xpToNextLevel = 1000.obs;
@@ -28,25 +31,30 @@ class LevelController extends GetxController {
     loadLevelData();
   }
 
-  void loadLevelData() {
+  Future<void> loadLevelData() async {
+    isLoading.value = true;
     try {
-      isLoading.value = true;
-      currentLevel.value = 5;
-      currentXp.value = 2450;
-      xpToNextLevel.value = 5000;
-      totalXpEarned.value = 12450;
+      final data = await _repo.getLevelData();
+      
+      if (data['success'] == true) {
+        final levelData = data['data'] as Map<String, dynamic>;
+        currentLevel.value = levelData['currentLevel'] ?? 1;
+        currentXp.value = levelData['currentXp'] ?? 0;
+        xpToNextLevel.value = levelData['xpToNextLevel'] ?? 1000;
+        totalXpEarned.value = levelData['totalXpEarned'] ?? 0;
+      }
 
-      xpBreakdown.value = [
-        XpSource('Voice Room Activity', 850, Icons.mic),
-        XpSource('Gifts Sent', 420, Icons.card_giftcard),
-        XpSource('Daily Login', 300, Icons.login),
-        XpSource('Messages Sent', 280, Icons.chat),
-        XpSource('Friend Invites', 200, Icons.person_add),
-      ];
+      final xpData = await _repo.getXpBreakdown();
+      xpBreakdown.value = xpData.map((e) => XpSource(
+        e['label'] ?? '',
+        e['xp'] ?? 0,
+        Icons.star,
+      )).toList();
 
       xpToday.value = xpBreakdown.fold(0, (sum, s) => sum + s.xp);
-      xpThisWeek.value = xpTodays() * 7;
+      xpThisWeek.value = xpToday.value * 7;
 
+      // TODO: Replace with API data from _repo.getMilestones()
       milestones.value = [
         LevelMilestone(1, 'Newcomer', 'Join the party!', false, true),
         LevelMilestone(5, 'Socialite', 'Send 10 gifts', true, true),
@@ -63,11 +71,6 @@ class LevelController extends GetxController {
     } finally {
       isLoading.value = false;
     }
-  }
-
-  int xpTodays() {
-    // Simulated - in production would query API
-    return xpBreakdown.fold(0, (sum, s) => sum + s.xp);
   }
 
   double get progressPercent => currentXp.value / xpToNextLevel.value;

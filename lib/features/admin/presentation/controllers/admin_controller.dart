@@ -1,8 +1,11 @@
-import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
 import '../../../../core/services/api_service.dart';
+import '../repositories/admin_repository.dart';
 
 class AdminController extends GetxController {
+  final AdminRepository _repo = AdminRepository();
   var isLoading = false.obs;
   var errorMessage = ''.obs;
 
@@ -297,39 +300,34 @@ class AdminController extends GetxController {
 
   Future<void> loadStaff() async {
     isLoading.value = true;
-    await _apiService.get('/staff/list').then((response) {
-      if (response['success'] == true) {
+    try {
+      final response = await _apiService.get('/staff/list');
+      if (response is Map && response['success'] == true) {
         staffMembers.value = List<Map<String, dynamic>>.from(response['data'] ?? []);
+      } else {
+        staffMembers.clear();
+        Get.snackbar('Error', 'Failed to load staff');
       }
-    }).catchError((_) {
-      staffMembers.value = List.generate(8, (i) {
-        final roles = ['moderator', 'support', 'analyst', 'manager'];
-        final perms = i == 0
-            ? ['all']
-            : ['users.view', 'users.block', 'broadcasts.create', 'wallet.adjust'].sublist(0, 2 + i % 3);
-        return {
-          'id': 'STF${100 + i}',
-          'name': 'Staff Member ${i + 1}',
-          'email': 'staff${i + 1}@arvind.party',
-          'role': roles[i % roles.length],
-          'permissions': perms,
-          'createdAt': DateTime.now().subtract(Duration(days: 30 + i * 10)),
-          'lastLogin': DateTime.now().subtract(Duration(hours: i * 2)),
-        };
-      });
-    });
-    _updateStats();
-    isLoading.value = false;
+    } catch (e) {
+      staffMembers.clear();
+      Get.snackbar('Error', 'Failed to load staff: $e');
+    } finally {
+      _updateStats();
+      isLoading.value = false;
+    }
   }
 
   Future<void> loadRoles() async {
-    await _apiService.get('/roles').then((response) {
-      if (response['success'] == true) {
+    try {
+      final response = await _apiService.get('/roles');
+      if (response is Map && response['success'] == true) {
         availableRoles.value = List<Map<String, dynamic>>.from(response['data']['roles'] ?? []);
         allPermissions.value = List<String>.from(response['data']['allPermissions'] ?? []);
         roleHierarchy.value = Map<String, dynamic>.from(response['data']['hierarchy'] ?? {});
       }
-    }).catchError((_) {});
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to load roles: \$e');
+    }
   }
 
   Future<void> addStaff() async {
@@ -344,15 +342,16 @@ class AdminController extends GetxController {
       return;
     }
     isLoading.value = true;
-    await _apiService.post('/staff/create', body: {
-      'loginId': staffEmail.value.split('@')[0],
-      'password': 'TempPass123!',
-      'name': staffName.value,
-      'email': staffEmail.value,
-      'role': staffRole.value,
-      'permissions': List<String>.from(staffPermissions),
-    }).then((response) {
-      if (response['success'] == true) {
+    try {
+      final response = await _apiService.post('/staff/create', body: {
+        'loginId': staffEmail.value.split('@')[0],
+        'password': 'TempPass123!',
+        'name': staffName.value,
+        'email': staffEmail.value,
+        'role': staffRole.value,
+        'permissions': List<String>.from(staffPermissions),
+      });
+      if (response is Map && response['success'] == true) {
         Get.snackbar('Staff Added', '${staffName.value} added successfully.',
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: const Color.fromRGBO(76, 175, 80, 1),
@@ -368,13 +367,14 @@ class AdminController extends GetxController {
             backgroundColor: const Color.fromRGBO(244, 67, 54, 1),
             colorText: Colors.white);
       }
-    }).catchError((_) {
-      Get.snackbar('Error', 'Failed to add staff',
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to add staff: $e',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color.fromRGBO(244, 67, 54, 1),
           colorText: Colors.white);
-    });
-    isLoading.value = false;
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   Future<void> updateStaff(String id) async {
@@ -389,13 +389,14 @@ class AdminController extends GetxController {
       return;
     }
     isLoading.value = true;
-    await _apiService.put('/staff/update/$id', body: {
-      'name': staffName.value,
-      'email': staffEmail.value,
-      'role': staffRole.value,
-      'permissions': List<String>.from(staffPermissions),
-    }).then((response) {
-      if (response['success'] == true) {
+    try {
+      final response = await _apiService.put('/staff/update/$id', body: {
+        'name': staffName.value,
+        'email': staffEmail.value,
+        'role': staffRole.value,
+        'permissions': List<String>.from(staffPermissions),
+      });
+      if (response is Map && response['success'] == true) {
         Get.snackbar('Staff Updated', '${staffName.value} updated.',
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: const Color.fromRGBO(76, 175, 80, 1),
@@ -412,19 +413,21 @@ class AdminController extends GetxController {
             backgroundColor: const Color.fromRGBO(244, 67, 54, 1),
             colorText: Colors.white);
       }
-    }).catchError((_) {
-      Get.snackbar('Error', 'Failed to update staff',
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to update staff: $e',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color.fromRGBO(244, 67, 54, 1),
           colorText: Colors.white);
-    });
-    isLoading.value = false;
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   Future<void> deleteStaff(String id) async {
     isLoading.value = true;
-    await _apiService.delete('/staff/delete/$id').then((response) {
-      if (response['success'] == true) {
+    try {
+      final response = await _apiService.delete('/staff/delete/$id');
+      if (response is Map && response['success'] == true) {
         staffMembers.removeWhere((s) => s['_id'] == id || s['id'] == id);
         _updateStats();
         Get.snackbar('Staff Removed', 'Staff member $id has been removed.',
@@ -437,13 +440,14 @@ class AdminController extends GetxController {
             backgroundColor: const Color.fromRGBO(244, 67, 54, 1),
             colorText: Colors.white);
       }
-    }).catchError((_) {
-      Get.snackbar('Error', 'Failed to delete staff',
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to delete staff: $e',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color.fromRGBO(244, 67, 54, 1),
           colorText: Colors.white);
-    });
-    isLoading.value = false;
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   Future<void> selectStaffForEdit(String id) async {
@@ -471,27 +475,20 @@ class AdminController extends GetxController {
 
   Future<void> loadBroadcasts() async {
     isLoading.value = true;
-    await Future.delayed(const Duration(milliseconds: 400));
-    broadcasts.value = [
-      {
-        'id': 'BRD001',
-        'title': 'Welcome to Arvind Party',
-        'body': 'Enjoy the new games and features.',
-        'type': 'global',
-        'sentAt': DateTime.now().subtract(const Duration(days: 1)),
-        'sentBy': 'Admin',
-      },
-      {
-        'id': 'BRD002',
-        'title': 'Maintenance Notice',
-        'body': 'System will be down for 30 minutes.',
-        'type': 'global',
-        'sentAt': DateTime.now().subtract(const Duration(hours: 12)),
-        'sentBy': 'Admin',
-      },
-    ];
-    _updateStats();
-    isLoading.value = false;
+    try {
+      final response = await _apiService.get('/broadcasts');
+      if (response is Map && response['success'] == true) {
+        broadcasts.value = List<Map<String, dynamic>>.from(response['data'] ?? []);
+      } else {
+        broadcasts.clear();
+      }
+    } catch (e) {
+      broadcasts.clear();
+      Get.snackbar('Error', 'Failed to load broadcasts: \$e');
+    } finally {
+      _updateStats();
+      isLoading.value = false;
+    }
   }
 
   Future<void> sendBroadcast() async {
@@ -505,6 +502,7 @@ class AdminController extends GetxController {
           colorText: Colors.white);
       return;
     }
+    // TODO: Replace mock broadcast with real API call to _repo
     await Future.delayed(const Duration(milliseconds: 800));
     final newBroadcast = {
       'id': 'BRD${String.fromCharCode(65 + broadcasts.length)}${100 + broadcasts.length}',
@@ -533,6 +531,7 @@ class AdminController extends GetxController {
   // ===========================================================================
 
   Future<void> generateCoins(String uid, int amount, String reason) async {
+    // TODO: Replace with real API call
     await Future.delayed(const Duration(milliseconds: 400));
     Get.snackbar('Coins Generated', '+$amount coins to $uid\nReason: $reason',
         snackPosition: SnackPosition.BOTTOM,
@@ -541,6 +540,7 @@ class AdminController extends GetxController {
   }
 
   Future<void> deductCoins(String uid, int amount, String reason) async {
+    // TODO: Replace with real API call
     await Future.delayed(const Duration(milliseconds: 400));
     Get.snackbar('Coins Deducted', '-$amount coins from $uid\nReason: $reason',
         snackPosition: SnackPosition.BOTTOM,
@@ -549,6 +549,7 @@ class AdminController extends GetxController {
   }
 
   Future<void> processWithdrawal(String withdrawalId, String status) async {
+    // TODO: Replace with real API call
     await Future.delayed(const Duration(milliseconds: 300));
     final idx = withdrawals.indexWhere((w) => w['_id'] == withdrawalId);
     if (idx != -1) {
@@ -562,6 +563,7 @@ class AdminController extends GetxController {
   }
 
   Future<void> sendReward(Map<String, dynamic> params) async {
+    // TODO: Replace with real API call
     await Future.delayed(const Duration(milliseconds: 500));
     Get.snackbar('Reward Sent', 'Reward sent to ${params['uid']}',
         snackPosition: SnackPosition.BOTTOM,

@@ -51,7 +51,7 @@ class DealerWalletModel {
 
   factory DealerWalletModel.fromJson(Map<String, dynamic> json) {
     final levelStr = (json['level'] ?? 'silver').toString().toLowerCase();
-    DealerLevel level = DealerLevel.silver;
+    var level = DealerLevel.silver;
     if (levelStr == 'gold') level = DealerLevel.gold;
     if (levelStr == 'diamond') level = DealerLevel.diamond;
 
@@ -141,7 +141,7 @@ class DealerRefundModel {
 
   factory DealerRefundModel.fromJson(Map<String, dynamic> json) {
     final statusStr = (json['status'] ?? 'pending').toLowerCase();
-    RefundStatus status = RefundStatus.pending;
+    var status = RefundStatus.pending;
     if (statusStr == 'approved') status = RefundStatus.approved;
     if (statusStr == 'rejected') status = RefundStatus.rejected;
     if (statusStr == 'refunded') status = RefundStatus.refunded;
@@ -212,7 +212,7 @@ class DealerInfo {
 
   factory DealerInfo.fromJson(Map<String, dynamic> json) {
     final levelStr = (json['level'] ?? 'silver').toString().toLowerCase();
-    DealerLevel level = DealerLevel.silver;
+    var level = DealerLevel.silver;
     if (levelStr == 'gold') level = DealerLevel.gold;
     if (levelStr == 'diamond') level = DealerLevel.diamond;
 

@@ -16,8 +16,7 @@ class AdminWalletManagementView extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
-              controller.fetchCoinWallet();
-              controller.fetchDiamondWallet();
+              controller.loadAllData();
             },
           ),
         ],

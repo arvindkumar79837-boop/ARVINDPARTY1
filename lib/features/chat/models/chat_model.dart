@@ -1,20 +1,53 @@
-// ═══════════════════════════════════════════════════════════════════════════
+﻿// ═══════════════════════════════════════════════════════════════════════════
 // FILE: lib/features/chat/models/chat_model.dart
-// ARVIND PARTY - CHAT MODELS (Chat, Message, Reaction)
+// ARVIND PARTY - CHAT MODELS
 // ═══════════════════════════════════════════════════════════════════════════
 
-enum ChatType { room, private, group }
-enum MessageType { text, sticker, emoji }
+class ChatModel {
+  final String id;
+  final String name;
+  final String? avatar;
+  final String? lastMessage;
+  final DateTime? lastMessageTime;
+  final int? unreadCount;
+  final bool isOnline;
 
-class ReactionModel {
-  final String emoji;
-  final List<String> userIds;
+  ChatModel({
+    required this.id,
+    required this.name,
+    this.avatar,
+    this.lastMessage,
+    this.lastMessageTime,
+    this.unreadCount,
+    this.isOnline = false,
+  });
 
-  ReactionModel({required this.emoji, this.userIds = const []});
-  factory ReactionModel.fromJson(Map<String, dynamic> json) => ReactionModel(
-    emoji: json['emoji'], userIds: List<String>.from(json['userIds'] ?? []),
-  );
+  factory ChatModel.fromJson(Map<String, dynamic> json) {
+    return ChatModel(
+      id: json['id']?.toString() ?? '',
+      name: json['name']?.toString() ?? '',
+      avatar: json['avatar']?.toString(),
+      lastMessage: json['lastMessage']?.toString(),
+      lastMessageTime: json['lastMessageTime'] != null
+          ? DateTime.tryParse(json['lastMessageTime'].toString())
+          : null,
+      unreadCount: json['unreadCount'] is int ? json['unreadCount'] : int.tryParse(json['unreadCount']?.toString() ?? '0'),
+      isOnline: json['isOnline'] == true,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'name': name,
+    'avatar': avatar,
+    'lastMessage': lastMessage,
+    'lastMessageTime': lastMessageTime?.toIso8601String(),
+    'unreadCount': unreadCount,
+    'isOnline': isOnline,
+  };
 }
+
+enum MessageType { text, image, video, audio, sticker, gift, system }
 
 class MessageModel {
   final String id;
@@ -22,53 +55,66 @@ class MessageModel {
   final String senderId;
   final String senderName;
   final String? senderAvatar;
-  final MessageType type;
-  final String? text;
+  final String text;
+  final String? mediaUrl;
   final String? stickerUrl;
-  final String? repliedToMessageId;
-  final MessageModel? repliedToMessage; // populated locally
-  final Map<String, ReactionModel> reactions; // emoji -> ReactionModel
-  final bool isPinned;
-  final bool isDeleted;
   final DateTime createdAt;
-  final List<String> mentionedUserIds;
+  final bool isRead;
+  final String? replyToId;
+  final MessageModel? repliedToMessage;
+  final MessageType type;
+  final bool isDeleted;
+  final bool isPinned;
+  final List<String> reactions;
+  final Map<String, dynamic>? metadata;
 
   MessageModel({
-    required this.id, required this.chatId, required this.senderId, required this.senderName,
-    this.senderAvatar, required this.type, this.text, this.stickerUrl,
-    this.repliedToMessageId, this.repliedToMessage, this.reactions = const {},
-    this.isPinned = false, this.isDeleted = false, required this.createdAt,
-    this.mentionedUserIds = const [],
+    required this.id,
+    required this.chatId,
+    required this.senderId,
+    required this.senderName,
+    this.senderAvatar,
+    required this.text,
+    this.mediaUrl,
+    this.stickerUrl,
+    required this.createdAt,
+    this.isRead = false,
+    this.replyToId,
+    this.repliedToMessage,
+    this.type = MessageType.text,
+    this.isDeleted = false,
+    this.isPinned = false,
+    this.reactions = const [],
+    this.metadata,
   });
 
-  factory MessageModel.fromJson(Map<String, dynamic> json) => MessageModel(
-    id: json['id'], chatId: json['chatId'], senderId: json['senderId'],
-    senderName: json['senderName'], senderAvatar: json['senderAvatar'],
-    type: MessageType.values.firstWhere((e) => e.name == json['type']),
-    text: json['text'], stickerUrl: json['stickerUrl'],
-    repliedToMessageId: json['repliedToMessageId'],
-    reactions: (json['reactions'] as Map<String, dynamic>? ?? {})
-        .map((key, value) => MapEntry(key, ReactionModel.fromJson(value))),
-    isPinned: json['isPinned'] ?? false, isDeleted: json['isDeleted'] ?? false,
-    createdAt: DateTime.parse(json['createdAt']),
-    mentionedUserIds: List<String>.from(json['mentionedUserIds'] ?? []),
-  );
-}
+  factory MessageModel.fromJson(Map<String, dynamic> json) {
+    return MessageModel(
+      id: json['id']?.toString() ?? '',
+      chatId: json['chatId']?.toString() ?? '',
+      senderId: json['senderId']?.toString() ?? '',
+      senderName: json['senderName']?.toString() ?? '',
+      text: json['text']?.toString() ?? '',
+      mediaUrl: json['mediaUrl']?.toString(),
+      stickerUrl: json['stickerUrl'] ?? json['stickerId']?.toString(),
+      createdAt: json['createdAt'] != null
+          ? DateTime.tryParse(json['createdAt'].toString()) ?? DateTime.now()
+          : DateTime.now(),
+      isRead: json['isRead'] == true,
+      replyToId: json['replyToId']?.toString(),
+    );
+  }
 
-class ChatModel {
-  final String id;
-  final ChatType type;
-  final String? name; // Room name or Group name
-  final List<String> participantIds;
-  final MessageModel? lastMessage;
-
-  ChatModel({
-    required this.id, required this.type, this.name, required this.participantIds, this.lastMessage,
-  });
-
-  factory ChatModel.fromJson(Map<String, dynamic> json) => ChatModel(
-    id: json['id'], type: ChatType.values.firstWhere((e) => e.name == json['type']),
-    name: json['name'], participantIds: List<String>.from(json['participantIds'] ?? []),
-    lastMessage: json['lastMessage'] != null ? MessageModel.fromJson(json['lastMessage']) : null,
-  );
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'chatId': chatId,
+    'senderId': senderId,
+    'senderName': senderName,
+    'text': text,
+    'mediaUrl': mediaUrl,
+    'stickerUrl': stickerUrl,
+    'createdAt': createdAt.toIso8601String(),
+    'isRead': isRead,
+    'replyToId': replyToId,
+  };
 }

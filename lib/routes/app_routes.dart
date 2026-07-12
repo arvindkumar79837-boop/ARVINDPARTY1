@@ -147,6 +147,7 @@ abstract class AppRoutes {
 
   // ═══════ WALLET (105-113) ═══════
   static const wallet = '/wallet';
+  static const walletHub = '/wallet-hub';
   static const coinWallet = '/coin-wallet';
   static const diamondWallet = '/diamond-wallet';
   static const recharge = '/recharge';
@@ -157,6 +158,7 @@ abstract class AppRoutes {
   static const treasuryPanel = '/treasury-panel';
   static const transactionAudit = '/transaction-audit';
   static const rewardWallet = '/reward-wallet';
+  static const transactions = '/transactions';
 
   // ═══════ VIP SYSTEM (16-18) ═══════
   static const vipFreme = '/vipfreme';

@@ -12,7 +12,7 @@ class DeviceBindingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final DeviceBindingController controller = Get.put(DeviceBindingController());
+    final controller = Get.put(DeviceBindingController());
 
     return Scaffold(
       backgroundColor: const Color(0xFF1A1A2E),
@@ -76,7 +76,6 @@ class DeviceBindingScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: const Color(0xFF1E88E5).withValues(alpha: 0.3),
-          width: 1,
         ),
       ),
       child: Column(

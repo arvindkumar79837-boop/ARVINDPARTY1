@@ -13,7 +13,6 @@ class GiftAnimationOverlay extends GetView<LiveRoomController> {
         return const SizedBox.shrink();
       }
 
-      // A simple fade-in and scale-up animation for the gift
       return TweenAnimationBuilder<double>(
         tween: Tween(begin: 0.0, end: 1.0),
         duration: const Duration(milliseconds: 500),
@@ -42,7 +41,7 @@ class GiftAnimationOverlay extends GetView<LiveRoomController> {
                 ),
                 const SizedBox(height: 16),
                 Image.network(
-                  gift.giftImageUrl,
+                  gift.giftImageUrl ?? '',
                   width: 100,
                   height: 100,
                   errorBuilder: (_, __, ___) => const Icon(

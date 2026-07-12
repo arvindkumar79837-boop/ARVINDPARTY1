@@ -173,7 +173,6 @@ class PkBattleScreen extends GetView<PkBattleController> {
           // ─── Score Display ─────────────────────────────────────────
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // Host Score
               Column(
@@ -206,7 +205,7 @@ class PkBattleScreen extends GetView<PkBattleController> {
           // ─── Gift Simulation Buttons ────────────────────────────────
           Column(
             children: [
-              const Text("Simulate Gift (Viewers)", style: TextStyle(color: Colors.grey)),
+              const Text('Simulate Gift (Viewers)', style: TextStyle(color: Colors.grey)),
               const SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,

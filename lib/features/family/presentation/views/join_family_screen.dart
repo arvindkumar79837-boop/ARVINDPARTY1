@@ -72,7 +72,6 @@ class JoinFamilyScreen extends GetView<FamilyController> {
               TextField(
                 controller: controller.joinFamilyIdController,
                 style: const TextStyle(color: Colors.white),
-                textTransform: TextTransform.allUpperCase,
                 decoration: InputDecoration(
                   hintText: 'Enter Family ID (e.g. FAM12345)',
                   hintStyle: TextStyle(color: Colors.grey.shade600),
@@ -103,7 +102,7 @@ class JoinFamilyScreen extends GetView<FamilyController> {
                   height: 56,
                   child: ElevatedButton(
                     onPressed: controller.isJoining.value ? null : controller.joinFamily,
-                    style: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.transparent,
                       shadowColor: Colors.transparent,
                       padding: EdgeInsets.zero,

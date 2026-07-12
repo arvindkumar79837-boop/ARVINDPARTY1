@@ -108,9 +108,9 @@ class LoginController extends GetxController {
 
       // Placeholder for now - replace with actual Google Sign-In
       await Future.delayed(const Duration(seconds: 1));
-      final String providerUid = 'google_${DateTime.now().millisecondsSinceEpoch}';
-      const String email = 'user.google@example.com';
-      const String displayName = 'Google User';
+      final providerUid = 'google_${DateTime.now().millisecondsSinceEpoch}';
+      const email = 'user.google@example.com';
+      const displayName = 'Google User';
 
       loadingMessage.value = 'Authenticating with backend...';
       await Future.delayed(const Duration(milliseconds: 800));
@@ -160,9 +160,9 @@ class LoginController extends GetxController {
       // final identityToken = credential.identityToken;
 
       await Future.delayed(const Duration(seconds: 1));
-      final String providerUid = 'apple_${DateTime.now().millisecondsSinceEpoch}';
-      final String email = appleEmail.value.isEmpty ? 'user.apple@privaterelay.appleid.com' : appleEmail.value;
-      final String displayName = appleFullName.value.isEmpty ? 'Apple User' : appleFullName.value;
+      final providerUid = 'apple_${DateTime.now().millisecondsSinceEpoch}';
+      final email = appleEmail.value.isEmpty ? 'user.apple@privaterelay.appleid.com' : appleEmail.value;
+      final displayName = appleFullName.value.isEmpty ? 'Apple User' : appleFullName.value;
 
       loadingMessage.value = 'Authenticating with backend...';
       await Future.delayed(const Duration(milliseconds: 800));
@@ -172,7 +172,6 @@ class LoginController extends GetxController {
         providerUid: providerUid,
         email: email,
         displayName: displayName,
-        photoUrl: null,
       );
 
       Get.snackbar(
@@ -212,9 +211,9 @@ class LoginController extends GetxController {
       // final AccessToken accessToken = result.accessToken;
 
       await Future.delayed(const Duration(seconds: 1));
-      final String providerUid = 'facebook_${DateTime.now().millisecondsSinceEpoch}';
-      const String email = 'user.facebook@example.com';
-      const String displayName = 'Facebook User';
+      final providerUid = 'facebook_${DateTime.now().millisecondsSinceEpoch}';
+      const email = 'user.facebook@example.com';
+      const displayName = 'Facebook User';
 
       loadingMessage.value = 'Authenticating with backend...';
       await Future.delayed(const Duration(milliseconds: 800));
@@ -224,7 +223,6 @@ class LoginController extends GetxController {
         providerUid: providerUid,
         email: email,
         displayName: displayName,
-        photoUrl: null,
       );
 
       Get.snackbar(
@@ -270,7 +268,6 @@ class LoginController extends GetxController {
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.blue.withValues(alpha: 0.8),
         colorText: Colors.white,
-        duration: const Duration(seconds: 3),
       );
 
       Get.offAllNamed('/home');

@@ -1,8 +1,10 @@
 import 'dart:developer';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
+
 import '../services/api_service.dart';
 import 'languages.dart';
 import 'messages.dart';
