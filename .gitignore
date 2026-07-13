@@ -33,6 +33,14 @@ migrate_working_dir/
 /build/
 /coverage/
 
+# Temporary analysis artifacts
+*.txt
+full_analysis.json
+nav.patch
+*.py
+find_duplicates.js
+package-lock.json
+
 # Symbolication related
 app.*.symbols
 
