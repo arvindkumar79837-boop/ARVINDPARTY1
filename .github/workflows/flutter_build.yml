@@ -1,0 +1,46 @@
+name: Flutter APK Build
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java Development Kit
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      # Yeh step saari faltu files aur purani lock file ko build server se uda dega
+      - name: Clean Extra Trash and Lock Files
+        run: |
+          rm -f pubspec.lock
+          rm -f *.txt
+          rm -f *.json
+          rm -f *.py
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Clean Project Cache
+        run: flutter clean
+
+      - name: Build Debug APK
+        run: flutter build apk --debug
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: arvind-party-apk
+          path: build/app/outputs/flutter-apk/app-debug.apk
+          
