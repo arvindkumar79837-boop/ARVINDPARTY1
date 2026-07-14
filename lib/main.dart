@@ -9,16 +9,10 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
-import 'core/localization/localization_service.dart';
 import 'core/services/api_service.dart';
 import 'core/services/auth_session_manager.dart';
 import 'core/socket/socket_service.dart';
-import 'core/utils/network_manager.dart';
-import 'features/auth/presentation/repositories/auth_repository.dart';
-import 'features/chat/presentation/repositories/chat_repository.dart';
-import 'features/gift/presentation/repositories/gift_repository.dart';
-import 'features/home/services/user_repository.dart';
-import 'features/room/presentation/repositories/room_repository.dart';
+import 'firebase_options.dart';
 import 'routes/app_pages.dart';
 import 'routes/app_routes.dart';
 
@@ -37,6 +31,21 @@ void main() async {
     DeviceOrientation.portraitDown,
   ]);
 
+  // ═══════════════════════════════════════════════════════════════════════
+  // ORDERED SERVICE REGISTRATION (dependency chain, not alphabetical!)
+  // ═══════════════════════════════════════════════════════════════════════
+  //
+  // Dependency graph:
+  //   AuthSessionManager.onInit() → Get.find<ApiService>()
+  //   SocketService.onInit()      → Get.find<AuthSessionManager>()
+  //   ApiService.onInit()         → safe (Dio interceptor is deferred)
+  //
+  // Correct order: ApiService → AuthSessionManager → SocketService
+  // ═══════════════════════════════════════════════════════════════════════
+  Get.put<ApiService>(ApiService(), permanent: true);
+  Get.put<AuthSessionManager>(AuthSessionManager(), permanent: true);
+  Get.put<SocketService>(SocketService(), permanent: true);
+
   // Initialize all asynchronous services FIRST before running the app
   // This prevents race conditions where services are accessed before they're ready
   await initAsynchronousServices();
@@ -46,28 +55,27 @@ void main() async {
 
 // This function initializes all heavy backend services
 Future<void> initAsynchronousServices() async {
+  // ── Step 1: Firebase & Storage ─────────────────────────────────────────
+  // Firebase.initializeApp() internally triggers FirebaseInstallations which
+  // throws 'SERVICE_NOT_AVAILABLE' on network failures. Must be try-caught
+  // so the app can still boot and navigate to the login screen.
   try {
-    await Firebase.initializeApp();
-    await GetStorage.init();
-
-    // --- CORE SERVICES (Permanent) ------------------------------------
-    Get.put<ApiService>(ApiService(), permanent: true);
-    Get.put<SocketService>(SocketService(), permanent: true);
-    Get.put<AuthSessionManager>(AuthSessionManager(), permanent: true);
-
-    // --- REPOSITORIES (Permanent) -------------------------------------
-    Get.put<NetworkManager>(NetworkManager(), permanent: true);
-    Get.put<AuthRepository>(AuthRepository(), permanent: true);
-    Get.put<UserRepository>(UserRepository(), permanent: true);
-    Get.put<RoomRepository>(RoomRepository(), permanent: true);
-    Get.put<ChatRepository>(ChatRepository(), permanent: true);
-    Get.put<GiftRepository>(GiftRepository(), permanent: true);
-
-    Get.put<LocalizationService>(LocalizationService(), permanent: true);
-
-    debugPrint('?? [Arvind Party] ???? ?????? ???????? ??????????? ??? ?? ???!');
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    debugPrint('?? [Arvind Party] Firebase initialized');
   } catch (e) {
-    debugPrint('?? ???????? ??? ???? ??? ?????? ??: $e');
+    debugPrint('?? [Arvind Party] Firebase init failed (non-fatal): $e');
+    // Non-fatal — the app continues without Firebase. FCM token registration
+    // will be retried later when network is available.
+  }
+
+  // GetStorage does not depend on Firebase, so initialize regardless.
+  try {
+    await GetStorage.init();
+    debugPrint('?? [Arvind Party] Storage initialized');
+  } catch (e) {
+    debugPrint('?? [Arvind Party] Storage init failed: $e');
   }
 }
 

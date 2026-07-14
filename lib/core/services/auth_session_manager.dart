@@ -14,6 +14,12 @@ import 'package:get/get.dart';
 import '../constants/env_config.dart';
 import '../services/api_service.dart';
 
+/// Reactive authentication status for driving splash → login/home transitions.
+/// Initial state is [unknown]; after session load it transitions to either
+/// [authenticated] or [unauthenticated]. This guarantees a detectable change
+/// on every app start — unlike a raw `bool` that may stay `false → false`.
+enum AuthStatus { unknown, authenticated, unauthenticated }
+
 class AuthSessionManager extends GetxService {
   static AuthSessionManager get to => Get.find<AuthSessionManager>();
 
@@ -30,7 +36,14 @@ class AuthSessionManager extends GetxService {
   var userAvatar = Rxn<String>();
 
   // Observables
-  final isLoggedIn = false.obs;
+
+  /// Reactive auth status — drives splash-to-login/home navigation.
+  /// Initial value is [AuthStatus.unknown]; transitions once _loadSession() completes.
+  final Rx<AuthStatus> authStatus = AuthStatus.unknown.obs;
+
+  /// Backwards-compatible convenience getter.
+  bool get isLoggedIn => authStatus.value == AuthStatus.authenticated;
+
   final isTokenRefreshing = false.obs;
   final refreshAttempts = 0.obs;
 
@@ -75,11 +88,13 @@ class AuthSessionManager extends GetxService {
       userPhone.value = await _secureStorage.read(key: EnvConfig.userPhoneKey);
       userAvatar.value = await _secureStorage.read(key: EnvConfig.userAvatarKey);
 
-      isLoggedIn.value = token.value != null && token.value!.isNotEmpty;
+      final tokenExists = token.value != null && token.value!.isNotEmpty;
+      authStatus.value = tokenExists ? AuthStatus.authenticated : AuthStatus.unauthenticated;
       
-      debugPrint('[AuthSession] Session loaded: ${isLoggedIn.value ? "Logged in" : "Not logged in"}');
+      debugPrint('[AuthSession] Session loaded: ${authStatus.value.name}');
     } catch (e) {
       debugPrint('[AuthSession] Load error: $e');
+      authStatus.value = AuthStatus.unauthenticated;
     }
   }
 
@@ -116,7 +131,7 @@ class AuthSessionManager extends GetxService {
       if (userAvatar != null) await _secureStorage.write(key: EnvConfig.userAvatarKey, value: userAvatar);
       await _secureStorage.write(key: 'is_guest', value: isGuest.toString());
 
-      isLoggedIn.value = true;
+      authStatus.value = AuthStatus.authenticated;
       
       // Schedule token refresh
       _scheduleTokenRefresh();
@@ -148,7 +163,7 @@ class AuthSessionManager extends GetxService {
       userPhone.value = null;
       userAvatar.value = null;
 
-      isLoggedIn.value = false;
+      authStatus.value = AuthStatus.unauthenticated;
       refreshAttempts.value = 0;
 
       _tokenRefreshTimer?.cancel();
@@ -189,7 +204,7 @@ class AuthSessionManager extends GetxService {
 
   /// Check session validity
   Future<void> _checkSession() async {
-    if (!isLoggedIn.value || token.value == null) {
+    if (!isLoggedIn || token.value == null) {
       return;
     }
 
@@ -366,6 +381,6 @@ class AuthSessionManager extends GetxService {
 
   /// Check if session is valid
   bool isValid() {
-    return isLoggedIn.value && token.value != null;
+    return isLoggedIn && token.value != null;
   }
 }

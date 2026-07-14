@@ -9,39 +9,24 @@ class EnvConfig {
   EnvConfig._();
 
   // ─── ENVIRONMENT SELECTION ─────────────────────────────────────────
-  static const bool isProduction = false;
+  static const bool isProduction = true;
   static const bool isStaging = false;
-  static const bool isDevelopment = true;
+  static const bool isDevelopment = false;
 
   // ─── API URLs ──────────────────────────────────────────────────────
   static String get currentEnv => isProduction ? 'production' : isStaging ? 'staging' : 'development';
 
   // Fallback dev URL for physical device on same LAN
   // ⚠️ CONFIGURE YOUR BACKEND URL HERE — REPLACE WITH YOUR ACTUAL DEV SERVER IP
-  static const String devBaseUrl = 'http://222.167.207.78:5000/api';
-  static const String stagingBaseUrl = 'https://staging-api.arvindparty.com';
-  static const String prodBaseUrl = 'https://api.arvindparty.com';
+  static const String devBaseUrl = 'http://222.167.207.78:3000';
+  static const String stagingBaseUrl = 'https://staging-api.arvind-party.com';
+  static const String prodBaseUrl = 'http://222.167.207.78:3000';
 
-  /// Auto-detects appropriate dev URL based on platform:
-  /// - Android emulator → 10.0.2.2 (special alias to host localhost)
-  /// - iOS simulator → localhost
-  /// - Physical device / desktop → hardcoded dev IP fallback
-  static String get effectiveDevBaseUrl {
-    if (kIsWeb) {
-      // Web running on desktop or device browser
-      return devBaseUrl;
-    }
-    if (defaultTargetPlatform == TargetPlatform.android) {
-      // Android emulator cannot reach 127.0.0.1 of the host machine
-      return 'http://10.0.2.2:5000';
-    }
-    if (defaultTargetPlatform == TargetPlatform.iOS) {
-      // iOS simulator can reach host via localhost
-      return 'http://localhost:5000';
-    }
-    // Physical device, desktop, or unknown platform
-    return devBaseUrl;
-  }
+  /// Returns the effective base URL.
+  /// Since we are in production mode, this always resolves to prodBaseUrl.
+  /// The platform-specific localhost fallbacks are removed to ensure no
+  /// accidental local routing occurs.
+  static String get effectiveDevBaseUrl => prodBaseUrl;
 
   static String get baseUrl => isProduction ? prodBaseUrl : isStaging ? stagingBaseUrl : effectiveDevBaseUrl;
 
