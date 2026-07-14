@@ -166,23 +166,16 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildLogo() {
     return Column(
       children: [
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.black.withValues(alpha: 0.3),
-            border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
-          ),
-          child: Image.asset(
-            'assets/login/login_icon.png',
-            width: 48,
-            height: 48,
-            errorBuilder: (_, __, ___) => const Icon(
-              Icons.pets, color: Color(0xFFFFC107), size: 40,
-            ),
+        Image.asset(
+          'assets/login/login_icon.png',
+          width: 200,
+          height: 200,
+          fit: BoxFit.contain,
+          errorBuilder: (_, __, ___) => const Icon(
+            Icons.pets, color: Color(0xFFFFC107), size: 180,
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 16),
         RichText(
           textAlign: TextAlign.center,
           text: const TextSpan(
@@ -242,20 +235,6 @@ class _LoginScreenState extends State<LoginScreen> {
           width: double.infinity,
           height: 50,
           child: _SocialButton(
-            label: 'Login with Email',
-            icon: Icons.email,
-            color: Colors.white,
-            textColor: Colors.black87,
-            onTap: () {
-              showEmailLogin.value = !showEmailLogin.value;
-            },
-          ),
-        ),
-        const SizedBox(height: 12),
-        SizedBox(
-          width: double.infinity,
-          height: 50,
-          child: _SocialButton(
             label: 'Continue with Google',
             icon: FontAwesomeIcons.google,
             color: Colors.white,
@@ -268,7 +247,41 @@ class _LoginScreenState extends State<LoginScreen> {
         SizedBox(
           width: double.infinity,
           height: 50,
-          child: _PhoneButton(onTap: controller.goToPhoneAuth),
+          child: _SocialButton(
+            label: 'Login with Phone',
+            icon: Icons.phone_android,
+            color: Colors.white,
+            textColor: Colors.black87,
+            onTap: controller.goToPhoneAuth,
+          ),
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          height: 50,
+          child: _SocialButton(
+            label: 'Continue with WhatsApp',
+            icon: FontAwesomeIcons.whatsapp,
+            color: const Color(0xFF25D366),
+            textColor: Colors.white,
+            onTap: () {
+              // TODO: Implement WhatsApp login
+            },
+          ),
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          height: 50,
+          child: _SocialButton(
+            label: 'Continue with Facebook',
+            icon: FontAwesomeIcons.facebook,
+            color: const Color(0xFF1877F2),
+            textColor: Colors.white,
+            onTap: () {
+              // TODO: Implement Facebook login
+            },
+          ),
         ),
       ],
     );

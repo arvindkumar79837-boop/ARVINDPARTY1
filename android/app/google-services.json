@@ -1,40 +1,48 @@
 {
   "project_info": {
-    "project_number": "59307295659",
-    "project_id": "arvind-party-e583b",
-    "storage_bucket": "arvind-party-e583b.firebasestorage.app"
+    "project_number": "936691114067",
+    "project_id": "arvind-party-1",
+    "storage_bucket": "arvind-party-1.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:59307295659:android:ce8a06ef7ee358f538c8ee",
+        "mobilesdk_app_id": "1:936691114067:android:e4d6a3f647ce71a85ce6a6",
         "android_client_info": {
-          "package_name": "com.arvind.party"
+          "package_name": "com.example.arvind_party"
         }
       },
       "oauth_client": [
         {
-          "client_id": "59307295659-amtd04mdnqh059jia8rojh5c18svbhv1.apps.googleusercontent.com",
+          "client_id": "936691114067-r7gj7j0q5b0g61vmmgq2ph1uvdfservd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.arvind_party",
+            "certificate_hash": "b75ca09189882b2b03c165e1d342c21080dbf14f"
+          }
+        },
+        {
+          "client_id": "936691114067-mfkajpen0d1uctg9b4j6sd79uhi9cs1p.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDzonGJZkPe6IySIvguDegeIEU1sG2yqEA"
+          "current_key": "AIzaSyD2E3SWB2-PNJvDSnONVmw_t_JiQKwda6c"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "59307295659-amtd04mdnqh059jia8rojh5c18svbhv1.apps.googleusercontent.com",
+              "client_id": "936691114067-mfkajpen0d1uctg9b4j6sd79uhi9cs1p.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "59307295659-67l2civ6ltmpkpcvfhs1daegam83s19v.apps.googleusercontent.com",
+              "client_id": "936691114067-1dnn5sqnbp90b1o7k4n5rcjrcssecl9i.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.arvind.party.arvindparty"
+                "bundle_id": "com.example.arvindPartyWeb"
               }
             }
           ]
@@ -43,34 +51,34 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:59307295659:android:49ee69240c71e4a638c8ee",
+        "mobilesdk_app_id": "1:936691114067:android:c60087baf64c41695ce6a6",
         "android_client_info": {
-          "package_name": "com.arvind.party.arvindparty"
+          "package_name": "com.example.arvind_party_web"
         }
       },
       "oauth_client": [
         {
-          "client_id": "59307295659-amtd04mdnqh059jia8rojh5c18svbhv1.apps.googleusercontent.com",
+          "client_id": "936691114067-mfkajpen0d1uctg9b4j6sd79uhi9cs1p.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDzonGJZkPe6IySIvguDegeIEU1sG2yqEA"
+          "current_key": "AIzaSyD2E3SWB2-PNJvDSnONVmw_t_JiQKwda6c"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "59307295659-amtd04mdnqh059jia8rojh5c18svbhv1.apps.googleusercontent.com",
+              "client_id": "936691114067-mfkajpen0d1uctg9b4j6sd79uhi9cs1p.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "59307295659-67l2civ6ltmpkpcvfhs1daegam83s19v.apps.googleusercontent.com",
+              "client_id": "936691114067-1dnn5sqnbp90b1o7k4n5rcjrcssecl9i.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.arvind.party.arvindparty"
+                "bundle_id": "com.example.arvindPartyWeb"
               }
             }
           ]

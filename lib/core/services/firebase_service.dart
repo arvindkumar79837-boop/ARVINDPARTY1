@@ -38,15 +38,25 @@ class FirebaseService extends GetxService {
       // Request notification permissions
       await _requestNotificationPermissions();
 
-      // Get and store FCM token
-      final token = await _messaging.getToken();
-      fcmToken.value = token;
+      // Get and store FCM token (may throw SERVICE_NOT_AVAILABLE;
+      // caught by outer try-catch — non-fatal for app boot)
+      try {
+        final token = await _messaging.getToken();
+        fcmToken.value = token;
+      } catch (e) {
+        debugPrint('⚠️ FCM getToken failed (non-fatal): $e');
+      }
 
       // Listen for token refresh
-      _messaging.onTokenRefresh.listen((newToken) {
-        fcmToken.value = newToken;
-        _syncFCMTokenToBackend(newToken);
-      });
+      _messaging.onTokenRefresh.listen(
+        (newToken) {
+          fcmToken.value = newToken;
+          _syncFCMTokenToBackend(newToken);
+        },
+        onError: (error) {
+          debugPrint('⚠️ FCM token refresh stream error (non-fatal): $error');
+        },
+      );
 
       // Handle foreground notifications
       FirebaseMessaging.onMessage.listen(_handleForegroundNotification);
