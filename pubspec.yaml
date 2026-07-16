@@ -25,10 +25,7 @@ dependencies:
   google_sign_in: ^6.2.1
 
   # UI
-  flutter_svg: 2.2.1
   cached_network_image: 3.4.1
-  shimmer: ^3.0.0
-  lottie: 3.3.2
   font_awesome_flutter: ^10.8.2
 
   # Phone Auth
@@ -66,13 +63,10 @@ dependencies:
 
   # UI Enhancements
   percent_indicator: ^4.2.5
-  glassmorphism: ^2.0.0
   scratcher: ^2.5.0
 
   # WebView
   webview_flutter: ^4.10.0
-  confetti: ^0.8.0
-  shimmer_animation: ^2.2.1
 
   # --- NEW DEPENDENCIES (Code Quality & Security) ------------------
   flutter_secure_storage: ^9.2.4
@@ -87,17 +81,15 @@ dev_dependencies:
   freezed: ^2.5.7
   json_serializable: ^6.8.0
 
-dependency_overrides:
-  font_awesome_flutter: 10.7.0
-
 flutter:
   uses-material-design: true
 
   assets:
     - assets/login/videos/lion_bg.mp4
-    - assets/images/icon.png
-    - assets/login/login_icon.png
-    - assets/splash/logo.png
+    - assets/images/
+    - assets/login/
+    - assets/splash/
+    - assets/backgrounds/
   fonts:
     - family: Poppins
       fonts:

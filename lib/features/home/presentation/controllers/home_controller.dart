@@ -6,6 +6,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../../core/services/api_service.dart';
+import '../../../../../routes/app_routes.dart';
 import '../../models/home_model.dart';
 import '../repositories/home_repository.dart';
 
@@ -127,11 +128,11 @@ class HomeController extends GetxController {
   }
 
   void navigateToRoom(String roomId) {
-    Get.toNamed('/room-detail', arguments: {'id': roomId});
+    Get.toNamed(AppRoutes.roomDetail, arguments: {'id': roomId});
   }
 
   void navigateToCategory(String categoryId) {
-    Get.toNamed('/rooms', arguments: {'categoryId': categoryId});
+    Get.toNamed(AppRoutes.rooms, arguments: {'categoryId': categoryId});
   }
 
   // ==========================
@@ -151,7 +152,7 @@ class HomeController extends GetxController {
         userCoins.value =
             response['data']['coins'] ?? 0;
       }
-    } catch (e) { debugPrint('Fetch discover error: $e'); }
+    } catch (_) {}
   }
 
   // ==========================
@@ -212,7 +213,7 @@ class HomeController extends GetxController {
           ),
         );
       }
-    } catch (e) { debugPrint('Fetch discover error: $e'); } finally {
+    } catch (_) {} finally {
       isRoomsLoading(false);
     }
   }

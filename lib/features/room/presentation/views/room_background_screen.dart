@@ -206,15 +206,9 @@ class RoomBackgroundScreen extends StatelessWidget {
   }
 
   void _selectBackground(RoomController controller, Map<String, dynamic> bg) {
-    Get.snackbar(
-      'Background Updated',
-      'Room background changed to ${bg['name']}',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.green.withValues(alpha: 0.8),
-      colorText: Colors.white,
-    );
-
-    Get.snackbar('Info', 'Room settings update not implemented');
+    final colorStrings = bg['colors'].map((c) => '0x${c.value.toRadixString(16).padLeft(8, '0')}').toList();
+    final bgName = bg['name'] as String;
+    controller.updateRoomBackground(colorStrings.join(','), bgName);
   }
 
   static final List<Map<String, dynamic>> _backgroundOptions = [

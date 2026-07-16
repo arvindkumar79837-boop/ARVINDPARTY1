@@ -70,7 +70,6 @@ class EventsController extends GetxController {
       final result = await _repo.fetchActiveEvents();
       activeEvents.assignAll(result);
     } catch (e) {
-      debugPrint('[EventsController] fetchActiveEvents error: $e');
     }
   }
 
@@ -79,7 +78,6 @@ class EventsController extends GetxController {
       final result = await _repo.fetchTournaments();
       tournaments.assignAll(result);
     } catch (e) {
-      debugPrint('[EventsController] fetchTournaments error: $e');
     }
   }
 
@@ -88,7 +86,6 @@ class EventsController extends GetxController {
       final result = await _repo.fetchChampionships();
       championships.assignAll(result);
     } catch (e) {
-      debugPrint('[EventsController] fetchChampionships error: $e');
     }
   }
 
@@ -97,7 +94,6 @@ class EventsController extends GetxController {
       final result = await _repo.fetchTreasureHunts();
       treasureHunts.assignAll(result);
     } catch (e) {
-      debugPrint('[EventsController] fetchTreasureHunts error: $e');
     }
   }
 
@@ -107,7 +103,6 @@ class EventsController extends GetxController {
       final result = await _repo.fetchActiveLuckyDraws();
       luckyDraws.assignAll(result);
     } catch (e) {
-      debugPrint('[EventsController] fetchLuckyDraws error: $e');
     }
   }
 
@@ -339,7 +334,6 @@ class EventsController extends GetxController {
       final result = await _repo.fetchMasterActiveEvents();
       activeEvents.assignAll(result);
     } catch (e) {
-      debugPrint('[EventsController] fetchMasterActiveEvents error: $e');
     }
   }
 
@@ -387,7 +381,6 @@ class EventsController extends GetxController {
       Get.put<EventsController>(this, permanent: true);
       // Controller will expose these via observables in next iteration
     } catch (e) {
-      debugPrint('[EventsController] fetchEventsDashboard error: $e');
     }
   }
 
@@ -396,7 +389,6 @@ class EventsController extends GetxController {
       final tasks = await _repo.getWelcomeWeekTasks();
       // Will be exposed via observable in next iteration
     } catch (e) {
-      debugPrint('[EventsController] fetchWelcomeWeekTasks error: $e');
     }
   }
 
@@ -405,7 +397,6 @@ class EventsController extends GetxController {
       final gifts = await _repo.getFestivalGifts(festivalType);
       // Will be exposed via observable in next iteration
     } catch (e) {
-      debugPrint('[EventsController] fetchFestivalGifts error: $e');
     }
   }
 
@@ -414,7 +405,11 @@ class EventsController extends GetxController {
       final rewards = await _repo.getAnniversaryRewards(year);
       // Will be exposed via observable in next iteration
     } catch (e) {
-      debugPrint('[EventsController] fetchAnniversaryRewards error: $e');
     }
+  }
+
+  @override
+  void onClose() {
+    super.onClose();
   }
 }

@@ -5,6 +5,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../../routes/app_routes.dart';
 import '../controllers/auth_controller.dart'; // Import AuthController
 
 class PhoneAuthScreen extends StatefulWidget {
@@ -38,7 +39,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
 
       if (success) {
         // Navigate to OTP screen only on success
-        Get.toNamed('/otp-screen');
+        Get.toNamed(AppRoutes.otp);
         Get.snackbar(
           'Success',
           'OTP sent to $fullPhoneNumber',

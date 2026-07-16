@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../routes/app_routes.dart';
 import '../controllers/private_message_controller.dart';
 
 class PrivateMessageListScreen extends StatelessWidget {
@@ -62,7 +63,7 @@ class PrivateMessageListScreen extends StatelessWidget {
                         )
                       : null,
                   onTap: () => Get.toNamed(
-                    '/private-chat',
+                    AppRoutes.privateChat,
                     arguments: chat,
                   ),
                 );

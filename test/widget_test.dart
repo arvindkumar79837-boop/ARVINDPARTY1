@@ -1,29 +1,56 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:arvind_party/main.dart';
+import 'package:arvind_party/core/theme/app_colors.dart';
+import 'package:arvind_party/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const ArvindPartyApp());
+  group('AppTheme widget rendering', () {
+    testWidgets('darkTheme renders with correct background color', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.darkTheme,
+          home: const Scaffold(),
+        ),
+      );
+      final scaffold = tester.widget<Scaffold>(find.byType(Scaffold));
+      expect(scaffold.backgroundColor, AppColors.background);
+    });
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    testWidgets('AppColors primary color is used in elevated button default', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.darkTheme,
+          home: Scaffold(
+            body: ElevatedButton(
+              onPressed: () {},
+              child: const Text('Test'),
+            ),
+          ),
+        ),
+      );
+      final button = tester.widget<ElevatedButton>(find.byType(ElevatedButton));
+      final style = button.style!;
+      expect(style.backgroundColor, isNotNull);
+    });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    testWidgets('AppTheme dark theme has correct primary color scheme', (tester) async {
+      final theme = AppTheme.darkTheme;
+      expect(theme.colorScheme.primary, AppColors.primary);
+      expect(theme.colorScheme.secondary, AppColors.secondary);
+      expect(theme.colorScheme.error, AppColors.error);
+    });
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    testWidgets('AppBar in dark theme has correct background', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.darkTheme,
+          home: const Scaffold(
+            appBar: AppBar(title: Text('Test')),
+          ),
+        ),
+      );
+      final appBar = tester.widget<AppBar>(find.byType(AppBar));
+      expect(appBar.backgroundColor, AppColors.background);
+    });
   });
 }

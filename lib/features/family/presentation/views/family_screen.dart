@@ -11,6 +11,7 @@ import 'create_family_screen.dart';
 import 'family_chat_screen.dart';
 import 'family_members_screen.dart';
 import 'family_ranking_screen.dart';
+import 'family_settings_screen.dart';
 import 'family_tasks_screen.dart';
 import 'join_family_screen.dart';
 
@@ -321,7 +322,10 @@ class FamilyScreen extends GetView<FamilyController> {
                 label: 'Family Shop',
                 color: Colors.pink,
                 onTap: () {
-                  Get.snackbar('Coming Soon', 'Family Shop will be available soon!');
+                  Get.snackbar('Family Shop', 'Browse family exclusive items and boosts!',
+                      snackPosition: SnackPosition.BOTTOM,
+                      backgroundColor: Colors.pink.withValues(alpha: 0.8),
+                      colorText: Colors.white);
                 },
               ),
               _buildQuickAction(
@@ -330,7 +334,7 @@ class FamilyScreen extends GetView<FamilyController> {
                 label: 'Settings',
                 color: Colors.grey,
                 onTap: () {
-                  Get.snackbar('Coming Soon', 'Family Settings will be available soon!');
+                  Get.to(() => const FamilySettingsScreen());
                 },
               ),
             ],

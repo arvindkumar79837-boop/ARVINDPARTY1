@@ -105,7 +105,6 @@ class AdminController extends GetxController {
 
   String? validateWalletUserId(String value) {
     if (value.isEmpty) return 'User ID is required';
-    if (!value.startsWith('USR')) return 'Invalid user ID format';
     return null;
   }
 
@@ -154,36 +153,22 @@ class AdminController extends GetxController {
 
   Future<void> loadUsers() async {
     isLoading.value = true;
-    await Future.delayed(const Duration(milliseconds: 600));
-    final allUsers = _generateMockUsers();
-    users.value = allUsers;
-    totalUsers.value = allUsers.length;
-    applyUserFilters();
-    _updateStats();
-    isLoading.value = false;
-  }
-
-  List<Map<String, dynamic>> _generateMockUsers() {
-    final names = [
-      'Alice', 'Bob', 'Charlie', 'Diana', 'Ethan', 'Fiona', 'George', 'Hannah',
-      'Ian', 'Julia', 'Kevin', 'Liam', 'Mia', 'Noah', 'Olivia', 'Peter',
-      'Quinn', 'Rachel', 'Sam', 'Tina', 'Umar', 'Violet', 'Will', 'Xena',
-      'Yuri', 'Zara'
-    ];
-    return List.generate(26, (i) {
-      final statuses = ['active', 'active', 'active', 'blocked', 'banned'];
-      final status = i < 20 ? 'active' : statuses[i % statuses.length];
-      return {
-        'id': 'USR${String.fromCharCode(65 + i)}${1000 + i}',
-        'name': '${names[i]} ${String.fromCharCode(65 + i)}',
-        'email': 'user$i@example.com',
-        'status': status,
-        'coins': 500 + i * 120,
-        'diamonds': 10 + i * 5,
-        'joined': DateTime.now().subtract(Duration(days: i * 3)),
-        'lastActive': DateTime.now().subtract(Duration(hours: i)),
-      };
-    });
+    errorMessage.value = '';
+    try {
+      final fetchedUsers = await _repo.getUsers();
+      users.value = fetchedUsers;
+      totalUsers.value = fetchedUsers.length;
+      applyUserFilters();
+      _updateStats();
+    } catch (e) {
+      errorMessage.value = 'Failed to load users: $e';
+      Get.snackbar('Error', errorMessage.value,
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: const Color.fromRGBO(244, 67, 54, 1),
+          colorText: Colors.white);
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   void applyUserFilters() {
@@ -191,9 +176,9 @@ class AdminController extends GetxController {
     if (searchQuery.value.isNotEmpty) {
       final q = searchQuery.value.toLowerCase();
       result = result.where((u) {
-        return (u['name'] as String).toLowerCase().contains(q) ||
-            (u['email'] as String).toLowerCase().contains(q) ||
-            (u['id'] as String).toLowerCase().contains(q);
+        return (u['name'] as String? ?? '').toLowerCase().contains(q) ||
+            (u['email'] as String? ?? '').toLowerCase().contains(q) ||
+            (u['id'] as String? ?? u['_id'] as String? ?? '').toLowerCase().contains(q);
       }).toList();
     }
     if (statusFilter.value != 'all') {
@@ -206,66 +191,139 @@ class AdminController extends GetxController {
 
   void _updateStats() {
     totalUsers.value = users.length;
-    activeUsers.value = users.where((u) => u['status'] == 'active').length;
-    blockedUsers.value = users.where((u) => u['status'] == 'blocked').length;
+    activeUsers.value = users.where((u) => u['status'] == 'active' || u['isBlocked'] != true).length;
+    blockedUsers.value = users.where((u) => u['status'] == 'blocked' || u['isBlocked'] == true).length;
     bannedUsers.value = users.where((u) => u['status'] == 'banned').length;
     totalStaff.value = staffMembers.length;
     totalBroadcasts.value = broadcasts.length;
   }
 
   Future<void> blockUser(String userId) async {
-    final user = users.firstWhereOrNull((u) => u['id'] == userId);
-    if (user == null) return;
-    user['status'] = 'blocked';
-    users.refresh();
-    applyUserFilters();
-    _updateStats();
-    await Future.delayed(const Duration(milliseconds: 300));
-    Get.snackbar('User Blocked', 'User $userId has been blocked.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color.fromRGBO(255, 152, 0, 1),
-        colorText: Colors.white);
+    isLoading.value = true;
+    try {
+      final response = await _repo.toggleBlock(userId);
+      if (response['success'] == true) {
+        final idx = users.indexWhere((u) => u['id'] == userId || u['_id'] == userId);
+        if (idx != -1) {
+          users[idx]['status'] = 'blocked';
+          users[idx]['isBlocked'] = true;
+          users.refresh();
+        }
+        applyUserFilters();
+        _updateStats();
+        Get.snackbar('User Blocked', 'User $userId has been blocked.',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: const Color.fromRGBO(255, 152, 0, 1),
+            colorText: Colors.white);
+      } else {
+        Get.snackbar('Error', response['message'] ?? 'Failed to block user',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: const Color.fromRGBO(244, 67, 54, 1),
+            colorText: Colors.white);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to block user: $e',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: const Color.fromRGBO(244, 67, 54, 1),
+          colorText: Colors.white);
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   Future<void> banUser(String userId) async {
-    final user = users.firstWhereOrNull((u) => u['id'] == userId);
-    if (user == null) return;
-    user['status'] = 'banned';
-    users.refresh();
-    applyUserFilters();
-    _updateStats();
-    await Future.delayed(const Duration(milliseconds: 300));
-    Get.snackbar('User Banned', 'User $userId has been banned.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color.fromRGBO(244, 67, 54, 1),
-        colorText: Colors.white);
+    isLoading.value = true;
+    try {
+      final response = await _apiService.post('/admin/users/ban/$userId');
+      if (response is Map && response['success'] == true) {
+        final idx = users.indexWhere((u) => u['id'] == userId || u['_id'] == userId);
+        if (idx != -1) {
+          users[idx]['status'] = 'banned';
+          users.refresh();
+        }
+        applyUserFilters();
+        _updateStats();
+        Get.snackbar('User Banned', 'User $userId has been banned.',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: const Color.fromRGBO(244, 67, 54, 1),
+            colorText: Colors.white);
+      } else {
+        Get.snackbar('Error', response['message'] ?? 'Failed to ban user',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: const Color.fromRGBO(244, 67, 54, 1),
+            colorText: Colors.white);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to ban user: $e',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: const Color.fromRGBO(244, 67, 54, 1),
+          colorText: Colors.white);
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   Future<void> unblockUser(String userId) async {
-    final user = users.firstWhereOrNull((u) => u['id'] == userId);
-    if (user == null) return;
-    user['status'] = 'active';
-    users.refresh();
-    applyUserFilters();
-    _updateStats();
-    await Future.delayed(const Duration(milliseconds: 300));
-    Get.snackbar('User Restored', 'User $userId has been restored.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color.fromRGBO(76, 175, 80, 1),
-        colorText: Colors.white);
+    isLoading.value = true;
+    try {
+      final response = await _apiService.post('/admin/users/unblock/$userId');
+      if (response is Map && response['success'] == true) {
+        final idx = users.indexWhere((u) => u['id'] == userId || u['_id'] == userId);
+        if (idx != -1) {
+          users[idx]['status'] = 'active';
+          users[idx]['isBlocked'] = false;
+          users.refresh();
+        }
+        applyUserFilters();
+        _updateStats();
+        Get.snackbar('User Restored', 'User $userId has been restored.',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: const Color.fromRGBO(76, 175, 80, 1),
+            colorText: Colors.white);
+      } else {
+        Get.snackbar('Error', response['message'] ?? 'Failed to restore user',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: const Color.fromRGBO(244, 67, 54, 1),
+            colorText: Colors.white);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to restore user: $e',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: const Color.fromRGBO(244, 67, 54, 1),
+          colorText: Colors.white);
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   Future<void> toggleUserBlock(String userId) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    final idx = users.indexWhere((u) => u['id'] == userId || u['_id'] == userId);
-    if (idx == -1) return;
-    final current = users[idx]['isBlocked'] as bool? ?? false;
-    users[idx]['isBlocked'] = !current;
-    users.refresh();
-    Get.snackbar('Success', 'User ${!current ? 'blocked' : 'unblocked'}',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color.fromRGBO(76, 175, 80, 1),
-        colorText: Colors.white);
+    isLoading.value = true;
+    try {
+      final response = await _repo.toggleBlock(userId);
+      if (response['success'] == true) {
+        final idx = users.indexWhere((u) => u['id'] == userId || u['_id'] == userId);
+        if (idx != -1) {
+          final current = users[idx]['isBlocked'] as bool? ?? false;
+          users[idx]['isBlocked'] = !current;
+          users[idx]['status'] = !current ? 'blocked' : 'active';
+          users.refresh();
+        }
+        applyUserFilters();
+        _updateStats();
+        final newBlockedState = response['isBlocked'] ?? response['data']?['isBlocked'];
+        Get.snackbar('Success', 'User ${newBlockedState == true ? 'blocked' : 'unblocked'}',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: const Color.fromRGBO(76, 175, 80, 1),
+            colorText: Colors.white);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to toggle block: $e',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: const Color.fromRGBO(244, 67, 54, 1),
+          colorText: Colors.white);
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   Future<void> adjustWallet() async {
@@ -280,18 +338,46 @@ class AdminController extends GetxController {
           colorText: Colors.white);
       return;
     }
-    await Future.delayed(const Duration(milliseconds: 500));
-    Get.snackbar(
-      'Wallet Updated',
-      '${walletAction.value == 'add' ? 'Added' : 'Deducted'} ${walletAmount.value} ${walletType.value} for ${walletUserId.value}',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: const Color.fromRGBO(76, 175, 80, 1),
-      colorText: Colors.white,
-    );
-    walletUserId.value = '';
-    walletAmount.value = '';
-    walletType.value = 'coins';
-    walletAction.value = 'add';
+
+    isLoading.value = true;
+    try {
+      final amount = int.tryParse(walletAmount.value) ?? 0;
+      final reason = 'Admin ${walletAction.value == 'add' ? 'credit' : 'deduction'}';
+      Map<String, dynamic> response;
+
+      if (walletAction.value == 'add') {
+        response = await _repo.generateCoins(walletUserId.value, amount, reason);
+      } else {
+        response = await _repo.deductCoins(walletUserId.value, amount, reason);
+      }
+
+      if (response['success'] == true) {
+        Get.snackbar(
+          'Wallet Updated',
+          '${walletAction.value == 'add' ? 'Added' : 'Deducted'} ${walletAmount.value} ${walletType.value} for ${walletUserId.value}',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: const Color.fromRGBO(76, 175, 80, 1),
+          colorText: Colors.white,
+        );
+        walletUserId.value = '';
+        walletAmount.value = '';
+        walletType.value = 'coins';
+        walletAction.value = 'add';
+        await loadUsers();
+      } else {
+        Get.snackbar('Error', response['message'] ?? 'Wallet update failed',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: const Color.fromRGBO(244, 67, 54, 1),
+            colorText: Colors.white);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Wallet update failed: $e',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: const Color.fromRGBO(244, 67, 54, 1),
+          colorText: Colors.white);
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   // ===========================================================================
@@ -326,7 +412,7 @@ class AdminController extends GetxController {
         roleHierarchy.value = Map<String, dynamic>.from(response['data']['hierarchy'] ?? {});
       }
     } catch (e) {
-      Get.snackbar('Error', 'Failed to load roles: \$e');
+      Get.snackbar('Error', 'Failed to load roles: $e');
     }
   }
 
@@ -484,7 +570,7 @@ class AdminController extends GetxController {
       }
     } catch (e) {
       broadcasts.clear();
-      Get.snackbar('Error', 'Failed to load broadcasts: \$e');
+      Get.snackbar('Error', 'Failed to load broadcasts: $e');
     } finally {
       _updateStats();
       isLoading.value = false;
@@ -502,28 +588,50 @@ class AdminController extends GetxController {
           colorText: Colors.white);
       return;
     }
-    // TODO: Replace mock broadcast with real API call to _repo
-    await Future.delayed(const Duration(milliseconds: 800));
-    final newBroadcast = {
-      'id': 'BRD${String.fromCharCode(65 + broadcasts.length)}${100 + broadcasts.length}',
-      'title': broadcastTitle.value,
-      'body': broadcastBody.value,
-      'type': broadcastType.value,
-      'sentAt': DateTime.now(),
-      'sentBy': 'Admin',
-      if (broadcastType.value == 'targeted') 'target': broadcastTarget.value,
-    };
-    broadcasts.insert(0, newBroadcast);
-    _updateStats();
-    Get.snackbar('Broadcast Sent', 'Announcement sent successfully.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color.fromRGBO(76, 175, 80, 1),
-        colorText: Colors.white);
-    broadcastTitle.value = '';
-    broadcastBody.value = '';
-    broadcastType.value = 'global';
-    broadcastTarget.value = '';
-    scheduledAt.value = null;
+
+    isLoading.value = true;
+    try {
+      final response = await _apiService.post('/broadcasts/send', body: {
+        'title': broadcastTitle.value,
+        'body': broadcastBody.value,
+        'type': broadcastType.value,
+        if (broadcastType.value == 'targeted') 'target': broadcastTarget.value,
+        if (scheduledAt.value != null) 'scheduledAt': scheduledAt.value!.toIso8601String(),
+      });
+
+      if (response is Map && response['success'] == true) {
+        final newBroadcast = response['data'] as Map<String, dynamic>? ?? {
+          'title': broadcastTitle.value,
+          'body': broadcastBody.value,
+          'type': broadcastType.value,
+          'sentAt': DateTime.now().toIso8601String(),
+          'sentBy': 'Admin',
+        };
+        broadcasts.insert(0, newBroadcast);
+        _updateStats();
+        Get.snackbar('Broadcast Sent', 'Announcement sent successfully.',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: const Color.fromRGBO(76, 175, 80, 1),
+            colorText: Colors.white);
+        broadcastTitle.value = '';
+        broadcastBody.value = '';
+        broadcastType.value = 'global';
+        broadcastTarget.value = '';
+        scheduledAt.value = null;
+      } else {
+        Get.snackbar('Error', response['message'] ?? 'Failed to send broadcast',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: const Color.fromRGBO(244, 67, 54, 1),
+            colorText: Colors.white);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to send broadcast: $e',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: const Color.fromRGBO(244, 67, 54, 1),
+          colorText: Colors.white);
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   // ===========================================================================
@@ -531,43 +639,133 @@ class AdminController extends GetxController {
   // ===========================================================================
 
   Future<void> generateCoins(String uid, int amount, String reason) async {
-    // TODO: Replace with real API call
-    await Future.delayed(const Duration(milliseconds: 400));
-    Get.snackbar('Coins Generated', '+$amount coins to $uid\nReason: $reason',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color.fromRGBO(76, 175, 80, 1),
-        colorText: Colors.white);
+    isLoading.value = true;
+    try {
+      final response = await _repo.generateCoins(uid, amount, reason);
+      if (response['success'] == true) {
+        Get.snackbar('Coins Generated', '+$amount coins to $uid\nReason: $reason',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: const Color.fromRGBO(76, 175, 80, 1),
+            colorText: Colors.white);
+        await loadUsers();
+      } else {
+        Get.snackbar('Error', response['message'] ?? 'Failed to generate coins',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: const Color.fromRGBO(244, 67, 54, 1),
+            colorText: Colors.white);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to generate coins: $e',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: const Color.fromRGBO(244, 67, 54, 1),
+          colorText: Colors.white);
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   Future<void> deductCoins(String uid, int amount, String reason) async {
-    // TODO: Replace with real API call
-    await Future.delayed(const Duration(milliseconds: 400));
-    Get.snackbar('Coins Deducted', '-$amount coins from $uid\nReason: $reason',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color.fromRGBO(244, 67, 54, 1),
-        colorText: Colors.white);
+    isLoading.value = true;
+    try {
+      final response = await _repo.deductCoins(uid, amount, reason);
+      if (response['success'] == true) {
+        Get.snackbar('Coins Deducted', '-$amount coins from $uid\nReason: $reason',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: const Color.fromRGBO(244, 67, 54, 1),
+            colorText: Colors.white);
+        await loadUsers();
+      } else {
+        Get.snackbar('Error', response['message'] ?? 'Failed to deduct coins',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: const Color.fromRGBO(244, 67, 54, 1),
+            colorText: Colors.white);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to deduct coins: $e',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: const Color.fromRGBO(244, 67, 54, 1),
+          colorText: Colors.white);
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> loadWithdrawals() async {
+    isLoading.value = true;
+    try {
+      final fetched = await _repo.getWithdrawals();
+      withdrawals.value = fetched;
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to load withdrawals: $e',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: const Color.fromRGBO(244, 67, 54, 1),
+          colorText: Colors.white);
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   Future<void> processWithdrawal(String withdrawalId, String status) async {
-    // TODO: Replace with real API call
-    await Future.delayed(const Duration(milliseconds: 300));
-    final idx = withdrawals.indexWhere((w) => w['_id'] == withdrawalId);
-    if (idx != -1) {
-      withdrawals[idx]['status'] = status;
-      withdrawals.refresh();
+    isLoading.value = true;
+    try {
+      final response = await _repo.processWithdrawal(withdrawalId, status);
+      if (response['success'] == true) {
+        final idx = withdrawals.indexWhere((w) => w['_id'] == withdrawalId || w['id'] == withdrawalId);
+        if (idx != -1) {
+          withdrawals[idx]['status'] = status;
+          withdrawals.refresh();
+        }
+        Get.snackbar('Withdrawal ${status[0].toUpperCase()}${status.substring(1)}',
+            'Withdrawal $withdrawalId has been $status.',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: status == 'approved'
+                ? const Color.fromRGBO(76, 175, 80, 1)
+                : const Color.fromRGBO(244, 67, 54, 1),
+            colorText: Colors.white);
+      } else {
+        Get.snackbar('Error', response['message'] ?? 'Failed to process withdrawal',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: const Color.fromRGBO(244, 67, 54, 1),
+            colorText: Colors.white);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to process withdrawal: $e',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: const Color.fromRGBO(244, 67, 54, 1),
+          colorText: Colors.white);
+    } finally {
+      isLoading.value = false;
     }
-    Get.snackbar('Withdrawal $status', 'Withdrawal $withdrawalId has been $status.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: status == 'approved' ? const Color.fromRGBO(76, 175, 80, 1) : const Color.fromRGBO(244, 67, 54, 1),
-        colorText: Colors.white);
   }
 
   Future<void> sendReward(Map<String, dynamic> params) async {
-    // TODO: Replace with real API call
-    await Future.delayed(const Duration(milliseconds: 500));
-    Get.snackbar('Reward Sent', 'Reward sent to ${params['uid']}',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color.fromRGBO(255, 152, 0, 1),
-        colorText: Colors.white);
+    isLoading.value = true;
+    try {
+      final response = await _repo.sendReward(params);
+      if (response['success'] == true) {
+        Get.snackbar('Reward Sent', 'Reward sent to ${params['uid']}',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: const Color.fromRGBO(255, 152, 0, 1),
+            colorText: Colors.white);
+        await loadUsers();
+      } else {
+        Get.snackbar('Error', response['message'] ?? 'Failed to send reward',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: const Color.fromRGBO(244, 67, 54, 1),
+            colorText: Colors.white);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to send reward: $e',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: const Color.fromRGBO(244, 67, 54, 1),
+          colorText: Colors.white);
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  @override
+  void onClose() {
+    super.onClose();
   }
 }

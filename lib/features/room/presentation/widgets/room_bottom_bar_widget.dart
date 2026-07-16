@@ -125,12 +125,7 @@ class _RoomBottomBarWidgetState extends State<RoomBottomBarWidget> {
           _BarButton(
             icon: Icons.card_giftcard,
             color: Colors.purpleAccent,
-            onTap: () {
-              Get.snackbar('🎁 Gifts', 'Gift panel coming soon!',
-                  snackPosition: SnackPosition.BOTTOM,
-                  backgroundColor: const Color(0xFF15141F),
-                  colorText: Colors.white);
-            },
+            onTap: () => _showGiftPanel(ctrl),
           ),
 
           const SizedBox(width: 4),
@@ -154,6 +149,91 @@ class _RoomBottomBarWidgetState extends State<RoomBottomBarWidget> {
       ctrl.sendChatMessage(text);
       _msgCtrl.clear();
     }
+  }
+
+  void _showGiftPanel(RoomController ctrl) {
+    final gifts = [
+      {'id': 'rose', 'name': 'Rose', 'icon': '🌹', 'cost': 10},
+      {'id': 'heart', 'name': 'Heart', 'icon': '❤️', 'cost': 50},
+      {'id': 'star', 'name': 'Star', 'icon': '⭐', 'cost': 100},
+      {'id': 'crown', 'name': 'Crown', 'icon': '👑', 'cost': 500},
+      {'id': 'rocket', 'name': 'Rocket', 'icon': '🚀', 'cost': 1000},
+      {'id': 'diamond', 'name': 'Diamond', 'icon': '💎', 'cost': 5000},
+    ];
+
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+        decoration: const BoxDecoration(
+          color: Color(0xFF15141F),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                  color: Colors.white24,
+                  borderRadius: BorderRadius.circular(2)),
+            ),
+            const SizedBox(height: 14),
+            const Text('Send a Gift',
+                style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16)),
+            const SizedBox(height: 4),
+            const Text('Support your favorite room host!',
+                style: TextStyle(color: Colors.white38, fontSize: 12)),
+            const SizedBox(height: 16),
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 12,
+                childAspectRatio: 0.9,
+              ),
+              itemCount: gifts.length,
+              itemBuilder: (context, index) {
+                final gift = gifts[index];
+                return GestureDetector(
+                  onTap: () {
+                    ctrl.sendGiftToRoom(gift);
+                    Get.back();
+                    Get.snackbar('Gift Sent', 'You sent a ${gift['name']}!',
+                        snackPosition: SnackPosition.BOTTOM,
+                        backgroundColor: const Color(0xFFFF8906),
+                        colorText: Colors.white);
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.05),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(gift['icon'] as String, style: const TextStyle(fontSize: 28)),
+                        const SizedBox(height: 4),
+                        Text(gift['name'] as String,
+                            style: const TextStyle(color: Colors.white70, fontSize: 11)),
+                        Text('${gift['cost']} coins',
+                            style: const TextStyle(color: Color(0xFFFF8906), fontSize: 10)),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void _showAdminPanel(RoomController ctrl) {

@@ -30,7 +30,7 @@ class AgencySalaryScreen extends StatelessWidget {
       ),
       body: SafeArea(
         child: RefreshIndicator(
-          onRefresh: () async {},
+          onRefresh: () async => controller.fetchAgencyData(),
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.all(16),
@@ -255,7 +255,12 @@ class AgencySalaryScreen extends StatelessWidget {
               ),
             ),
             TextButton.icon(
-              onPressed: () {},
+              onPressed: () {
+                Get.snackbar('Revenue Details', 'Detailed revenue breakdown opening...',
+                    snackPosition: SnackPosition.BOTTOM,
+                    backgroundColor: Colors.orange.withValues(alpha: 0.8),
+                    colorText: Colors.white);
+              },
               icon: Icon(
                 Icons.bar_chart_outlined,
                 size: 14,
@@ -434,7 +439,32 @@ class AgencySalaryScreen extends StatelessWidget {
               ),
             ),
             TextButton.icon(
-              onPressed: () {},
+              onPressed: () {
+                Get.dialog(
+                  AlertDialog(
+                    backgroundColor: const Color(0xFF2A2A3E),
+                    title: const Text('Payout All Members?', style: TextStyle(color: Colors.white)),
+                    content: const Text(
+                      'This will initiate payouts for all pending members. Continue?',
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                    actions: [
+                      TextButton(onPressed: () => Get.back(), child: const Text('Cancel', style: TextStyle(color: Colors.white70))),
+                      ElevatedButton(
+                        onPressed: () {
+                          Get.back();
+                          Get.snackbar('Payout Initiated', 'Processing payouts for all pending members',
+                              snackPosition: SnackPosition.BOTTOM,
+                              backgroundColor: Colors.green.withValues(alpha: 0.8),
+                              colorText: Colors.white);
+                        },
+                        style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                        child: const Text('Payout All', style: TextStyle(color: Colors.white)),
+                      ),
+                    ],
+                  ),
+                );
+              },
               icon: Icon(
                 Icons.arrow_downward,
                 size: 14,

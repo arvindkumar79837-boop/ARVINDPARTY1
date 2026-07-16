@@ -6,6 +6,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../routes/app_routes.dart';
 import '../../models/room_models.dart';
 import '../controllers/room_controller.dart';
 import '../widgets/room_card.dart';
@@ -24,7 +25,7 @@ class RoomListScreen extends GetView<RoomController> {
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () => Get.toNamed('/create-room'),
+            onPressed: () => Get.toNamed(AppRoutes.createRoom),
           ),
         ],
       ),

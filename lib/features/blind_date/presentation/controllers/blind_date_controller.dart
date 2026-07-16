@@ -1,4 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../../routes/app_routes.dart';
 import '../repositories/blind_date_repository.dart';
 
 class BlindDateController extends GetxController {
@@ -35,13 +37,38 @@ class BlindDateController extends GetxController {
   }
 
   void joinMatchRoom() {
-    // TODO: Implement join match room functionality
-    Get.snackbar('Info', 'Joining match room...');
+    final matchData = match.value;
+    if (matchData == null) {
+      Get.snackbar('Error', 'No match found to join');
+      return;
+    }
+
+    final roomId = matchData['roomId'] ?? matchData['data']?['roomId'];
+    if (roomId == null || roomId.toString().isEmpty) {
+      Get.snackbar('Error', 'Room ID not available');
+      return;
+    }
+
+    Get.snackbar('Joining', 'Entering blind date room...',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: const Color(0xFFFF8906),
+        colorText: Colors.white);
+
+    Get.toNamed(AppRoutes.liveRoom, arguments: {
+      'roomId': roomId.toString(),
+      'isBlindDate': true,
+      'matchData': matchData,
+    });
   }
 
   void reset() {
     match.value = null;
     errorMessage.value = '';
     isSearching.value = false;
+  }
+
+  @override
+  void onClose() {
+    super.onClose();
   }
 }

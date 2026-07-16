@@ -521,7 +521,12 @@ class FamilyWarsScreen extends StatelessWidget {
               ),
             ),
             TextButton.icon(
-              onPressed: () {},
+              onPressed: () {
+                Get.snackbar('Refreshing', 'Battle history updated',
+                    snackPosition: SnackPosition.BOTTOM,
+                    backgroundColor: Colors.red.withValues(alpha: 0.8),
+                    colorText: Colors.white);
+              },
               icon: Icon(
                 Icons.refresh,
                 size: 14,

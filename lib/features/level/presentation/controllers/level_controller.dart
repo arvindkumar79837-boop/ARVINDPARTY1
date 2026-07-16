@@ -42,6 +42,30 @@ class LevelController extends GetxController {
         currentXp.value = levelData['currentXp'] ?? 0;
         xpToNextLevel.value = levelData['xpToNextLevel'] ?? 1000;
         totalXpEarned.value = levelData['totalXpEarned'] ?? 0;
+
+        final milestonesData = levelData['milestones'] as List<dynamic>?;
+        if (milestonesData != null && milestonesData.isNotEmpty) {
+          milestones.value = milestonesData.map((m) {
+            final map = Map<String, dynamic>.from(m);
+            return LevelMilestone(
+              map['level'] ?? 0,
+              map['title'] ?? '',
+              map['description'] ?? '',
+              map['unlocked'] ?? false,
+              map['rewardClaimed'] ?? false,
+              rewardIcon: map['rewardIcon'],
+            );
+          }).toList();
+        } else {
+          milestones.value = [
+            LevelMilestone(1, 'Newcomer', 'Join the party!', false, true),
+            LevelMilestone(5, 'Socialite', 'Send 10 gifts', true, true),
+            LevelMilestone(10, 'Party Star', 'Host 5 voice rooms', false, false),
+            LevelMilestone(15, 'Influencer', 'Reach 100 followers', false, false),
+            LevelMilestone(20, 'VIP Elite', 'Unlock VIP lounge', false, false),
+            LevelMilestone(25, 'Legend', 'Top 1% of users', false, false),
+          ];
+        }
       }
 
       final xpData = await _repo.getXpBreakdown();
@@ -53,16 +77,6 @@ class LevelController extends GetxController {
 
       xpToday.value = xpBreakdown.fold(0, (sum, s) => sum + s.xp);
       xpThisWeek.value = xpToday.value * 7;
-
-      // TODO: Replace with API data from _repo.getMilestones()
-      milestones.value = [
-        LevelMilestone(1, 'Newcomer', 'Join the party!', false, true),
-        LevelMilestone(5, 'Socialite', 'Send 10 gifts', true, true),
-        LevelMilestone(10, 'Party Star', 'Host 5 voice rooms', false, false),
-        LevelMilestone(15, 'Influencer', 'Reach 100 followers', false, false),
-        LevelMilestone(20, 'VIP Elite', 'Unlock VIP lounge', false, false),
-        LevelMilestone(25, 'Legend', 'Top 1% of users', false, false),
-      ];
 
       unlockedMilestones.value =
           milestones.where((m) => m.unlocked).toList();
@@ -82,6 +96,11 @@ class LevelController extends GetxController {
     if (currentLevel.value >= 10) return 'Party Star';
     if (currentLevel.value >= 5) return 'Socialite';
     return 'Newcomer';
+  }
+
+  @override
+  void onClose() {
+    super.onClose();
   }
 }
 

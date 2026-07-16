@@ -165,6 +165,11 @@ class SupportController extends GetxController {
       tickets.where((t) => t.status == 'in_progress').toList();
   List<SupportTicket> get resolvedTickets =>
       tickets.where((t) => t.status == 'resolved').toList();
+
+  @override
+  void onClose() {
+    super.onClose();
+  }
 }
 
 class FaqItem {

@@ -4,7 +4,6 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import '../../../../core/services/auth_session_manager.dart';
 import '../../../../routes/app_routes.dart';
@@ -93,11 +92,8 @@ class SplashController extends GetxController {
     isLoading.value = false;
 
     if (_authSession.authStatus.value == AuthStatus.authenticated) {
-      debugPrint('[SplashController] Logged in → navigating to home');
       Get.offAllNamed(AppRoutes.home);
     } else {
-      print("Navigating to login...");
-      debugPrint('[SplashController] Not logged in → navigating to login');
       Get.offAllNamed(AppRoutes.login);
     }
   }

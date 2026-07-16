@@ -3,9 +3,12 @@
 // ARVIND PARTY - LOGIN CONTROLLER (Social + Guest Auth)
 // ═══════════════════════════════════════════════════════════════════════════
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import '../../../../routes/app_routes.dart';
 import '../repositories/auth_repository.dart';
 
 class LoginController extends GetxController {
@@ -75,20 +78,20 @@ class LoginController extends GetxController {
   }
 
   void goToSignup() {
-    Get.toNamed('/signup');
+    Get.toNamed(AppRoutes.signup);
   }
 
   void goToPhoneAuth() {
-    Get.toNamed('/phone-auth');
+    Get.toNamed(AppRoutes.phoneAuth);
   }
 
   void goToEmailLogin() async {
     if (!_checkTerms()) return;
-    Get.toNamed('/email-login');
+    Get.toNamed(AppRoutes.emailLogin);
   }
 
   void goToPasswordReset() async {
-    Get.toNamed('/password-reset');
+    Get.toNamed(AppRoutes.passwordReset);
   }
 
   // ===== GOOGLE LOGIN =====
@@ -101,37 +104,43 @@ class LoginController extends GetxController {
     errorMessage.value = '';
 
     try {
-      // In production, use google_sign_in package:
-      // final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-      // final GoogleSignInAuthentication googleAuth = await googleUser!.authentication;
-      // final idToken = googleAuth.idToken;
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      if (googleUser == null) {
+        isLoading.value = false;
+        loadingMessage.value = '';
+        return;
+      }
 
-      // Placeholder for now - replace with actual Google Sign-In
-      await Future.delayed(const Duration(seconds: 1));
-      final providerUid = 'google_${DateTime.now().millisecondsSinceEpoch}';
-      const email = 'user.google@example.com';
-      const displayName = 'Google User';
-
-      loadingMessage.value = 'Authenticating with backend...';
-      await Future.delayed(const Duration(milliseconds: 800));
-
-      final response = await authRepository.socialLogin(
-        provider: 'google',
-        providerUid: providerUid,
-        email: email,
-        displayName: displayName,
-        photoUrl: googleProfilePicture.value.isEmpty ? null : googleProfilePicture.value,
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
       );
 
-      Get.snackbar(
-        'Success',
-        'Google login successful!',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green.withValues(alpha: 0.8),
-        colorText: Colors.white,
-      );
+      loadingMessage.value = 'Signing in with Firebase...';
+      final userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+      final token = await userCredential.user?.getIdToken();
 
-      Get.offAllNamed('/home');
+      if (token != null) {
+        loadingMessage.value = 'Authenticating with backend...';
+        final response = await authRepository.socialLogin(
+          provider: 'google',
+          providerUid: token,
+          email: userCredential.user?.email,
+          displayName: userCredential.user?.displayName,
+          photoUrl: userCredential.user?.photoURL,
+        );
+
+        Get.snackbar(
+          'Success',
+          'Google login successful!',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green.withValues(alpha: 0.8),
+          colorText: Colors.white,
+        );
+
+        Get.offAllNamed(AppRoutes.home);
+      }
     } catch (e) {
       errorMessage.value = e.toString();
       Get.snackbar(
@@ -155,34 +164,37 @@ class LoginController extends GetxController {
     errorMessage.value = '';
 
     try {
-      // In production, use sign_in_with_apple package:
-      // final credential = await SignInWithApple.getAppleIDCredential(scopes: [Scope.email, Scope.fullName]);
-      // final identityToken = credential.identityToken;
+      final appleProvider = OAuthProvider('apple.com');
+      final userCredential = await FirebaseAuth.instance.signInWithProvider(appleProvider);
+      final firebaseUser = userCredential.user;
 
-      await Future.delayed(const Duration(seconds: 1));
-      final providerUid = 'apple_${DateTime.now().millisecondsSinceEpoch}';
-      final email = appleEmail.value.isEmpty ? 'user.apple@privaterelay.appleid.com' : appleEmail.value;
-      final displayName = appleFullName.value.isEmpty ? 'Apple User' : appleFullName.value;
+      if (firebaseUser == null) {
+        isLoading.value = false;
+        loadingMessage.value = '';
+        return;
+      }
 
-      loadingMessage.value = 'Authenticating with backend...';
-      await Future.delayed(const Duration(milliseconds: 800));
+      final token = await firebaseUser.getIdToken();
+      if (token != null) {
+        loadingMessage.value = 'Authenticating with backend...';
+        await authRepository.socialLogin(
+          provider: 'apple',
+          providerUid: token,
+          email: firebaseUser.email,
+          displayName: firebaseUser.displayName,
+          photoUrl: firebaseUser.photoURL,
+        );
 
-      final response = await authRepository.socialLogin(
-        provider: 'apple',
-        providerUid: providerUid,
-        email: email,
-        displayName: displayName,
-      );
+        Get.snackbar(
+          'Success',
+          'Apple login successful!',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green.withValues(alpha: 0.8),
+          colorText: Colors.white,
+        );
 
-      Get.snackbar(
-        'Success',
-        'Apple login successful!',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green.withValues(alpha: 0.8),
-        colorText: Colors.white,
-      );
-
-      Get.offAllNamed('/home');
+        Get.offAllNamed(AppRoutes.home);
+      }
     } catch (e) {
       errorMessage.value = e.toString();
       Get.snackbar(
@@ -199,54 +211,13 @@ class LoginController extends GetxController {
   }
 
   Future<void> loginWithFacebook() async {
-    if (!_checkTerms()) return;
-
-    isLoading.value = true;
-    loadingMessage.value = 'Connecting to Facebook...';
-    errorMessage.value = '';
-
-    try {
-      // In production, use flutter_facebook_app_events or facebook_app_events package:
-      // final LoginResult result = await FacebookAuth.instance.login();
-      // final AccessToken accessToken = result.accessToken;
-
-      await Future.delayed(const Duration(seconds: 1));
-      final providerUid = 'facebook_${DateTime.now().millisecondsSinceEpoch}';
-      const email = 'user.facebook@example.com';
-      const displayName = 'Facebook User';
-
-      loadingMessage.value = 'Authenticating with backend...';
-      await Future.delayed(const Duration(milliseconds: 800));
-
-      final response = await authRepository.socialLogin(
-        provider: 'facebook',
-        providerUid: providerUid,
-        email: email,
-        displayName: displayName,
-      );
-
-      Get.snackbar(
-        'Success',
-        'Facebook login successful!',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green.withValues(alpha: 0.8),
-        colorText: Colors.white,
-      );
-
-      Get.offAllNamed('/home');
-    } catch (e) {
-      errorMessage.value = e.toString();
-      Get.snackbar(
-        'Login Failed',
-        errorMessage.value,
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.withValues(alpha: 0.8),
-        colorText: Colors.white,
-      );
-    } finally {
-      isLoading.value = false;
-      loadingMessage.value = '';
-    }
+    Get.snackbar(
+      'Not Available',
+      'Facebook login is not supported in this version.',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.orange.withValues(alpha: 0.8),
+      colorText: Colors.white,
+    );
   }
 
   Future<void> continueAsGuest() async {
@@ -258,7 +229,6 @@ class LoginController extends GetxController {
 
     try {
       loadingMessage.value = 'Setting up guest account...';
-      await Future.delayed(const Duration(milliseconds: 800));
 
       final response = await authRepository.guestLogin();
 
@@ -270,7 +240,7 @@ class LoginController extends GetxController {
         colorText: Colors.white,
       );
 
-      Get.offAllNamed('/home');
+      Get.offAllNamed(AppRoutes.home);
     } catch (e) {
       errorMessage.value = e.toString();
       Get.snackbar(

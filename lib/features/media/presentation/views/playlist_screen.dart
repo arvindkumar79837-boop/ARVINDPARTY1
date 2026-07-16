@@ -40,7 +40,9 @@ class PlaylistScreen extends StatelessWidget {
                       ? const Color(0xFFFF9800)
                       : Colors.white70,
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  controller.onSearchChanged(controller.searchQuery.value);
+                },
               )),
         ],
       ),

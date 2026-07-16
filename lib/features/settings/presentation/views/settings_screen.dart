@@ -5,6 +5,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../../routes/app_routes.dart';
 import '../controllers/settings_controller.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -281,9 +282,25 @@ class SettingsScreen extends StatelessWidget {
             _showInboxDialog(controller);
           }),
           const Divider(color: Colors.white10, height: 24),
-          _buildAccountOption(Icons.security, 'Security Center', () {}),
+          _buildAccountOption(Icons.security, 'Security Center', () {
+            Get.toNamed(AppRoutes.securityCenter);
+          }),
           const Divider(color: Colors.white10, height: 24),
-          _buildAccountOption(Icons.link, 'Linked Accounts', () {}),
+          _buildAccountOption(Icons.link, 'Linked Accounts', () {
+            Get.defaultDialog(
+              title: 'Linked Accounts',
+              titleStyle: const TextStyle(color: Colors.white, fontSize: 18),
+              backgroundColor: const Color(0xFF1A1A2E),
+              content: const Padding(
+                padding: EdgeInsets.all(16),
+                child: Text(
+                  'Connect your social accounts to log in easily. You can link Google, Apple, and Facebook from the login screen.',
+                  style: TextStyle(color: Colors.white70, fontSize: 13),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            );
+          }),
           const Divider(color: Colors.white10, height: 24),
           _buildAccountOption(Icons.delete_sweep, 'Delete Account', () {
             _showDeleteAccountDialog(controller);

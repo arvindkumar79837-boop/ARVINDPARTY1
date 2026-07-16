@@ -3,7 +3,6 @@
 // ARVIND PARTY - GIFT CONTROLLER (Extended: Lucky, Treasure, Combo, Collection, Goals)
 // ═══════════════════════════════════════════════════════════════════════════
 
-import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 
 import '../../../../core/services/api_service.dart';
@@ -84,7 +83,6 @@ class GiftController extends GetxController {
         festivalGifts.assignAll((cat['festival'] as List? ?? []).map((g) => GiftModel.fromJson(Map<String, dynamic>.from(g))).toList());
       }
     } catch (e) {
-      debugPrint('[GiftController] fetchGifts error: $e');
     } finally {
       isLoading.value = false;
     }
@@ -129,7 +127,6 @@ class GiftController extends GetxController {
       }
       return false;
     } catch (e) {
-      debugPrint('[GiftController] sendGift error: $e');
       return false;
     }
   }
@@ -144,7 +141,6 @@ class GiftController extends GetxController {
       });
       return response is Map && response['success'] == true;
     } catch (e) {
-      debugPrint('[GiftController] sendComboGift error: $e');
       return false;
     }
   }
@@ -159,7 +155,6 @@ class GiftController extends GetxController {
       }
       return false;
     } catch (e) {
-      debugPrint('[GiftController] claimTreasure error: $e');
       return false;
     }
   }
@@ -172,7 +167,6 @@ class GiftController extends GetxController {
         giftHistory.assignAll(data.map((g) => GiftHistoryModel.fromJson(Map<String, dynamic>.from(g))).toList());
       }
     } catch (e) {
-      debugPrint('[GiftController] fetchGiftHistory error: $e');
     }
   }
 
@@ -184,7 +178,6 @@ class GiftController extends GetxController {
         giftRanking.assignAll(data.map((g) => Map<String, dynamic>.from(g)).toList());
       }
     } catch (e) {
-      debugPrint('[GiftController] fetchGiftRanking error: $e');
     }
   }
 
@@ -196,7 +189,6 @@ class GiftController extends GetxController {
         inventory.assignAll(data.map((i) => GiftInventoryItem.fromJson(Map<String, dynamic>.from(i))).toList());
       }
     } catch (e) {
-      debugPrint('[GiftController] fetchGiftInventory error: $e');
     }
   }
 
@@ -209,7 +201,6 @@ class GiftController extends GetxController {
         uniqueCollectionCount.value = response['uniqueGiftsCount'] ?? 0;
       }
     } catch (e) {
-      debugPrint('[GiftController] fetchGiftCollection error: $e');
     }
   }
 
@@ -219,10 +210,8 @@ class GiftController extends GetxController {
       final response = await _apiService.get('/gifts/statistics');
       if (response is Map && response['success'] == true) {
         final stats = response['statistics'] as Map? ?? {};
-        debugPrint('[GiftController] Stats: $stats');
       }
     } catch (e) {
-      debugPrint('[GiftController] fetchGiftStatistics error: $e');
     }
   }
 
@@ -238,7 +227,6 @@ class GiftController extends GetxController {
         currentGiftGoal.value = goal;
       }
     } catch (e) {
-      debugPrint('[GiftController] setGiftGoal error: $e');
     }
   }
 

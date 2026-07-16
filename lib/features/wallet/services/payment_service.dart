@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import '../../../../core/services/api_service.dart';
+import '../../../../routes/app_routes.dart';
 
 class PaymentService extends GetxService {
   static PaymentService get to => Get.find<PaymentService>();
@@ -90,7 +91,6 @@ class PaymentService extends GetxService {
     } catch (e) {
       isProcessing.value = false;
       currentPaymentStatus.value = 'failed';
-      debugPrint('[Payment] Initiate error: $e');
       rethrow;
     }
   }
@@ -114,7 +114,6 @@ class PaymentService extends GetxService {
 
       return response['success'] == true;
     } catch (e) {
-      debugPrint('[Payment] Verification error: $e');
       return false;
     }
   }
@@ -134,7 +133,6 @@ class PaymentService extends GetxService {
         },
       );
     } catch (e) {
-      debugPrint('[Payment] Refund error: $e');
       rethrow;
     }
   }
@@ -144,15 +142,13 @@ class PaymentService extends GetxService {
   void _handlePaymentSuccess(PaymentSuccessResponse response) {
     isProcessing.value = false;
     currentPaymentStatus.value = 'success';
-    debugPrint('[Payment] Success: ${response.paymentId}');
 
-    Get.offAllNamed('/payment-success');
+    Get.offAllNamed(AppRoutes.paymentSuccess);
   }
 
   void _handlePaymentError(PaymentFailureResponse response) {
     isProcessing.value = false;
     currentPaymentStatus.value = 'failed';
-    debugPrint('[Payment] Error: ${response.message}');
 
     Get.snackbar(
       'Payment Failed',
@@ -164,7 +160,6 @@ class PaymentService extends GetxService {
   }
 
   void _handleExternalWallet(ExternalWalletResponse response) {
-    debugPrint('[Payment] External wallet: ${response.walletName}');
     Get.snackbar(
       'Redirecting',
       'Opening ${response.walletName}...',
@@ -229,7 +224,6 @@ class PaymentService extends GetxService {
       final response = await _api.get('/wallet/transactions');
       return response['transactions'] ?? [];
     } catch (e) {
-      debugPrint('[Payment] Fetch history error: $e');
       return [];
     }
   }

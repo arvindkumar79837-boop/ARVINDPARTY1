@@ -2,15 +2,43 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../models/friend_model.dart';
-import '../controllers/friend_controller.dart';
+import '../repositories/friend_repository.dart';
 import '../widgets/friend_tile.dart';
 
-class FriendSearchScreen extends GetView<FriendController> {
+class FriendSearchScreen extends StatefulWidget {
   const FriendSearchScreen({super.key});
 
   @override
+  State<FriendSearchScreen> createState() => _FriendSearchScreenState();
+}
+
+class _FriendSearchScreenState extends State<FriendSearchScreen> {
+  final _repo = FriendRepository();
+  final _searchController = TextEditingController();
+  final _results = <FriendModel>[].obs;
+  final _isSearching = false.obs;
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _search(String query) async {
+    if (query.trim().isEmpty) return;
+    _isSearching.value = true;
+    try {
+      final results = await _repo.searchUsers(query.trim());
+      _results.assignAll(results);
+    } catch (e) {
+      _results.clear();
+    } finally {
+      _isSearching.value = false;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    Get.put(FriendController());
     return Scaffold(
       appBar: AppBar(
         title: const Text('Search Users'),
@@ -23,37 +51,41 @@ class FriendSearchScreen extends GetView<FriendController> {
           Padding(
             padding: const EdgeInsets.all(16),
             child: TextField(
+              controller: _searchController,
               decoration: InputDecoration(
                 hintText: 'Search by username...',
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.clear),
+                  onPressed: () {
+                    _searchController.clear();
+                    _results.clear();
+                  },
+                ),
               ),
-              onSubmitted: (query) {
-                final mockResults = List.generate(5, (i) => FriendModel(
-                  id: 'search_$i',
-                  username: 'User $i ($query)',
-                  avatarUrl: 'https://picsum.photos/seed/s$i/100',
-                  status: i % 2 == 0 ? FriendStatus.none : FriendStatus.following,
-                ));
-                Get.dialog(
-                  Dialog(
-                    child: Container(
-                      height: 400,
-                      padding: const EdgeInsets.all(16),
-                      child: ListView.builder(
-                        itemCount: mockResults.length,
-                        itemBuilder: (context, index) => FriendTile(friend: mockResults[index]),
-                      ),
-                    ),
-                  ),
-                );
-              },
+              onSubmitted: _search,
             ),
           ),
-          const Expanded(
-            child: Center(
-              child: Text('Search for users to follow or add as friends', style: TextStyle(color: Colors.grey)),
-            ),
+          Expanded(
+            child: Obx(() {
+              if (_isSearching.value) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (_results.isEmpty) {
+                return const Center(
+                  child: Text(
+                    'Search for users to follow or add as friends',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                );
+              }
+              return ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                itemCount: _results.length,
+                itemBuilder: (context, index) => FriendTile(friend: _results[index]),
+              );
+            }),
           ),
         ],
       ),

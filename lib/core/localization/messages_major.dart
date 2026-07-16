@@ -103,7 +103,7 @@ Map<String, Map<String, String>> get otherMajorTranslations => {
           'no': 'না',
           'ok': 'ঠিক আছে',
           'please_wait': 'অনুগ্রহ করে অপেক্ষা করুন...',
-          'something_went_wrong': 'কিছু went τεχνικά ভুল হয়েছে',
+          'something_went_wrong': 'কিছু ভুল হয়েছে',
           'no_internet': 'ইন্টারনেট সংযোগ নেই',
           'try_again': 'আবার চেষ্টা করুন',
           'language': 'ভাষা',

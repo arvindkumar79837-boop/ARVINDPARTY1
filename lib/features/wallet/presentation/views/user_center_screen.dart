@@ -6,6 +6,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../routes/app_routes.dart';
+
 class UserCenterScreen extends StatelessWidget {
   const UserCenterScreen({super.key});
 
@@ -45,22 +47,22 @@ class UserCenterScreen extends StatelessWidget {
           _buildMenuItem(
             icon: Icons.person,
             title: 'My Profile',
-            onTap: () => Get.toNamed('/profile'),
+            onTap: () => Get.toNamed(AppRoutes.profile),
           ),
           _buildMenuItem(
             icon: Icons.account_balance_wallet,
             title: 'Wallet',
-            onTap: () => Get.toNamed('/wallet'),
+            onTap: () => Get.toNamed(AppRoutes.wallet),
           ),
           _buildMenuItem(
             icon: Icons.card_giftcard,
             title: 'Withdrawal',
-            onTap: () => Get.toNamed('/withdrawal'),
+            onTap: () => Get.toNamed(AppRoutes.withdrawal),
           ),
           _buildMenuItem(
             icon: Icons.settings,
             title: 'Settings',
-            onTap: () {},
+            onTap: () => Get.toNamed(AppRoutes.settingsPage),
           ),
           _buildMenuItem(
             icon: Icons.logout,
@@ -98,7 +100,7 @@ class UserCenterScreen extends StatelessWidget {
           TextButton(
             onPressed: () {
               Get.back();
-              Get.offAllNamed('/login');
+              Get.offAllNamed(AppRoutes.login);
             },
             child: const Text('Logout', style: TextStyle(color: Colors.red)),
           ),

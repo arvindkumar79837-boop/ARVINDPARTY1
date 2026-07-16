@@ -12,12 +12,31 @@ import 'package:get_storage/get_storage.dart';
 import 'core/services/api_service.dart';
 import 'core/services/auth_session_manager.dart';
 import 'core/socket/socket_service.dart';
+import 'core/utils/network_manager.dart';
 import 'firebase_options.dart';
 import 'routes/app_pages.dart';
 import 'routes/app_routes.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  ErrorWidget.builder = (FlutterErrorDetails details) {
+    return Material(
+      color: const Color(0xFF0F0E17),
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Text(
+            'Something went wrong',
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.7),
+              fontSize: 14,
+            ),
+          ),
+        ),
+      ),
+    );
+  };
 
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
@@ -45,6 +64,7 @@ void main() async {
   Get.put<ApiService>(ApiService(), permanent: true);
   Get.put<AuthSessionManager>(AuthSessionManager(), permanent: true);
   Get.put<SocketService>(SocketService(), permanent: true);
+  Get.put<NetworkManager>(NetworkManager(), permanent: true);
 
   // Initialize all asynchronous services FIRST before running the app
   // This prevents race conditions where services are accessed before they're ready
@@ -63,9 +83,7 @@ Future<void> initAsynchronousServices() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    debugPrint('?? [Arvind Party] Firebase initialized');
   } catch (e) {
-    debugPrint('?? [Arvind Party] Firebase init failed (non-fatal): $e');
     // Non-fatal — the app continues without Firebase. FCM token registration
     // will be retried later when network is available.
   }
@@ -73,9 +91,7 @@ Future<void> initAsynchronousServices() async {
   // GetStorage does not depend on Firebase, so initialize regardless.
   try {
     await GetStorage.init();
-    debugPrint('?? [Arvind Party] Storage initialized');
   } catch (e) {
-    debugPrint('?? [Arvind Party] Storage init failed: $e');
   }
 }
 

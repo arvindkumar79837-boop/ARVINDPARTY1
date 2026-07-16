@@ -44,6 +44,7 @@ class LiveRoomController extends GetxController {
   final connectionRetryCount = 0.obs;
   static const int maxRetries = 3;
   Timer? _reconnectTimer;
+  Timer? _giftAnimationTimer;
 
   // ─── Chat ───────────────────────────────────────────────────
   final chatMessages = <ChatMessage>[].obs;
@@ -136,7 +137,6 @@ class LiveRoomController extends GetxController {
       socket!.connect();
 
       socket!.onConnect((_) {
-        debugPrint('[Socket] Connected to live room server');
         isConnected.value = true;
         socket!.emit('join_room', {
           'roomId': roomId,
@@ -146,18 +146,15 @@ class LiveRoomController extends GetxController {
       });
 
       socket!.onDisconnect((_) {
-        debugPrint('[Socket] Disconnected');
         isConnected.value = false;
       });
 
       socket!.onConnectError((data) {
-        debugPrint('[Socket] Connection error: $data');
         isConnected.value = false;
       });
 
       _registerSocketEventListeners();
     } catch (e) {
-      debugPrint('[Socket] Initialization failed: $e');
     }
   }
 
@@ -207,8 +204,12 @@ class LiveRoomController extends GetxController {
           senderName: data['senderName']?.toString() ?? 'Unknown',
           quantity: data['quantity'] ?? 1,
         );
-        Future.delayed(const Duration(seconds: 4), () {
-          activeGiftAnimation.value = null;
+        final animDuration = Duration(seconds: data['duration'] as int? ?? 4);
+        _giftAnimationTimer?.cancel();
+        _giftAnimationTimer = Timer(animDuration, () {
+          if (activeGiftAnimation.value?.giftId == data['giftId']?.toString()) {
+            activeGiftAnimation.value = null;
+          }
         });
       }
     });
@@ -448,7 +449,6 @@ class LiveRoomController extends GetxController {
 
     socket!.on('connection_error', (data) {
       if (data is Map) {
-        debugPrint('[Socket] Connection error: ${data['message']}');
         Get.snackbar(
             'Connection Error', data['message']?.toString() ?? 'Unknown error',
             backgroundColor: Colors.redAccent, colorText: Colors.white);
@@ -507,7 +507,6 @@ class LiveRoomController extends GetxController {
             .assignAll(list.map((e) => Map<String, dynamic>.from(e)).toList());
       }
     } catch (e) {
-      debugPrint('[Gifts] Fetch error: $e');
     }
   }
 
@@ -529,7 +528,6 @@ class LiveRoomController extends GetxController {
         );
       }
     } catch (e) {
-      debugPrint('[Moderation] Fetch error: $e');
     }
   }
 
@@ -729,6 +727,7 @@ class LiveRoomController extends GetxController {
   @override
   void onClose() {
     _reconnectTimer?.cancel();
+    _giftAnimationTimer?.cancel();
     if (socket != null) {
       // Remove all registered listeners before disconnecting
       for (final event in _socketEvents) {

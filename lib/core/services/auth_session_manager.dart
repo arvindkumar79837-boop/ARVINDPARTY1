@@ -7,12 +7,12 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 
 import '../constants/env_config.dart';
 import '../services/api_service.dart';
+import '../../routes/app_routes.dart';
 
 /// Reactive authentication status for driving splash → login/home transitions.
 /// Initial state is [unknown]; after session load it transitions to either
@@ -91,9 +91,7 @@ class AuthSessionManager extends GetxService {
       final tokenExists = token.value != null && token.value!.isNotEmpty;
       authStatus.value = tokenExists ? AuthStatus.authenticated : AuthStatus.unauthenticated;
       
-      debugPrint('[AuthSession] Session loaded: ${authStatus.value.name}');
     } catch (e) {
-      debugPrint('[AuthSession] Load error: $e');
       authStatus.value = AuthStatus.unauthenticated;
     }
   }
@@ -136,9 +134,7 @@ class AuthSessionManager extends GetxService {
       // Schedule token refresh
       _scheduleTokenRefresh();
       
-      debugPrint('[AuthSession] Session saved for user: $userId');
     } catch (e) {
-      debugPrint('[AuthSession] Save error: $e');
     }
   }
 
@@ -168,9 +164,7 @@ class AuthSessionManager extends GetxService {
 
       _tokenRefreshTimer?.cancel();
       
-      debugPrint('[AuthSession] Session cleared');
     } catch (e) {
-      debugPrint('[AuthSession] Clear error: $e');
     }
   }
 
@@ -190,7 +184,6 @@ class AuthSessionManager extends GetxService {
       () => _refreshAccessToken(),
     );
     
-    debugPrint('[AuthSession] Token refresh scheduled');
   }
 
   /// Start session monitor
@@ -219,21 +212,18 @@ class AuthSessionManager extends GetxService {
   /// Refresh access token using refresh token
   Future<bool> _refreshAccessToken() async {
     if (isTokenRefreshing.value) {
-      debugPrint('[AuthSession] Refresh already in progress');
       return false;
     }
 
     final currentRefreshToken = refreshToken.value;
     if (currentRefreshToken == null || currentRefreshToken.isEmpty) {
-      debugPrint('[AuthSession] No refresh token available');
       await clearSession();
       return false;
     }
 
     if (refreshAttempts.value >= _maxRefreshAttempts) {
-      debugPrint('[AuthSession] Max refresh attempts reached');
       await clearSession();
-      Get.offAllNamed('/login');
+      Get.offAllNamed(AppRoutes.login);
       return false;
     }
 
@@ -241,7 +231,6 @@ class AuthSessionManager extends GetxService {
       isTokenRefreshing.value = true;
       refreshAttempts.value++;
 
-      debugPrint('[AuthSession] Refreshing token...');
 
       final response = await _api.post(
         '/auth/refresh-token',
@@ -267,21 +256,18 @@ class AuthSessionManager extends GetxService {
         refreshAttempts.value = 0;
         _scheduleTokenRefresh();
 
-        debugPrint('[AuthSession] Token refreshed successfully');
         return true;
       } else {
-        debugPrint('[AuthSession] Refresh failed: No token in response');
         await clearSession();
-        Get.offAllNamed('/login');
+        Get.offAllNamed(AppRoutes.login);
         return false;
       }
     } catch (e) {
-      debugPrint('[AuthSession] Refresh error: $e');
       
       // If refresh fails, clear session
       if (refreshAttempts.value >= _maxRefreshAttempts - 1) {
         await clearSession();
-        Get.offAllNamed('/login');
+        Get.offAllNamed(AppRoutes.login);
       }
       
       return false;
@@ -292,15 +278,13 @@ class AuthSessionManager extends GetxService {
 
   /// Handle 401 Unauthorized response
   Future<void> handleUnauthorized() async {
-    debugPrint('[AuthSession] Handling 401 Unauthorized');
     
     // Try to refresh token
     final refreshed = await _refreshAccessToken();
     
     if (!refreshed) {
-      debugPrint('[AuthSession] Refresh failed, logging out');
       await clearSession();
-      Get.offAllNamed('/login');
+      Get.offAllNamed(AppRoutes.login);
     }
   }
 
@@ -328,7 +312,6 @@ class AuthSessionManager extends GetxService {
       
       return fingerprint;
     } catch (e) {
-      debugPrint('[AuthSession] Device fingerprint error: $e');
       return 'unknown';
     }
   }

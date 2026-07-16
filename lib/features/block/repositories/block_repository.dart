@@ -10,14 +10,14 @@ class BlockRepository {
     try {
       final response = await _api.get('/block');
       return (response['data'] as List).map((e) => BlockedUserModel.fromJson(e)).toList();
-    } catch (e) { return _mockBlockedUsers(); }
+    } catch (e) { return []; }
   }
 
   Future<List<MutedUserModel>> getMutedUsers() async {
     try {
       final response = await _api.get('/mute');
       return (response['data'] as List).map((e) => MutedUserModel.fromJson(e)).toList();
-    } catch (e) { return _mockMutedUsers(); }
+    } catch (e) { return []; }
   }
 
   Future<void> blockUser(String userId) async => await _api.post('/block', body: {'targetUserId': userId});
@@ -35,15 +35,4 @@ class BlockRepository {
     await _api.post('/mute', body: {'targetUserId': userId, 'durationSeconds': seconds});
   }
   Future<void> unmuteUser(String userId) async => await _api.delete('/mute/$userId');
-
-  List<BlockedUserModel> _mockBlockedUsers() => List.generate(3, (i) => BlockedUserModel(
-    userId: 'blocked_$i', username: 'Blocked User $i', avatarUrl: 'https://picsum.photos/seed/b$i/100',
-    blockedAt: DateTime.now().subtract(Duration(days: i + 1)),
-  ));
-
-  List<MutedUserModel> _mockMutedUsers() => List.generate(2, (i) => MutedUserModel(
-    userId: 'muted_$i', username: 'Muted User $i', avatarUrl: 'https://picsum.photos/seed/m$i/100',
-    mutedAt: DateTime.now().subtract(Duration(hours: i + 2)),
-    mutedUntil: i == 0 ? DateTime.now().add(const Duration(days: 1)) : null,
-  ));
 }

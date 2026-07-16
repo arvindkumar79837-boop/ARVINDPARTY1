@@ -6,6 +6,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../routes/app_routes.dart';
 import '../../models/room_models.dart';
 import '../controllers/room_controller.dart';
 
@@ -203,17 +204,41 @@ class HostControlsScreen extends StatelessWidget {
         const SizedBox(height: 16),
         Row(
           children: [
-            Expanded(child: _buildActionButton(icon: Icons.info_outline, label: 'Mute All', color: Colors.orange, onTap: () {})),
+            Expanded(child: _buildActionButton(icon: Icons.mic_off_outlined, label: 'Mute All', color: Colors.orange, onTap: () {
+              controller.muteAllMembers();
+              Get.snackbar('Mute All', 'All members have been muted',
+                  snackPosition: SnackPosition.BOTTOM,
+                  backgroundColor: Colors.orange.withValues(alpha: 0.8),
+                  colorText: Colors.white);
+            })),
             const SizedBox(width: 12),
-            Expanded(child: _buildActionButton(icon: Icons.info_outline, label: 'Unmute All', color: Colors.green, onTap: () {})),
+            Expanded(child: _buildActionButton(icon: Icons.mic_outlined, label: 'Unmute All', color: Colors.green, onTap: () {
+              controller.unmuteAllMembers();
+              Get.snackbar('Unmute All', 'All members have been unmuted',
+                  snackPosition: SnackPosition.BOTTOM,
+                  backgroundColor: Colors.green.withValues(alpha: 0.8),
+                  colorText: Colors.white);
+            })),
           ],
         ),
         const SizedBox(height: 12),
         Row(
           children: [
-            Expanded(child: _buildActionButton(icon: Icons.info_outline, label: 'Lock All Seats', color: Colors.red, onTap: () {})),
+            Expanded(child: _buildActionButton(icon: Icons.lock_outline, label: 'Lock All Seats', color: Colors.red, onTap: () {
+              controller.lockAllSeats();
+              Get.snackbar('Seats Locked', 'All seats have been locked',
+                  snackPosition: SnackPosition.BOTTOM,
+                  backgroundColor: Colors.red.withValues(alpha: 0.8),
+                  colorText: Colors.white);
+            })),
             const SizedBox(width: 12),
-            Expanded(child: _buildActionButton(icon: Icons.info_outline, label: 'Unlock All Seats', color: Colors.blue, onTap: () {})),
+            Expanded(child: _buildActionButton(icon: Icons.lock_open_outlined, label: 'Unlock All Seats', color: Colors.blue, onTap: () {
+              controller.unlockAllSeats();
+              Get.snackbar('Seats Unlocked', 'All seats have been unlocked',
+                  snackPosition: SnackPosition.BOTTOM,
+                  backgroundColor: Colors.blue.withValues(alpha: 0.8),
+                  colorText: Colors.white);
+            })),
           ],
         ),
       ],
@@ -233,19 +258,19 @@ class HostControlsScreen extends StatelessWidget {
           icon: Icons.lock_outlined,
           title: 'Room Lock & Password',
           subtitle: 'Set password or make room private',
-          onTap: () => Get.toNamed('/room-lock'),
+          onTap: () => Get.toNamed(AppRoutes.roomLock),
         ),
         _buildSettingsTile(
           icon: Icons.image_outlined,
           title: 'Room Background',
           subtitle: 'Change room background image',
-          onTap: () => Get.toNamed('/room-background'),
+          onTap: () => Get.toNamed(AppRoutes.roomBackground),
         ),
         _buildSettingsTile(
           icon: Icons.analytics_outlined,
           title: 'Room Analytics',
           subtitle: 'View live room statistics',
-          onTap: () => Get.toNamed('/room-analytics'),
+          onTap: () => Get.toNamed(AppRoutes.roomAnalytics),
         ),
       ],
     );

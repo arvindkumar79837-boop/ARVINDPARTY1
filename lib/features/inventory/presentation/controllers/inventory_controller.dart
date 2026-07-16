@@ -5,12 +5,16 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../../core/constants/api_constants.dart';
+import '../../../../core/services/api_service.dart';
 
 class InventoryController extends GetxController {
   final isLoading = false.obs;
   final errorMessage = Rxn<String>();
   final selectedTab = 0.obs;
   final sortOrder = 'recent'.obs;
+
+  final ApiService _apiService = Get.find<ApiService>();
 
   // Equipped items
   final equippedFrame = Rxn<InventoryItem>();
@@ -32,74 +36,52 @@ class InventoryController extends GetxController {
     loadInventory();
   }
 
-  void loadInventory() {
+  Future<void> loadInventory() async {
     try {
       isLoading.value = true;
       errorMessage.value = null;
 
-      // TODO: Replace hardcoded items with API call to _repo.getInventory()
-      frames.value = [
-        InventoryItem('frame_001', 'Gold Frame', 'frame', 'Premium Gold', 'common',
-            DateTime.now().add(const Duration(days: 30)), true),
-        InventoryItem('frame_002', 'Neon Frame', 'frame', 'Neon Blue', 'rare',
-            DateTime.now().add(const Duration(days: 60)), true),
-        InventoryItem('frame_003', 'Diamond Frame', 'frame', 'Diamond Elite', 'legendary',
-            DateTime.now().add(const Duration(days: 90)), true),
-        InventoryItem('frame_004', 'Silver Frame', 'frame', 'Classic Silver', 'uncommon',
-            DateTime.now().add(const Duration(days: 15)), false),
-        InventoryItem('frame_005', 'Rose Gold', 'frame', 'Valentine Special', 'rare',
-            DateTime.now().add(const Duration(days: 7)), false),
-        InventoryItem('frame_006', 'Party Frame', 'frame', 'Arvind Party', 'epic',
-            DateTime.now().add(const Duration(days: 45)), false),
-      ];
+      final response = await _apiService.get(ApiConstants.inventory);
+      if (response is Map && response['success'] == true) {
+        final data = response['data'] as Map<String, dynamic>? ?? {};
+        final itemsList = data['items'] as List<dynamic>? ?? [];
+        final equipped = data['equipped'] as Map<String, dynamic>? ?? {};
 
-      badges.value = [
-        InventoryItem('badge_001', 'VIP Badge', 'badge', 'VIP Member', 'legendary',
-            DateTime.now().add(const Duration(days: 365)), true),
-        InventoryItem('badge_002', 'Top Host', 'badge', 'Best Host Award', 'epic',
-            DateTime.now().add(const Duration(days: 180)), false),
-        InventoryItem('badge_003', 'Party Animal', 'badge', '100 Parties', 'rare',
-            DateTime.now().add(const Duration(days: 90)), true),
-        InventoryItem('badge_004', 'Gift Master', 'badge', '1000 Gifts Sent', 'epic',
-            DateTime.now().add(const Duration(days: 120)), false),
-        InventoryItem('badge_005', 'Early Adopter', 'badge', 'Joined Beta', 'legendary',
-            DateTime.now().add(const Duration(days: 730)), false),
-      ];
+        final parsedItems = itemsList.map((item) {
+          final map = Map<String, dynamic>.from(item);
+          return InventoryItem(
+            map['_id'] ?? map['id'] ?? '',
+            map['name'] ?? '',
+            map['category'] ?? 'frame',
+            map['description'] ?? '',
+            map['rarity'] ?? 'common',
+            map['expiresAt'] != null ? DateTime.tryParse(map['expiresAt'].toString()) ?? DateTime.now().add(const Duration(days: 30)) : DateTime.now().add(const Duration(days: 30)),
+            map['isEquipped'] ?? false,
+          );
+        }).toList();
 
-      entryEffects.value = [
-        InventoryItem('effect_001', 'Fireworks', 'entryEffect', 'Spectacular Entry', 'epic',
-            DateTime.now().add(const Duration(days: 30)), true),
-        InventoryItem('effect_002', 'Confetti Storm', 'entryEffect', 'Party Confetti', 'rare',
-            DateTime.now().add(const Duration(days: 45)), false),
-        InventoryItem('effect_003', 'Neon Glow', 'entryEffect', 'Neon Entrance', 'uncommon',
-            DateTime.now().add(const Duration(days: 20)), false),
-        InventoryItem('effect_004', 'Starlight', 'entryEffect', 'Elegant Sparkle', 'common',
-            DateTime.now().add(const Duration(days: 60)), false),
-        InventoryItem('effect_005', 'Dragon Fire', 'entryEffect', 'Mythical Entry', 'legendary',
-            DateTime.now().add(const Duration(days: 90)), false),
-      ];
+        frames.value = parsedItems.where((i) => i.category == 'frame').toList();
+        badges.value = parsedItems.where((i) => i.category == 'badge').toList();
+        entryEffects.value = parsedItems.where((i) => i.category == 'entryEffect').toList();
+        bubbles.value = parsedItems.where((i) => i.category == 'bubble').toList();
+        cars.value = parsedItems.where((i) => i.category == 'car').toList();
 
-      bubbles.value = [
-        InventoryItem('bubble_001', 'Heart Bubble', 'bubble', 'Love Chat', 'rare',
-            DateTime.now().add(const Duration(days: 30)), true),
-        InventoryItem('bubble_002', 'Neon Bubble', 'bubble', 'Cyber Style', 'epic',
-            DateTime.now().add(const Duration(days: 45)), false),
-        InventoryItem('bubble_003', 'Star Bubble', 'bubble', 'Galaxy Chat', 'uncommon',
-            DateTime.now().add(const Duration(days: 15)), false),
-      ];
+        allItems.value = [...frames, ...badges, ...entryEffects, ...bubbles, ...cars];
 
-      allItems.value = [
-        ...frames,
-        ...badges,
-        ...entryEffects,
-        ...bubbles,
-        ...cars,
-      ];
-
-      equippedFrame.value = frames.firstWhereOrNull((f) => f.isEquipped);
-      equippedBadge.value = badges.firstWhereOrNull((b) => b.isEquipped);
-      equippedEntryEffect.value = entryEffects.firstWhereOrNull((e) => e.isEquipped);
-      equippedBubble.value = bubbles.firstWhereOrNull((b) => b.isEquipped);
+        if (equipped.isNotEmpty) {
+          equippedFrame.value = _findItemById(frames, equipped['frame']);
+          equippedBadge.value = _findItemById(badges, equipped['badge']);
+          equippedEntryEffect.value = _findItemById(entryEffects, equipped['entryEffect']);
+          equippedBubble.value = _findItemById(bubbles, equipped['bubble']);
+        } else {
+          equippedFrame.value = frames.firstWhereOrNull((f) => f.isEquipped);
+          equippedBadge.value = badges.firstWhereOrNull((b) => b.isEquipped);
+          equippedEntryEffect.value = entryEffects.firstWhereOrNull((e) => e.isEquipped);
+          equippedBubble.value = bubbles.firstWhereOrNull((b) => b.isEquipped);
+        }
+      } else {
+        errorMessage.value = response['message'] ?? 'Failed to load inventory';
+      }
     } catch (e) {
       errorMessage.value = 'Failed to load inventory: $e';
     } finally {
@@ -107,48 +89,55 @@ class InventoryController extends GetxController {
     }
   }
 
-  void equipItem(InventoryItem item) {
+  InventoryItem? _findItemById(List<InventoryItem> list, dynamic id) {
+    if (id == null) return null;
+    final idStr = id.toString();
+    return list.firstWhereOrNull((i) => i.id == idStr);
+  }
+
+  Future<void> equipItem(InventoryItem item) async {
     try {
       if (item.isEquipped) return;
 
-      // Unequip previous item in same category
-      switch (item.category) {
-        case 'frame':
-          if (equippedFrame.value != null) {
-            _setEquipped(equippedFrame.value!, false);
-          }
-          equippedFrame.value = item;
-          break;
-        case 'badge':
-          if (equippedBadge.value != null) {
-            _setEquipped(equippedBadge.value!, false);
-          }
-          equippedBadge.value = item;
-          break;
-        case 'entryEffect':
-          if (equippedEntryEffect.value != null) {
-            _setEquipped(equippedEntryEffect.value!, false);
-          }
-          equippedEntryEffect.value = item;
-          break;
-        case 'bubble':
-          if (equippedBubble.value != null) {
-            _setEquipped(equippedBubble.value!, false);
-          }
-          equippedBubble.value = item;
-          break;
+      final response = await _apiService.post('${ApiConstants.inventory}/equip', body: {
+        'itemId': item.id,
+        'category': item.category,
+      });
+
+      if (response is Map && response['success'] == true) {
+        switch (item.category) {
+          case 'frame':
+            if (equippedFrame.value != null) _setEquipped(equippedFrame.value!, false);
+            equippedFrame.value = item;
+            break;
+          case 'badge':
+            if (equippedBadge.value != null) _setEquipped(equippedBadge.value!, false);
+            equippedBadge.value = item;
+            break;
+          case 'entryEffect':
+            if (equippedEntryEffect.value != null) _setEquipped(equippedEntryEffect.value!, false);
+            equippedEntryEffect.value = item;
+            break;
+          case 'bubble':
+            if (equippedBubble.value != null) _setEquipped(equippedBubble.value!, false);
+            equippedBubble.value = item;
+            break;
+        }
+        _setEquipped(item, true);
+        allItems.refresh();
+        Get.snackbar(
+          'Equipped',
+          '${item.name} is now active',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: const Color(0xFFFF9800),
+          colorText: Colors.white,
+        );
+      } else {
+        Get.snackbar('Error', response['message'] ?? 'Failed to equip item',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.redAccent,
+            colorText: Colors.white);
       }
-
-      _setEquipped(item, true);
-      allItems.refresh();
-
-      Get.snackbar(
-        'Equipped',
-        '${item.name} is now active',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color(0xFFFF9800),
-        colorText: Colors.white,
-      );
     } catch (e) {
       errorMessage.value = 'Failed to equip item: $e';
     }
@@ -161,24 +150,36 @@ class InventoryController extends GetxController {
     }
   }
 
-  void unequipItem(InventoryItem item) {
+  Future<void> unequipItem(InventoryItem item) async {
     try {
-      _setEquipped(item, false);
-      switch (item.category) {
-        case 'frame':
-          equippedFrame.value = null;
-          break;
-        case 'badge':
-          equippedBadge.value = null;
-          break;
-        case 'entryEffect':
-          equippedEntryEffect.value = null;
-          break;
-        case 'bubble':
-          equippedBubble.value = null;
-          break;
+      final response = await _apiService.post('${ApiConstants.inventory}/unequip', body: {
+        'itemId': item.id,
+        'category': item.category,
+      });
+
+      if (response is Map && response['success'] == true) {
+        _setEquipped(item, false);
+        switch (item.category) {
+          case 'frame':
+            equippedFrame.value = null;
+            break;
+          case 'badge':
+            equippedBadge.value = null;
+            break;
+          case 'entryEffect':
+            equippedEntryEffect.value = null;
+            break;
+          case 'bubble':
+            equippedBubble.value = null;
+            break;
+        }
+        allItems.refresh();
+      } else {
+        Get.snackbar('Error', response['message'] ?? 'Failed to unequip item',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.redAccent,
+            colorText: Colors.white);
       }
-      allItems.refresh();
     } catch (e) {
       errorMessage.value = 'Failed to unequip item: $e';
     }
@@ -227,14 +228,19 @@ class InventoryController extends GetxController {
 
   int get totalItems => allItems.length;
   int get equippedItems => allItems.where((i) => i.isEquipped).length;
+
+  @override
+  void onClose() {
+    super.onClose();
+  }
 }
 
 class InventoryItem {
   final String id;
   final String name;
-  final String category; // frame, badge, entryEffect, bubble, car
+  final String category;
   final String description;
-  final String rarity; // common, uncommon, rare, epic, legendary
+  final String rarity;
   final DateTime expiresAt;
   final bool isEquipped;
 

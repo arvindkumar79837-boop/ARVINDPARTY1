@@ -229,7 +229,6 @@ class RoomController extends LiveRoomController {
         );
       }
     } catch (e) {
-      debugPrint('[RoomController] fetchRooms error: $e');
     }
   }
 
@@ -241,7 +240,6 @@ class RoomController extends LiveRoomController {
         currentRoom.value = RoomModel.fromJson(Map<String, dynamic>.from(response['room'] ?? response['data']));
       }
     } catch (e) {
-      debugPrint('[RoomController] fetchRoomDetail error: $e');
     } finally {
       isLoading.value = false;
     }
@@ -265,7 +263,6 @@ class RoomController extends LiveRoomController {
             backgroundColor: Colors.greenAccent, colorText: Colors.black);
       }
     } catch (e) {
-      debugPrint('[RoomController] updateBackground error: $e');
     }
   }
 
@@ -274,7 +271,6 @@ class RoomController extends LiveRoomController {
       await _apiService.put('/rooms/$roomId/cosmetics', body: {'themeColor': colorHex});
       selectedThemeColor.value = colorHex;
     } catch (e) {
-      debugPrint('[RoomController] updateThemeColor error: $e');
     }
   }
 
@@ -292,7 +288,6 @@ class RoomController extends LiveRoomController {
             backgroundColor: Colors.greenAccent, colorText: Colors.black);
       }
     } catch (e) {
-      debugPrint('[RoomController] purchaseBackground error: $e');
     }
   }
 
@@ -309,7 +304,6 @@ class RoomController extends LiveRoomController {
             backgroundColor: Colors.redAccent, colorText: Colors.white);
       }
     } catch (e) {
-      debugPrint('[RoomController] challengeRoomPK error: $e');
       Get.snackbar('PK Error', 'Failed to start PK challenge.',
           backgroundColor: Colors.redAccent, colorText: Colors.white);
     }
@@ -329,7 +323,6 @@ class RoomController extends LiveRoomController {
         pkPoints.value = stats['points'] ?? 0;
       }
     } catch (e) {
-      debugPrint('[RoomController] fetchPKStatus error: $e');
     }
   }
 
@@ -351,7 +344,6 @@ class RoomController extends LiveRoomController {
         );
       }
     } catch (e) {
-      debugPrint('[RoomController] fetchDailyTasks error: $e');
     }
   }
 
@@ -372,7 +364,6 @@ class RoomController extends LiveRoomController {
         }
       }
     } catch (e) {
-      debugPrint('[RoomController] updateTaskProgress error: $e');
     }
   }
 
@@ -389,7 +380,6 @@ class RoomController extends LiveRoomController {
         await fetchDailyTasks();
       }
     } catch (e) {
-      debugPrint('[RoomController] claimTaskReward error: $e');
     }
   }
 
@@ -404,7 +394,6 @@ class RoomController extends LiveRoomController {
         );
       }
     } catch (e) {
-      debugPrint('[RoomController] fetchRoomRanking error: $e');
     }
   }
 
@@ -415,7 +404,6 @@ class RoomController extends LiveRoomController {
       });
       return response is Map && response['success'] == true;
     } catch (e) {
-      debugPrint('[RoomController] verifyPassword error: $e');
       return false;
     }
   }
@@ -427,7 +415,6 @@ class RoomController extends LiveRoomController {
       });
       return response is Map && response['success'] == true;
     } catch (e) {
-      debugPrint('[RoomController] joinRoom error: $e');
       return false;
     }
   }

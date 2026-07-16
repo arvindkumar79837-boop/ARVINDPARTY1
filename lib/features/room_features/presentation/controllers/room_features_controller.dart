@@ -159,7 +159,6 @@ class RoomFeaturesController extends GetxController {
         return List<Map<String, dynamic>>.from(response);
       }
     } catch (e) {
-      print('Error fetching leaderboard: $e');
     }
     return [];
   }
@@ -174,7 +173,6 @@ class RoomFeaturesController extends GetxController {
         return List<Map<String, dynamic>>.from(response);
       }
     } catch (e) {
-      print('Error fetching level leaderboard: $e');
     }
     return [];
   }

@@ -84,4 +84,9 @@ class BlockController extends GetxController {
       case MuteDuration.forever: return const Duration(days: 365 * 100);
     }
   }
+
+  @override
+  void onClose() {
+    super.onClose();
+  }
 }

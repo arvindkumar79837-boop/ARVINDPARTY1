@@ -3,7 +3,6 @@ import 'package:arvind_party/core/constants/api_constants.dart';
 import 'package:arvind_party/core/services/api_service.dart';
 import 'package:arvind_party/core/socket/socket_service.dart';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -84,7 +83,6 @@ class GiftsController extends GetxController {
   void _setupSocketListeners() {
     _socket.on('live_gift_effect', (data) {
       final event = Map<String, dynamic>.from(data);
-      debugPrint('[GiftsController] Live gift effect received: ${event['giftName']}');
       Get.snackbar(
         'Gift Received',
         '${event['senderName']} sent ${event['giftName']} to ${event['receiverName']}',
@@ -96,7 +94,6 @@ class GiftsController extends GetxController {
 
     _socket.on('gift_goal_updated', (data) {
       final event = Map<String, dynamic>.from(data);
-      debugPrint('[GiftsController] Gift goal updated: ${event['title']}');
       Get.snackbar(
         'Gift Goal Updated',
         event['title'] ?? 'New goal set',

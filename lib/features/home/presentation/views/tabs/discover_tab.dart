@@ -47,10 +47,7 @@ class DiscoverTab extends StatelessWidget {
                 return RefreshIndicator(
                   color: const Color(0xFFFF8906),
                   backgroundColor: const Color(0xFF15141F),
-                  onRefresh: () async {
-                    await Future.delayed(const Duration(milliseconds: 800));
-                    ctrl.selectCategory(ctrl.selectedCategory.value);
-                  },
+                  onRefresh: () async => ctrl.fetchDiscoverRooms(),
                   child: GridView.builder(
                     padding: const EdgeInsets.fromLTRB(12, 4, 12, 80),
                     physics: const BouncingScrollPhysics(),

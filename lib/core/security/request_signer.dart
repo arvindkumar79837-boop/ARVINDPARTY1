@@ -5,7 +5,6 @@
 
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
-import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class RequestSigner {
@@ -27,10 +26,8 @@ class RequestSigner {
         // Generate new device secret
         _deviceSecret = _generateDeviceSecret();
         await prefs.setString('device_secret', _deviceSecret!);
-        debugPrint('[RequestSigner] New device secret generated');
       }
     } catch (e) {
-      debugPrint('[RequestSigner] Initialization error: $e');
       // Fallback to generated secret
       _deviceSecret = _generateDeviceSecret();
     }
@@ -51,7 +48,6 @@ class RequestSigner {
     required String timestamp,
   }) {
     if (_deviceSecret == null) {
-      debugPrint('[RequestSigner] Warning: Not initialized, call initialize() first');
       return '';
     }
 
@@ -111,9 +107,7 @@ class RequestSigner {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove('device_secret');
       _deviceSecret = null;
-      debugPrint('[RequestSigner] Device secret cleared');
     } catch (e) {
-      debugPrint('[RequestSigner] Clear error: $e');
     }
   }
 

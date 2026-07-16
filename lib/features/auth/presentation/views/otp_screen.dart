@@ -7,6 +7,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pinput/pinput.dart';
+import '../../../../routes/app_routes.dart';
 import '../controllers/auth_controller.dart';
 
 class OtpScreen extends StatefulWidget {
@@ -42,7 +43,7 @@ class _OtpScreenState extends State<OtpScreen> {
 
     if (success) {
       // On success, navigate to the home screen, clearing the auth stack
-      Get.offAllNamed('/home');
+      Get.offAllNamed(AppRoutes.home);
       Get.snackbar(
         'Welcome!',
         'Successfully logged in.',

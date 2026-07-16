@@ -3,7 +3,6 @@
 // ARVIND PARTY - POWER MATRIX REPOSITORY
 // ═══════════════════════════════════════════════════════════════════════════
 
-import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import '../../../../core/services/api_service.dart';
 import '../../models/power_matrix_model.dart';
@@ -19,7 +18,6 @@ class PowerMatrixRepository {
       }
       return null;
     } catch (e) {
-      debugPrint('[PowerMatrixRepository] getPowerMatrix error: $e');
       return null;
     }
   }
@@ -32,7 +30,6 @@ class PowerMatrixRepository {
       });
       return response is Map && response['success'] == true;
     } catch (e) {
-      debugPrint('[PowerMatrixRepository] updatePowerMatrix error: $e');
       return false;
     }
   }
@@ -42,7 +39,6 @@ class PowerMatrixRepository {
       final response = await _apiService.post('/rooms/power-matrix/reset', body: {});
       return response is Map && response['success'] == true;
     } catch (e) {
-      debugPrint('[PowerMatrixRepository] resetPowerMatrix error: $e');
       return false;
     }
   }
@@ -58,7 +54,6 @@ class PowerMatrixRepository {
       }
       return null;
     } catch (e) {
-      debugPrint('[PowerMatrixRepository] checkUserPower error: $e');
       return null;
     }
   }
@@ -74,7 +69,6 @@ class PowerMatrixRepository {
       }
       return null;
     } catch (e) {
-      debugPrint('[PowerMatrixRepository] getPowerMatrixHistory error: $e');
       return null;
     }
   }

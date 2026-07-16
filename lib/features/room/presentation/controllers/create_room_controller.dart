@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../../core/services/api_service.dart';
+import '../../../../../routes/app_routes.dart';
 
 class CreateRoomController extends GetxController {
   final ApiService _apiService = Get.find<ApiService>();
@@ -70,7 +71,7 @@ class CreateRoomController extends GetxController {
         final String newRoomId = response['data']?['_id'] ?? '';
         
         if (newRoomId.isNotEmpty) {
-          Get.offNamed('/room_screen', arguments: {'roomId': newRoomId});
+          Get.offNamed(AppRoutes.liveRoom, arguments: {'roomId': newRoomId});
         } else {
           Get.back();
         }
@@ -78,7 +79,6 @@ class CreateRoomController extends GetxController {
         Get.snackbar('Creation Failed 🛑', response?['message'] ?? 'Server refused room registration.');
       }
     } catch (e) {
-      debugPrint('Exception inside room creation controller: $e');
       Get.snackbar('Server Error 🛑', 'Failed to push configuration parameters.');
     } finally {
       isLoading.value = false;

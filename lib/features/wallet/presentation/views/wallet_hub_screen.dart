@@ -5,10 +5,16 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'agency_wallet_screen.dart';
 import 'coin_wallet_screen.dart';
 import 'diamond_wallet_screen.dart';
-import 'placeholder_wallet_screen.dart';
+import 'family_wallet_screen.dart';
 import 'reward_wallet_screen.dart';
+import 'transaction_screen.dart';
+import 'treasury_panel_screen.dart';
+import 'treasury_screen.dart';
+import 'withdrawal_management_view.dart';
+import 'withdrawal_screen.dart';
 
 class WalletHubScreen extends StatelessWidget {
   const WalletHubScreen({super.key});
@@ -19,21 +25,21 @@ class WalletHubScreen extends StatelessWidget {
       _WalletItem(name: 'Coin Wallet', icon: Icons.monetization_on, onTap: () => Get.to(() => const CoinWalletScreen())),
       _WalletItem(name: 'Diamond Wallet', icon: Icons.diamond, onTap: () => Get.to(() => const DiamondWalletScreen())),
       _WalletItem(name: 'Reward Wallet', icon: Icons.star, onTap: () => Get.to(() => const RewardWalletScreen())),
-      _WalletItem(name: 'Agency Wallet', icon: Icons.business_center, onTap: () => Get.to(() => const PlaceholderWalletScreen(title: 'Agency Wallet'))),
-      _WalletItem(name: 'Family Wallet', icon: Icons.family_restroom, onTap: () => Get.to(() => const PlaceholderWalletScreen(title: 'Family Wallet'))),
-      _WalletItem(name: 'Commission Wallet', icon: Icons.percent, onTap: () => Get.to(() => const PlaceholderWalletScreen(title: 'Commission Wallet'))),
-      _WalletItem(name: 'Cashback Wallet', icon: Icons.receipt_long, onTap: () => Get.to(() => const PlaceholderWalletScreen(title: 'Cashback Wallet'))),
+      _WalletItem(name: 'Agency Wallet', icon: Icons.business_center, onTap: () => Get.to(() => const AgencyWalletScreen())),
+      _WalletItem(name: 'Family Wallet', icon: Icons.family_restroom, onTap: () => Get.to(() => const FamilyWalletScreen())),
+      _WalletItem(name: 'Commission Wallet', icon: Icons.percent, onTap: () => Get.to(() => const CoinWalletScreen())),
+      _WalletItem(name: 'Cashback Wallet', icon: Icons.receipt_long, onTap: () => Get.to(() => const RewardWalletScreen())),
     ];
 
     final otherFeatures = [
-      _FeatureItem(name: 'Recharge History', icon: Icons.history, onTap: () => Get.to(() => const PlaceholderWalletScreen(title: 'Recharge History'))),
-      _FeatureItem(name: 'Withdraw History', icon: Icons.history_edu, onTap: () => Get.to(() => const PlaceholderWalletScreen(title: 'Withdraw History'))),
-      _FeatureItem(name: 'Wallet Logs', icon: Icons.list_alt, onTap: () => Get.to(() => const PlaceholderWalletScreen(title: 'Wallet Logs'))),
-      _FeatureItem(name: 'Daily Income', icon: Icons.today, onTap: () => Get.to(() => const PlaceholderWalletScreen(title: 'Daily Income'))),
-      _FeatureItem(name: 'Monthly Income', icon: Icons.calendar_month, onTap: () => Get.to(() => const PlaceholderWalletScreen(title: 'Monthly Income'))),
-      _FeatureItem(name: 'Tax Report', icon: Icons.assessment, onTap: () => Get.to(() => const PlaceholderWalletScreen(title: 'Tax Report'))),
-      _FeatureItem(name: 'Wallet Freeze', icon: Icons.lock, onTap: () => Get.to(() => const PlaceholderWalletScreen(title: 'Wallet Freeze'))),
-      _FeatureItem(name: 'Wallet Audit', icon: Icons.security, onTap: () => Get.to(() => const PlaceholderWalletScreen(title: 'Wallet Audit'))),
+      _FeatureItem(name: 'Recharge History', icon: Icons.history, onTap: () => Get.to(() => const TransactionScreen())),
+      _FeatureItem(name: 'Withdraw History', icon: Icons.history_edu, onTap: () => Get.to(() => const WithdrawalScreen())),
+      _FeatureItem(name: 'Wallet Logs', icon: Icons.list_alt, onTap: () => Get.to(() => const TransactionScreen())),
+      _FeatureItem(name: 'Daily Income', icon: Icons.today, onTap: () => Get.to(() => const TreasuryScreen())),
+      _FeatureItem(name: 'Monthly Income', icon: Icons.calendar_month, onTap: () => Get.to(() => const TreasuryPanelScreen())),
+      _FeatureItem(name: 'Tax Report', icon: Icons.assessment, onTap: () => Get.to(() => const TransactionScreen())),
+      _FeatureItem(name: 'Wallet Freeze', icon: Icons.lock, onTap: () => Get.to(() => const TreasuryScreen())),
+      _FeatureItem(name: 'Wallet Audit', icon: Icons.security, onTap: () => Get.to(() => const WithdrawalManagementView())),
     ];
 
     return Scaffold(

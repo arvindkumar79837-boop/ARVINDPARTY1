@@ -14,6 +14,8 @@ class FamilyController extends GetxController {
   final isLeaving = false.obs;
   final isClaiming = false.obs;
   final isSendingMessage = false.obs;
+  final isContributing = false.obs;
+  final isWithdrawing = false.obs;
 
   final myFamily = Rxn<Map<String, dynamic>>();
   final familyTasks = <Map<String, dynamic>>[].obs;
@@ -355,7 +357,6 @@ class FamilyController extends GetxController {
       currentAdminCount.value = data['currentAdminCount'] ?? 0;
       maxAdminSlots.value = data['maxAdminSlots'] ?? 5;
     } catch (e) {
-      debugPrint('Error fetching admin list: $e');
     }
   }
 
@@ -543,7 +544,6 @@ class FamilyController extends GetxController {
       isStayActive.value = staySession.value != null;
       stayHistory.assignAll(List<Map<String, dynamic>>.from(data['history'] ?? []));
     } catch (e) {
-      debugPrint('Error fetching stay session: $e');
     }
   }
 
@@ -554,7 +554,6 @@ class FamilyController extends GetxController {
       final config = await _repo.getRewardConfig();
       rewardConfig.value = config;
     } catch (e) {
-      debugPrint('Error fetching reward config: $e');
     }
   }
 
@@ -665,7 +664,6 @@ class FamilyController extends GetxController {
       final items = await _repo.getShopItems();
       shopItems.assignAll(items);
     } catch (e) {
-      debugPrint('Error fetching shop items: $e');
     }
   }
 
@@ -685,7 +683,6 @@ class FamilyController extends GetxController {
       final inventory = await _repo.getShopItems(category: 'inventory');
       familyInventory.assignAll(inventory);
     } catch (e) {
-      debugPrint('Error fetching inventory: $e');
     }
   }
 
@@ -696,7 +693,6 @@ class FamilyController extends GetxController {
       final pk = await _repo.getPKBattle('current');
       activePK.value = pk;
     } catch (e) {
-      debugPrint('Error fetching active PK: $e');
     }
   }
 
@@ -705,7 +701,6 @@ class FamilyController extends GetxController {
       final history = await _repo.getPKBattle('history');
       pkHistory.assignAll(history['data'] as List<Map<String, dynamic>>? ?? []);
     } catch (e) {
-      debugPrint('Error fetching PK history: $e');
     }
   }
 
@@ -716,7 +711,6 @@ class FamilyController extends GetxController {
       final wars = await _repo.getFamilyWars();
       activeWars.assignAll(wars);
     } catch (e) {
-      debugPrint('Error fetching active wars: $e');
     }
   }
 
@@ -725,7 +719,6 @@ class FamilyController extends GetxController {
       final history = await _repo.getMyActiveWars();
       warHistory.assignAll(history);
     } catch (e) {
-      debugPrint('Error fetching war history: $e');
     }
   }
 
@@ -736,6 +729,36 @@ class FamilyController extends GetxController {
       await fetchActiveWars();
     } catch (e) {
       Get.snackbar('Error', e.toString().replaceAll('ApiException: ', ''));
+    }
+  }
+
+  // ─── TREASURY OPERATIONS ────────────────────────────────────────────
+
+  Future<bool> contributeToTreasury(double amount, {String? note}) async {
+    try {
+      isContributing.value = true;
+      await _repo.contributeToTreasury(amount, note: note);
+      fetchMyFamily();
+      return true;
+    } catch (e) {
+      Get.snackbar('Error', e.toString().replaceAll('ApiException: ', ''));
+      return false;
+    } finally {
+      isContributing.value = false;
+    }
+  }
+
+  Future<bool> withdrawFromTreasury(double amount, {String? reason}) async {
+    try {
+      isWithdrawing.value = true;
+      await _repo.withdrawFromTreasury(amount, reason: reason);
+      fetchMyFamily();
+      return true;
+    } catch (e) {
+      Get.snackbar('Error', e.toString().replaceAll('ApiException: ', ''));
+      return false;
+    } finally {
+      isWithdrawing.value = false;
     }
   }
 

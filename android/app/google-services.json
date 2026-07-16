@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:936691114067:android:e4d6a3f647ce71a85ce6a6",
         "android_client_info": {
-          "package_name": "com.example.arvind_party"
+          "package_name": "com.arvindparty.app"
         }
       },
       "oauth_client": [
@@ -17,7 +17,7 @@
           "client_id": "936691114067-r7gj7j0q5b0g61vmmgq2ph1uvdfservd.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.arvind_party",
+            "package_name": "com.arvindparty.app",
             "certificate_hash": "b75ca09189882b2b03c165e1d342c21080dbf14f"
           }
         },
@@ -42,7 +42,7 @@
               "client_id": "936691114067-1dnn5sqnbp90b1o7k4n5rcjrcssecl9i.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.example.arvindPartyWeb"
+                "bundle_id": "com.arvindparty.app"
               }
             }
           ]
@@ -53,7 +53,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:936691114067:android:c60087baf64c41695ce6a6",
         "android_client_info": {
-          "package_name": "com.example.arvind_party_web"
+          "package_name": "com.arvindparty.app"
         }
       },
       "oauth_client": [
@@ -78,7 +78,7 @@
               "client_id": "936691114067-1dnn5sqnbp90b1o7k4n5rcjrcssecl9i.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.example.arvindPartyWeb"
+                "bundle_id": "com.arvindparty.app"
               }
             }
           ]

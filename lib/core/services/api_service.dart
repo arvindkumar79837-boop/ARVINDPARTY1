@@ -1,10 +1,11 @@
 // lib/core/services/api_service.dart
 // Real API service for Arvind Party - connects to Node.js backend
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart' as getx;
 
 import '../constants/api_constants.dart';
+import '../utils/api_exception.dart';
 import 'auth_session_manager.dart';
 
 class ApiService extends getx.GetxService {
@@ -24,9 +25,6 @@ class ApiService extends getx.GetxService {
         'Accept': 'application/json',
       },
     ));
-
-    // SSL pinning: Add certificate validation
-    (_dio.httpClientAdapter as dynamic);
   }
 
   @override
@@ -43,20 +41,85 @@ class ApiService extends getx.GetxService {
           if (token != null && token.isNotEmpty) {
             options.headers['Authorization'] = 'Bearer $token';
           }
-        } catch (e) {
-          debugPrint('Auth header error: $e');
+        } catch (_) {
+          // Auth token not available yet — proceed without Authorization header
         }
         return handler.next(options);
       },
-      onError: (error, handler) {
+      onError: (error, handler) async {
         if (error.response?.statusCode == 401) {
           try {
-            getx.Get.find<AuthSessionManager>().clearSession();
-          } catch (e) { debugPrint('Error: $e'); }
+            final authSession = getx.Get.find<AuthSessionManager>();
+            await authSession.handleUnauthorized();
+            final newToken = authSession.token.value;
+            if (newToken != null && newToken.isNotEmpty) {
+              error.requestOptions.headers['Authorization'] = 'Bearer $newToken';
+              final dio = Dio();
+              try {
+                final response = await dio.fetch(error.requestOptions);
+                return handler.resolve(response);
+              } catch (_) {
+                // Retry failed — will return original error
+              }
+            }
+          } catch (_) {
+            // Session refresh failed — will return 401 error
+          }
         }
+
+        if (error.type == DioExceptionType.connectionError ||
+            error.type == DioExceptionType.connectionTimeout) {
+          _showNetworkError();
+        } else if (error.type == DioExceptionType.receiveTimeout ||
+            error.type == DioExceptionType.sendTimeout) {
+          _showTimeoutError();
+        } else if (error.response?.statusCode != null &&
+            error.response!.statusCode! >= 500) {
+          _showServerError();
+        }
+
         return handler.next(error);
       },
     ));
+  }
+
+  void _showNetworkError() {
+    if (getx.Get.isSnackbarOpen) return;
+    getx.Get.snackbar(
+      'No Internet',
+      'Please check your internet connection',
+      snackPosition: getx.SnackPosition.BOTTOM,
+      backgroundColor: const Color(0xFF2A2A3E),
+      colorText: const Color(0xFFFF8906),
+      margin: const EdgeInsets.all(12),
+      duration: const Duration(seconds: 3),
+    );
+  }
+
+  void _showTimeoutError() {
+    if (getx.Get.isSnackbarOpen) return;
+    getx.Get.snackbar(
+      'Timeout',
+      'Request timed out. Please try again.',
+      snackPosition: getx.SnackPosition.BOTTOM,
+      backgroundColor: const Color(0xFF2A2A3E),
+      colorText: const Color(0xFFFF8906),
+      margin: const EdgeInsets.all(12),
+      duration: const Duration(seconds: 3),
+    );
+  }
+
+  void _showServerError() {
+    if (getx.Get.isSnackbarOpen) return;
+    getx.Get.snackbar(
+      'Server Error',
+      'Something went wrong on our end. Please try again later.',
+      snackPosition: getx.SnackPosition.BOTTOM,
+      backgroundColor: const Color(0xFF2A2A3E),
+      colorText: const Color(0xFFFF8906),
+      margin: const EdgeInsets.all(12),
+      duration: const Duration(seconds: 3),
+    );
   }
 
   Dio get dio => _dio;
@@ -172,22 +235,32 @@ class ApiService extends getx.GetxService {
     }
   }
 
-  String _handleDioError(DioException e) {
+  Never _handleDioError(DioException e) {
     if (e.type == DioExceptionType.connectionTimeout ||
         e.type == DioExceptionType.receiveTimeout ||
         e.type == DioExceptionType.sendTimeout) {
-      return 'Connection timeout. Please try again.';
+      throw ApiException.timeoutError();
     }
     if (e.type == DioExceptionType.connectionError) {
-      return 'Cannot connect to server. Please check your internet.';
+      throw ApiException.networkError();
     }
     if (e.response != null) {
+      if (e.response?.statusCode == 401) {
+        throw ApiException.unauthorized();
+      }
       final data = e.response?.data;
       if (data is Map && data['message'] != null) {
-        return data['message'].toString();
+        throw ApiException(
+          message: data['message'].toString(),
+          statusCode: e.response?.statusCode,
+          errors: data['errors'],
+        );
       }
-      return 'Server error: ${e.response?.statusCode}';
+      throw ApiException(
+        message: 'Server error: ${e.response?.statusCode}',
+        statusCode: e.response?.statusCode,
+      );
     }
-    return e.message ?? 'Unknown error';
+    throw ApiException(message: e.message ?? 'Unknown error');
   }
 }

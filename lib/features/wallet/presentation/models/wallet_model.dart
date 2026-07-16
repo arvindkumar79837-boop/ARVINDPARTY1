@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 
 enum WalletType { coin, diamond, family, agency }
 enum TransactionType { recharge, giftSent, giftReceived, withdrawal, exchangeIn, exchangeOut, reward, bonus, adminAdjust, refund, familyTaskReward, familyContribution, agencyCommission, agencyHostEarning, agencyWithdrawal, dailyTaskReward, loginStreakReward, eventReward, treasureHuntReward, luckyDrawReward, tournamentReward, penalty, taxDeducted, freezeAdjustment, unfreezeAdjustment }
@@ -185,7 +184,6 @@ class TransactionModel {
       );
     } catch (e) {
       txType = TransactionType.recharge;
-      debugPrint('Transaction type parse error: $e');
     }
 
     final String walletStr = json['walletType'] ?? 'coin';
@@ -194,7 +192,6 @@ class TransactionModel {
       wType = WalletType.values.firstWhere((e) => e.name == walletStr);
     } catch (e) {
       wType = WalletType.coin;
-      debugPrint('Wallet type parse error: $e');
     }
 
     return TransactionModel(

@@ -35,7 +35,6 @@ class _SocialLoginScreenState extends State<SocialLoginScreen> {
             ..play();
         }
       }).catchError((e) {
-        debugPrint('[SocialLogin] Video load error: $e');
       });
   }
 
@@ -174,38 +173,6 @@ class _SocialLoginScreenState extends State<SocialLoginScreen> {
           ).animate().fadeIn(delay: 400.ms, duration: 600.ms).slideY(begin: 0.3, end: 0),
           const SizedBox(height: 12),
           _buildSocialButton(
-            label: 'Continue with Apple',
-            icon: Icons.apple,
-            color: Colors.black,
-            textColor: Colors.white,
-            onTap: controller.loginWithApple,
-          ).animate().fadeIn(delay: 500.ms, duration: 600.ms).slideY(begin: 0.3, end: 0),
-          const SizedBox(height: 12),
-          _buildSocialButton(
-            label: 'Continue with Facebook',
-            icon: Icons.facebook,
-            color: const Color(0xFF1877F2),
-            textColor: Colors.white,
-            onTap: controller.loginWithFacebook,
-          ).animate().fadeIn(delay: 600.ms, duration: 600.ms).slideY(begin: 0.3, end: 0),
-          const SizedBox(height: 12),
-          _buildSocialButton(
-            label: 'Continue with Snapchat',
-            icon: Icons.camera_alt,
-            color: const Color(0xFFFFFC00),
-            textColor: Colors.black87,
-            onTap: () => _showComingSoon('Snapchat'),
-          ).animate().fadeIn(delay: 700.ms, duration: 600.ms).slideY(begin: 0.3, end: 0),
-          const SizedBox(height: 12),
-          _buildSocialButton(
-            label: 'Continue with Instagram',
-            icon: Icons.photo_camera,
-            color: const Color(0xFFE4405F),
-            textColor: Colors.white,
-            onTap: () => _showComingSoon('Instagram'),
-          ).animate().fadeIn(delay: 800.ms, duration: 600.ms).slideY(begin: 0.3, end: 0),
-          const SizedBox(height: 12),
-          _buildSocialButton(
             label: 'Continue with Phone Number',
             icon: Icons.phone_android,
             color: Colors.white.withValues(alpha: 0.1),
@@ -255,16 +222,6 @@ class _SocialLoginScreenState extends State<SocialLoginScreen> {
           ],
         ),
       ),
-    );
-  }
-
-  void _showComingSoon(String provider) {
-    Get.snackbar(
-      'Coming Soon',
-      '$provider login will be available soon!',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.orange.withValues(alpha: 0.8),
-      colorText: Colors.white,
     );
   }
 

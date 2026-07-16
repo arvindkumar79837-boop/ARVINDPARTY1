@@ -4,7 +4,6 @@
 // MATCHES BACKEND RESPONSE: { success, message, data: { token, refreshToken, user: { _id, phone, name, avatar, arvindId, level, ... } } }
 // ═══════════════════════════════════════════════════════════════════════════
 
-import 'package:flutter/foundation.dart';
 
 class User {
   final String id;
@@ -65,7 +64,6 @@ class User {
     try {
       return DateTime.parse(value.toString());
     } catch (e) {
-      debugPrint('[AuthModel] Invalid date format: \$value');
       return DateTime.now();
     }
   }

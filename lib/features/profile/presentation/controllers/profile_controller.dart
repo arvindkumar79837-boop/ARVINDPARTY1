@@ -3,7 +3,6 @@
 // ARVIND PARTY - UNIFIED PROFILE CONTROLLER (REFACTORED WITH USER MODEL)
 // ═══════════════════════════════════════════════════════════════════════════
 
-import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 
 import '../../../../core/services/api_service.dart';
@@ -45,7 +44,6 @@ class ProfileController extends GetxController {
         userProfile.value = User.fromBackendJson(data);
       }
     } catch (e) {
-      debugPrint('[ProfileController] fetchProfile error: $e');
       userProfile.value = null;
     } finally {
       isLoading.value = false;
@@ -65,7 +63,6 @@ class ProfileController extends GetxController {
       }
       return false;
     } catch (e) {
-      debugPrint('[ProfileController] updateProfile error: $e');
       return false;
     } finally {
       isLoading.value = false;
@@ -85,12 +82,16 @@ class ProfileController extends GetxController {
       }
       return false;
     } catch (e) {
-      debugPrint('[ProfileController] uploadProfilePicture error: $e');
       return false;
     }
   }
 
   String get userId => _session.userId.value ?? '';
+
+  @override
+  void onClose() {
+    super.onClose();
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -120,7 +121,6 @@ class OtherUserController extends GetxController {
         isBlockedByMe.value = data['isBlockedByMe'] ?? false;
       }
     } catch (e) {
-      debugPrint('[OtherUserController] fetchUserProfile error: $e');
       userProfile.value = null;
     } finally {
       isLoading.value = false;
@@ -137,7 +137,6 @@ class OtherUserController extends GetxController {
         });
       }
     } catch (e) {
-      debugPrint('[OtherUserController] followUser error: $e');
     }
   }
 
@@ -151,7 +150,6 @@ class OtherUserController extends GetxController {
         });
       }
     } catch (e) {
-      debugPrint('[OtherUserController] unfollowUser error: $e');
     }
   }
 
@@ -163,7 +161,6 @@ class OtherUserController extends GetxController {
         Get.back(); // Go back after blocking
       }
     } catch (e) {
-      debugPrint('[OtherUserController] blockUser error: $e');
     }
   }
 }

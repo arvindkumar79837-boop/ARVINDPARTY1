@@ -39,14 +39,28 @@ class FamilyChatScreen extends GetView<FamilyController> {
           children: [
             // Messages Area
             Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: 5,
-                itemBuilder: (context, index) {
-                  final isMe = index % 3 == 0;
-                  return _buildMessageBubble(isMe);
-                },
-              ),
+              child: Obx(() {
+                final messages = controller.chatMessages;
+                if (messages.isEmpty) {
+                  return const Center(
+                    child: Text('No messages yet. Say hello!',
+                        style: TextStyle(color: Colors.grey)),
+                  );
+                }
+                return ListView.builder(
+                  reverse: true,
+                  padding: const EdgeInsets.all(16),
+                  itemCount: messages.length,
+                  itemBuilder: (context, index) {
+                    final msg = messages[messages.length - 1 - index];
+                    final isMe = msg['senderId'] == 'me';
+                    return _buildMessageBubble(
+                      isMe,
+                      msg['content']?.toString() ?? '',
+                    );
+                  },
+                );
+              }),
             ),
 
             // Input Area
@@ -62,7 +76,10 @@ class FamilyChatScreen extends GetView<FamilyController> {
                 children: [
                   Expanded(
                     child: TextField(
+                      controller: controller.messageController,
                       style: const TextStyle(color: Colors.white),
+                      textInputAction: TextInputAction.send,
+                      onSubmitted: (_) => _send(),
                       decoration: InputDecoration(
                         hintText: 'Type a message...',
                         hintStyle: TextStyle(color: Colors.grey.shade600),
@@ -88,9 +105,7 @@ class FamilyChatScreen extends GetView<FamilyController> {
                     ),
                     child: IconButton(
                       icon: const Icon(Icons.send, color: Colors.white, size: 20),
-                      onPressed: () {
-                        Get.snackbar('Coming Soon', 'Chat functionality will be available soon!');
-                      },
+                      onPressed: _send,
                     ),
                   ),
                 ],
@@ -102,7 +117,14 @@ class FamilyChatScreen extends GetView<FamilyController> {
     );
   }
 
-  Widget _buildMessageBubble(bool isMe) {
+  void _send() {
+    final text = controller.messageController.text.trim();
+    if (text.isNotEmpty) {
+      controller.sendMessage(text);
+    }
+  }
+
+  Widget _buildMessageBubble(bool isMe, [String text = '']) {
     return Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
@@ -123,7 +145,7 @@ class FamilyChatScreen extends GetView<FamilyController> {
           borderRadius: BorderRadius.circular(16),
         ),
         child: Text(
-          isMe ? 'Great job team! 🔥' : 'Keep it up everyone! 💪',
+          text.isNotEmpty ? text : (isMe ? 'Great job team!' : 'Keep it up everyone!'),
           style: TextStyle(
             color: Colors.white,
             fontSize: 14,

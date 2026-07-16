@@ -3,7 +3,6 @@
 // ARVIND PARTY - GAMES CONTROLLER
 // ═══════════════════════════════════════════════════════════════════════════
 
-import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 
 import '../../models/webview_game_model.dart';
@@ -31,7 +30,6 @@ class GamesController extends GetxController {
       final list = await _repo.getLeaderboard();
       leaderboard.assignAll(list);
     } catch (e) {
-      debugPrint('Leaderboard error: $e');
     }
   }
 
@@ -82,5 +80,10 @@ class GamesController extends GetxController {
   void clearResult() {
     lastReward.value = null;
     errorMessage.value = '';
+  }
+
+  @override
+  void onClose() {
+    super.onClose();
   }
 }

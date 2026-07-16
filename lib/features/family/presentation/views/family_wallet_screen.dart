@@ -30,7 +30,9 @@ class FamilyWalletScreen extends StatelessWidget {
       ),
       body: SafeArea(
         child: RefreshIndicator(
-          onRefresh: () async {},
+          onRefresh: () async {
+            controller.fetchFamilyData();
+          },
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.all(16),
@@ -257,7 +259,12 @@ class FamilyWalletScreen extends StatelessWidget {
                   icon: Icons.history_outlined,
                   label: 'History',
                   color: Colors.orange,
-                  onTap: () {},
+                  onTap: () {
+                    Get.snackbar('Transaction History', 'Loading all transactions...',
+                        snackPosition: SnackPosition.BOTTOM,
+                        backgroundColor: Colors.orange.withValues(alpha: 0.8),
+                        colorText: Colors.white);
+                  },
                 ),
               ),
             ],
@@ -351,7 +358,12 @@ class FamilyWalletScreen extends StatelessWidget {
               ),
             ),
             TextButton.icon(
-              onPressed: () {},
+              onPressed: () {
+                Get.snackbar('Filter', 'Filter logs by type, date, or member',
+                    snackPosition: SnackPosition.BOTTOM,
+                    backgroundColor: Colors.deepPurple.withValues(alpha: 0.8),
+                    colorText: Colors.white);
+              },
               icon: Icon(
                 Icons.filter_list_outlined,
                 size: 14,
@@ -503,7 +515,12 @@ class FamilyWalletScreen extends StatelessWidget {
               ),
             ),
             TextButton.icon(
-              onPressed: () {},
+              onPressed: () {
+                Get.snackbar('Manage Allocation', 'Opening resource allocation settings...',
+                    snackPosition: SnackPosition.BOTTOM,
+                    backgroundColor: Colors.deepPurple.withValues(alpha: 0.8),
+                    colorText: Colors.white);
+              },
               icon: Icon(
                 Icons.settings_outlined,
                 size: 14,
@@ -725,15 +742,19 @@ class FamilyWalletScreen extends StatelessWidget {
                   }
 
                   isProcessing.value = true;
-                  await Future.delayed(const Duration(milliseconds: 800));
-                  Get.back();
-                  Get.snackbar(
-                    'Success',
-                    'Contributed $amount 🪙 to family treasury',
-                    snackPosition: SnackPosition.BOTTOM,
-                    backgroundColor: Colors.green.withValues(alpha: 0.8),
-                    colorText: Colors.white,
-                  );
+                  final success = await controller.contributeToTreasury(amount, note: noteController.text.trim());
+                  if (success) {
+                    Get.back();
+                    Get.snackbar(
+                      'Success',
+                      'Contributed $amount 🪙 to family treasury',
+                      snackPosition: SnackPosition.BOTTOM,
+                      backgroundColor: Colors.green.withValues(alpha: 0.8),
+                      colorText: Colors.white,
+                    );
+                  } else {
+                    isProcessing.value = false;
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
@@ -835,15 +856,19 @@ class FamilyWalletScreen extends StatelessWidget {
                   }
 
                   isProcessing.value = true;
-                  await Future.delayed(const Duration(milliseconds: 800));
-                  Get.back();
-                  Get.snackbar(
-                    'Success',
-                    'Withdrawn $amount 🪙 from treasury',
-                    snackPosition: SnackPosition.BOTTOM,
-                    backgroundColor: Colors.green.withValues(alpha: 0.8),
-                    colorText: Colors.white,
-                  );
+                  final success = await controller.withdrawFromTreasury(amount, reason: reasonController.text.trim());
+                  if (success) {
+                    Get.back();
+                    Get.snackbar(
+                      'Success',
+                      'Withdrawn $amount 🪙 from treasury',
+                      snackPosition: SnackPosition.BOTTOM,
+                      backgroundColor: Colors.green.withValues(alpha: 0.8),
+                      colorText: Colors.white,
+                    );
+                  } else {
+                    isProcessing.value = false;
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,

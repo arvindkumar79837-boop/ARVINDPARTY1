@@ -23,6 +23,7 @@ import '../features/agency/presentation/views/agency_salary_screen.dart';
 import '../features/agency/presentation/views/create_agency_screen.dart';
 // Analytics
 import '../features/analytics/presentation/views/analytics_dashboard_screen.dart';
+import '../features/analytics/presentation/bindings/analytics_binding.dart';
 import '../features/auth/presentation/bindings/auth_binding.dart';
 import '../features/auth/presentation/views/account_security_screen.dart';
 import '../features/auth/presentation/views/device_binding_screen.dart';
@@ -138,9 +139,17 @@ import '../features/splash/presentation/views/splash_screen.dart';
 import '../features/support/presentation/bindings/support_binding.dart';
 // Support
 import '../features/support/presentation/views/support_screen.dart';
-import '../features/vip/bindings/vip_binding.dart';
-// VIP System (Legacy)
-import '../features/vip/views/vip_screen.dart';
+import '../features/room/presentation/views/create_room_screen.dart';
+import '../features/profile/presentation/views/gallery_screen.dart';
+import '../features/auth/presentation/views/edit_profile_screen.dart' as auth_edit;
+import '../features/wallet/presentation/views/payment_success_screen.dart';
+import '../features/settings/presentation/views/privacy_screen.dart';
+import '../features/settings/presentation/views/social_links_screen.dart';
+import '../features/profile/presentation/views/visitor_history_screen.dart';
+import '../features/chat/presentation/views/private_chat_screen.dart';
+import '../features/cp/presentation/views/coin_seller_transactions_screen.dart';
+
+import '../features/vip_system/bindings/vip_system_binding.dart';
 import '../features/vip_system/views/vip_cosmetics_view.dart';
 // VIP System NEW (VIP 1-15, SVIP, Premium, Cosmetics, Missions)
 import '../features/vip_system/views/vip_dashboard_view.dart';
@@ -252,6 +261,11 @@ class AppPages {
       page: () => CompleteProfileScreen(),
       binding: ProfileBinding(),
     ),
+    GetPage(
+      name: AppRoutes.editProfile,
+      page: () => const auth_edit.EditProfileScreen(),
+      binding: AuthBinding(),
+    ),
 
     // ─── HOME ─────────────────────────────────────────────
     GetPage(
@@ -266,34 +280,40 @@ class AppPages {
     ),
     GetPage(
       name: AppRoutes.vip,
-      page: () => const VIPScreen(),
-      binding: VipBinding(),
+      page: () => const VipDashboardView(),
+      binding: VipSystemBinding(),
     ),
 
     // ─── VIP SYSTEM NEW ──────────────────────────────────
     GetPage(
       name: AppRoutes.vipDashboard,
       page: () => const VipDashboardView(),
+      binding: VipSystemBinding(),
     ),
     GetPage(
       name: AppRoutes.vipShop,
       page: () => const VipShopView(),
+      binding: VipSystemBinding(),
     ),
     GetPage(
       name: AppRoutes.vipMissions,
       page: () => const VipMissionsView(),
+      binding: VipSystemBinding(),
     ),
     GetPage(
       name: AppRoutes.vipCosmetics,
       page: () => const VipCosmeticsView(),
+      binding: VipSystemBinding(),
     ),
     GetPage(
       name: AppRoutes.premium,
       page: () => const PremiumView(),
+      binding: VipSystemBinding(),
     ),
     GetPage(
       name: AppRoutes.vipLeaderboard,
       page: () => const VipDashboardView(),
+      binding: VipSystemBinding(),
     ),
 
     // ─── PROFILE ──────────────────────────────────────────
@@ -315,6 +335,16 @@ class AppPages {
     GetPage(
       name: AppRoutes.walletHistory,
       page: () => const TransactionHistoryScreen(),
+      binding: ProfileBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.gallery,
+      page: () => const GalleryScreen(),
+      binding: ProfileBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.visitorHistory,
+      page: () => const VisitorHistoryScreen(),
       binding: ProfileBinding(),
     ),
 
@@ -358,6 +388,11 @@ class AppPages {
       name: AppRoutes.shop,
       page: () => const ShopScreen(),
       binding: ShopBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.paymentSuccess,
+      page: () => const PaymentSuccessScreen(),
+      binding: WalletBinding(),
     ),
 
     // ─── LUCKY DRAW ──────────────────────────────────────
@@ -425,6 +460,11 @@ class AppPages {
       binding: RoomBinding(),
     ),
     GetPage(
+      name: AppRoutes.createRoom,
+      page: () => CreateRoomScreen(),
+      binding: RoomBinding(),
+    ),
+    GetPage(
       name: AppRoutes.roomDetail,
       page: () => const RoomDetailScreen(),
       binding: RoomBinding(),
@@ -485,11 +525,26 @@ class AppPages {
       page: () => const GiftScreen(),
       binding: GiftBinding(),
     ),
+    GetPage(
+      name: AppRoutes.giftRanking,
+      page: () => const GiftRankingScreen(),
+      binding: GiftBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.charmRanking,
+      page: () => const GiftRankingScreen(),
+      binding: GiftBinding(),
+    ),
 
     // ─── CHAT ─────────────────────────────────────────────
     GetPage(
       name: AppRoutes.chat,
       page: () => const RoomChatScreen(roomId: 'room1', roomName: 'Chat'),
+      binding: ChatBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.privateChat,
+      page: () => const PrivateChatScreen(),
       binding: ChatBinding(),
     ),
 
@@ -508,6 +563,11 @@ class AppPages {
     // ─── BLOCK ────────────────────────────────────────────
     GetPage(
       name: AppRoutes.blacklist,
+      page: () => const BlacklistScreen(),
+      binding: BlockBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.blockList,
       page: () => const BlacklistScreen(),
       binding: BlockBinding(),
     ),
@@ -581,7 +641,12 @@ class AppPages {
       binding: CoinSellerBinding(),
     ),
     GetPage(
-      name: '/dealer-wallet',
+      name: AppRoutes.coinSellerTransactions,
+      page: () => const CoinSellerTransactionsScreen(),
+      binding: CoinSellerBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.dealerWallet,
       page: () => const DealerWalletScreen(),
       binding: BindingsBuilder(() {
         Get.put(DealerController());
@@ -679,20 +744,30 @@ class AppPages {
       page: () => const SettingsScreen(),
       binding: SettingsBinding(),
     ),
+    GetPage(
+      name: AppRoutes.privacy,
+      page: () => const PrivacyScreen(),
+      binding: SettingsBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.socialLinks,
+      page: () => const SocialLinksScreen(),
+      binding: SettingsBinding(),
+    ),
 
     // ─── ADMIN PANEL ────────────────────────────────────
     GetPage(
-      name: '/admin',
+      name: AppRoutes.adminDashboard,
       page: () => const AdminDashboardScreen(),
       binding: AdminBinding(),
     ),
     GetPage(
-      name: '/admin/staff',
+      name: AppRoutes.adminStaff,
       page: () => const StaffManagementScreen(),
       binding: AdminBinding(),
     ),
     GetPage(
-      name: '/admin/broadcast',
+      name: AppRoutes.adminBroadcast,
       page: () => const BroadcastScreen(),
       binding: AdminBinding(),
     ),
@@ -706,6 +781,28 @@ class AppPages {
     GetPage(
       name: AppRoutes.globalAnalytics,
       page: () => const AnalyticsDashboardScreen(),
+      binding: AnalyticsBinding(),
+    ),
+
+    // ─── ROOMS (filtered list from home "View All") ─────
+    GetPage(
+      name: AppRoutes.rooms,
+      page: () => const RoomListScreen(),
+      binding: RoomBinding(),
+    ),
+
+    // ─── CHANGE PASSWORD ─────────────────────────────────
+    GetPage(
+      name: AppRoutes.changePassword,
+      page: () => const PasswordResetScreen(),
+      binding: AuthBinding(),
+    ),
+
+    // ─── ADMIN WITHDRAWALS ──────────────────────────────
+    GetPage(
+      name: AppRoutes.adminWithdrawals,
+      page: () => const AdminWalletManagementView(),
+      binding: AdminBinding(),
     ),
   ];
 }

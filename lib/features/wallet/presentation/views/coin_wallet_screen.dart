@@ -6,6 +6,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../routes/app_routes.dart';
 import '../../services/payment_service.dart';
 import '../controllers/wallet_controller.dart';
 
@@ -232,7 +233,72 @@ class CoinWalletScreen extends StatelessWidget {
                   icon: Icons.card_giftcard_outlined,
                   label: 'Gift Coins',
                   color: Colors.pink,
-                  onTap: () {},
+                  onTap: () {
+                    Get.defaultDialog(
+                      title: 'Send Gift Coins',
+                      titleStyle: const TextStyle(color: Colors.white, fontSize: 18),
+                      backgroundColor: const Color(0xFF1A1A2E),
+                      content: SizedBox(
+                        width: 280,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text(
+                              'Enter the amount of coins you want to send as a gift.',
+                              style: TextStyle(color: Colors.white70, fontSize: 13),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 16),
+                            TextField(
+                              controller: controller.giftAmountController,
+                              keyboardType: TextInputType.number,
+                              style: const TextStyle(color: Colors.white),
+                              decoration: InputDecoration(
+                                hintText: 'Amount',
+                                prefixIcon: const Icon(Icons.monetization_on_outlined, color: Colors.orange),
+                                hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.4)),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: const BorderSide(color: Colors.orange),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            SizedBox(
+                              width: double.infinity,
+                              height: 44,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  final amount = int.tryParse(controller.giftAmountController.text);
+                                  if (amount == null || amount <= 0) {
+                                    Get.snackbar('Error', 'Enter a valid amount',
+                                        snackPosition: SnackPosition.BOTTOM);
+                                    return;
+                                  }
+                                  if (amount > controller.coinBalance.value) {
+                                    Get.snackbar('Insufficient', 'Not enough coins',
+                                        snackPosition: SnackPosition.BOTTOM);
+                                    return;
+                                  }
+                                  Get.back();
+                                  controller.sendGiftCoins(amount);
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.pink,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+                                ),
+                                child: const Text('Send Gift', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ),
               const SizedBox(width: 12),
@@ -241,7 +307,7 @@ class CoinWalletScreen extends StatelessWidget {
                   icon: Icons.storefront_outlined,
                   label: 'Shop',
                   color: Colors.blue,
-                  onTap: () => Get.toNamed('/shop'),
+                    onTap: () => Get.toNamed(AppRoutes.shop),
                 ),
               ),
             ],
@@ -305,7 +371,10 @@ class CoinWalletScreen extends StatelessWidget {
               ),
             ),
             TextButton.icon(
-              onPressed: () {},
+              onPressed: () {
+                Get.snackbar('Packages', 'Viewing all packages',
+                    snackPosition: SnackPosition.BOTTOM);
+              },
               icon: Icon(
                 Icons.visibility_outlined,
                 size: 14,

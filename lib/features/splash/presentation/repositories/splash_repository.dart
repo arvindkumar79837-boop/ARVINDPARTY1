@@ -3,26 +3,21 @@
 // FILE: splash_repository.dart
 // ═══════════════════════════════════════════════════════════════════════════
 
+import 'package:get/get.dart';
+
+import '../../../../core/services/auth_session_manager.dart';
+
 class SplashRepository {
+  AuthSessionManager get _session => Get.find<AuthSessionManager>();
+
   /// Initialize app settings or check auth state
   Future<void> initializeApp() async {
-    try {
-      // Add initialization logic here:
-      // - Check authentication state
-      // - Load user data
-      // - Initialize services
-      // - Set up socket connections
-      
-      await Future.delayed(const Duration(seconds: 1));
-    } catch (e) {
-      rethrow;
-    }
+    // App initialization handled by individual services
   }
 
   /// Check if user is authenticated
   Future<bool> isUserAuthenticated() async {
-    // Implement auth check logic
-    return false;
+    return _session.isLoggedIn;
   }
 
   /// Get initial route based on app state

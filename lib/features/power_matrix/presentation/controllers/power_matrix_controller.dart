@@ -65,7 +65,6 @@ class PowerMatrixController extends GetxController {
       }
     } catch (e) {
       errorMessage.value = 'Error: ${e.toString()}';
-      debugPrint('[PowerMatrixController] fetchPowerMatrix error: $e');
     } finally {
       isLoading.value = false;
     }
@@ -150,7 +149,6 @@ class PowerMatrixController extends GetxController {
             backgroundColor: Colors.redAccent, colorText: Colors.white);
       }
     } catch (e) {
-      debugPrint('[PowerMatrixController] checkUserPower error: $e');
       Get.snackbar('Error', 'Check failed: ${e.toString()}',
           backgroundColor: Colors.redAccent, colorText: Colors.white);
     } finally {
@@ -167,7 +165,6 @@ class PowerMatrixController extends GetxController {
         history.assignAll(data.map((h) => PowerMatrixHistory.fromJson(h)).toList());
       }
     } catch (e) {
-      debugPrint('[PowerMatrixController] fetchHistory error: $e');
     } finally {
       isLoadingHistory.value = false;
     }
@@ -217,5 +214,10 @@ class PowerMatrixController extends GetxController {
 
   Color getPowerCheckColor(PowerCheckResult result) {
     return result.allowed ? Colors.green : Colors.red;
+  }
+
+  @override
+  void onClose() {
+    super.onClose();
   }
 }

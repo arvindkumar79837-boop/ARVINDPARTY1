@@ -10,7 +10,6 @@ import 'package:arvind_party/core/services/api_service.dart';
 import 'package:arvind_party/core/services/auth_session_manager.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -75,7 +74,6 @@ class FirebaseAuthService extends GetxService {
         };
       }
     } catch (e) {
-      debugPrint('Error getting device info: $e');
     }
     return null;
   }

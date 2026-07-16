@@ -7,7 +7,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:crypto/crypto.dart';
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' show defaultTargetPlatform, TargetPlatform;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DeviceFingerprint {
@@ -57,10 +57,8 @@ class DeviceFingerprint {
       await prefs.setString(_deviceIdKey, fingerprint);
       _cachedFingerprint = fingerprint;
 
-      debugPrint('[DeviceFingerprint] Generated: $fingerprint');
       return fingerprint;
     } catch (e) {
-      debugPrint('[DeviceFingerprint] Error: $e, generating fallback fingerprint');
       // Generate a fallback fingerprint
       return _generateFallbackFingerprint();
     }
@@ -86,7 +84,6 @@ class DeviceFingerprint {
         'systemFeatures': info.systemFeatures,
       };
     } catch (e) {
-      debugPrint('[DeviceFingerprint] Android info error: $e');
       return {'error': 'android_info_failed'};
     }
   }
@@ -109,7 +106,6 @@ class DeviceFingerprint {
         },
       };
     } catch (e) {
-      debugPrint('[DeviceFingerprint] iOS info error: $e');
       return {'error': 'ios_info_failed'};
     }
   }
@@ -123,7 +119,6 @@ class DeviceFingerprint {
         'viewport': '$defaultTargetPlatform',
       };
     } catch (e) {
-      debugPrint('[DeviceFingerprint] Web info error: $e');
       return {'error': 'web_info_failed'};
     }
   }
@@ -176,7 +171,6 @@ class DeviceFingerprint {
         };
       }
     } catch (e) {
-      debugPrint('[DeviceFingerprint] getDeviceInfo error: $e');
       return {'fingerprint': _cachedFingerprint};
     }
   }
@@ -187,9 +181,7 @@ class DeviceFingerprint {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove(_deviceIdKey);
       _cachedFingerprint = null;
-      debugPrint('[DeviceFingerprint] Cleared');
     } catch (e) {
-      debugPrint('[DeviceFingerprint] Clear error: $e');
     }
   }
 }

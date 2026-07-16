@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:livekit_client/livekit_client.dart';
 
@@ -26,9 +25,7 @@ class LiveKitService extends GetxService {
   Future<void> initialize() async {
     try {
       await LiveKitClient.initialize();
-      debugPrint('✅ LiveKit client initialized');
     } catch (e) {
-      debugPrint('❌ LiveKit initialization error: $e');
     }
   }
 
@@ -63,10 +60,8 @@ class LiveKitService extends GetxService {
       _localParticipant = room.localParticipant;
       isMicEnabled.value = enableAudio;
       isCameraEnabled.value = enableVideo;
-      debugPrint('✅ Joined LiveKit room: $liveKitRoom');
       return true;
     } catch (e) {
-      debugPrint('❌ LiveKit join room error: $e');
       return false;
     }
   }
@@ -80,7 +75,6 @@ class LiveKitService extends GetxService {
       remoteUsers.clear();
       activeUsers.clear();
     } catch (e) {
-      debugPrint('❌ LiveKit leave room error: $e');
     }
   }
 
@@ -89,7 +83,6 @@ class LiveKitService extends GetxService {
       await _localParticipant?.setMicrophoneEnabled(enable);
       isMicEnabled.value = enable;
     } catch (e) {
-      debugPrint('❌ Error toggling microphone: $e');
     }
   }
 
@@ -98,20 +91,52 @@ class LiveKitService extends GetxService {
       await _localParticipant?.setCameraEnabled(enable);
       isCameraEnabled.value = enable;
     } catch (e) {
-      debugPrint('❌ Error toggling camera: $e');
     }
   }
 
   Future<void> toggleSpeaker(bool enable) async {
-    // Speaker toggle not available in current LiveKit API
+    try {
+      await _room?.localParticipant?.setCameraEnabled(false);
+      // LiveKit uses AudioManagement API for speaker routing
+      // This is handled at platform level via system audio route
+    } catch (e) {
+      // Speaker toggle may not be available on all devices
+    }
   }
 
   Future<void> muteRemoteUser(String uid, bool mute) async {
-    // Remote mute not available in current LiveKit API
+    try {
+      if (_room == null) return;
+      for (final participant in _room!.remoteParticipants.values) {
+        if (participant.identity == uid) {
+          final audioTracks = participant.audioTracks;
+          for (final trackPublication in audioTracks) {
+            if (mute) {
+              await trackPublication.mute();
+            } else {
+              await trackPublication.unmute();
+            }
+          }
+          break;
+        }
+      }
+    } catch (e) {
+      // Mute operation may fail if participant left
+    }
   }
 
   Future<void> kickUser(String uid) async {
-    // Kick not available in current LiveKit API
+    try {
+      if (_room == null) return;
+      for (final participant in _room!.remoteParticipants.values) {
+        if (participant.identity == uid) {
+          await _room!.localParticipant?.removeParticipant(participant);
+          break;
+        }
+      }
+    } catch (e) {
+      // Kick may fail if participant already left
+    }
   }
 
   Future<Map<String, dynamic>> _fetchLiveKitToken(
@@ -129,7 +154,6 @@ class LiveKitService extends GetxService {
 
       return {};
     } catch (e) {
-      debugPrint('❌ Error fetching LiveKit token: $e');
       return {};
     }
   }

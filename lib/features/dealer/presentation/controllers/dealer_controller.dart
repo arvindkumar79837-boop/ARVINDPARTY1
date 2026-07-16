@@ -66,7 +66,6 @@ class DealerController extends GetxController {
       final result = await _service.getDealerStats(uid);
       stats.value = result;
     } catch (e) {
-      debugPrint('Fetch Dealer Stats Error: $e');
     }
   }
 

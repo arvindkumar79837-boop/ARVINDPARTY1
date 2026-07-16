@@ -119,7 +119,9 @@ class EmailLoginScreen extends StatelessWidget {
                 Icons.visibility_off,
                 color: Colors.white.withValues(alpha: 0.5),
               ),
-              onPressed: () {},
+              onPressed: () {
+                controller.obscurePassword.value = !controller.obscurePassword.value;
+              },
             ),
             labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
             hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.4)),

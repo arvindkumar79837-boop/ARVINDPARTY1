@@ -5,7 +5,6 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 
 import '../../../../core/services/api_service.dart';
@@ -199,7 +198,6 @@ class AuthRepository {
         );
       }
     } on DioException catch (e) {
-      debugPrint('Logout error: $e');
     } finally {
       await _session.clearSession();
     }

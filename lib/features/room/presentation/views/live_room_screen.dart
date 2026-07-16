@@ -144,32 +144,87 @@ class LiveRoomScreen extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.card_giftcard, color: Colors.pinkAccent),
               onPressed: () {
-                // TODO: Show a bottom sheet with available gifts
                 Get.bottomSheet(
                   Container(
-                    height: 200,
-                    color: Colors.black.withOpacity(0.8),
-                    child: Obx(() => GridView.builder(
-                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4),
-                          itemCount: controller.availableGifts.length,
-                          itemBuilder: (ctx, index) {
-                            final gift = controller.availableGifts[index];
-                            return InkWell(
-                              onTap: () {
-                                controller.sendGiftToRoom(gift);
-                                Get.back(); // Close bottom sheet
-                              },
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Image.network(gift['iconUrl'] ?? '', width: 40, height: 40, errorBuilder: (_, __, ___) => const Icon(Icons.cake, color: Colors.white)),
-                                  Text(gift['name']?.toString() ?? 'Gift', style: const TextStyle(color: Colors.white, fontSize: 12)),
-                                  Text('${gift['cost']} coins', style: const TextStyle(color: Colors.amber, fontSize: 10)),
-                                ],
+                    height: 340,
+                    padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF1A1A2E),
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text('Send a Gift', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                            IconButton(
+                              icon: const Icon(Icons.close, color: Colors.white54, size: 20),
+                              onPressed: () => Get.back(),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Expanded(
+                          child: Obx(() {
+                            if (controller.availableGifts.isEmpty) {
+                              return const Center(
+                                child: Text('No gifts available', style: TextStyle(color: Colors.white38)),
+                              );
+                            }
+                            return GridView.builder(
+                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 4,
+                                mainAxisSpacing: 8,
+                                crossAxisSpacing: 8,
+                                childAspectRatio: 0.8,
                               ),
+                              itemCount: controller.availableGifts.length,
+                              itemBuilder: (ctx, index) {
+                                final gift = controller.availableGifts[index];
+                                return InkWell(
+                                  borderRadius: BorderRadius.circular(12),
+                                  onTap: () {
+                                    controller.sendGiftToRoom(gift);
+                                    Get.back();
+                                  },
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withValues(alpha: 0.06),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    padding: const EdgeInsets.all(8),
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Image.network(
+                                          gift['iconUrl'] ?? '',
+                                          width: 40,
+                                          height: 40,
+                                          errorBuilder: (_, __, ___) => const Icon(Icons.card_giftcard, color: Colors.pinkAccent, size: 28),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          gift['name']?.toString() ?? 'Gift',
+                                          style: const TextStyle(color: Colors.white, fontSize: 11),
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                        ),
+                                        Text(
+                                          '${gift['cost']} coins',
+                                          style: const TextStyle(color: Colors.amber, fontSize: 10),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
                             );
-                          },
-                        )),
+                          }),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },

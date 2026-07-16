@@ -4,7 +4,6 @@
 // Manages unique device IDs and device registration
 // ═══════════════════════════════════════════════════════════════════════════
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -235,4 +234,8 @@ class DeviceBindingController extends GetxController {
     fetchBoundDevices();
   }
 
+  @override
+  void onClose() {
+    super.onClose();
+  }
 }

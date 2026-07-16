@@ -111,7 +111,6 @@ class ChatController extends GetxController {
         unreadCount.value = chatList.fold(0, (sum, chat) => sum + (chat.unreadCount ?? 0));
       }
     } catch (e) {
-      debugPrint('[ChatController] fetchChatList error: $e');
     }
   }
 

@@ -48,8 +48,7 @@ class RoomsTab extends StatelessWidget {
                 return RefreshIndicator(
                   color: const Color(0xFFFF8906),
                   backgroundColor: const Color(0xFF15141F),
-                  onRefresh: () async =>
-                      await Future.delayed(const Duration(milliseconds: 800)),
+                  onRefresh: () async => ctrl.fetchLiveRooms(),
                   child: ListView.separated(
                     padding: const EdgeInsets.fromLTRB(12, 4, 12, 100),
                     physics: const BouncingScrollPhysics(),

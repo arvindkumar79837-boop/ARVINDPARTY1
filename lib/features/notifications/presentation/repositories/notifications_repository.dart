@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 
 import '../../../../core/constants/api_constants.dart';
@@ -14,7 +13,7 @@ class NotificationsRepository {
     try {
       final session = Get.find<AuthSessionManager>();
       return session.token.value;
-    } catch (e) { debugPrint('Error: $e'); return null; }
+    } catch (_) { return null; }
   }
 
   Options _authOptions() => Options(headers: {

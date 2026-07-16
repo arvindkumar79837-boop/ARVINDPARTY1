@@ -4,6 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
 
+import '../../../../routes/app_routes.dart';
 import '../controllers/auth_controller.dart';
 import '../controllers/login_controller.dart';
 
@@ -44,7 +45,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 ..play();
             }
           }).catchError((e) {
-            debugPrint('[LoginScreen] Video load error: $e');
           });
   }
 
@@ -265,7 +265,10 @@ class _LoginScreenState extends State<LoginScreen> {
             color: const Color(0xFF25D366),
             textColor: Colors.white,
             onTap: () {
-              // TODO: Implement WhatsApp login
+              Get.snackbar('Not Available', 'WhatsApp login is not supported in this version.',
+                  snackPosition: SnackPosition.BOTTOM,
+                  backgroundColor: Colors.orange.withValues(alpha: 0.8),
+                  colorText: Colors.white);
             },
           ),
         ),
@@ -279,7 +282,10 @@ class _LoginScreenState extends State<LoginScreen> {
             color: const Color(0xFF1877F2),
             textColor: Colors.white,
             onTap: () {
-              // TODO: Implement Facebook login
+              Get.snackbar('Not Available', 'Facebook login is not supported in this version.',
+                  snackPosition: SnackPosition.BOTTOM,
+                  backgroundColor: Colors.orange.withValues(alpha: 0.8),
+                  colorText: Colors.white);
             },
           ),
         ),
@@ -375,7 +381,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: ElevatedButton(
                           onPressed: () {
                             // For mobile app, redirect to phone auth
-                            Get.toNamed('/phone-auth');
+                            Get.toNamed(AppRoutes.phoneAuth);
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF1E88E5),
@@ -404,7 +410,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           GestureDetector(
                             onTap: () {
                               showEmailLogin.value = false;
-                              Get.toNamed('/signup');
+                               Get.toNamed(AppRoutes.signup);
                             },
                             child: const Text(
                               'Sign up',

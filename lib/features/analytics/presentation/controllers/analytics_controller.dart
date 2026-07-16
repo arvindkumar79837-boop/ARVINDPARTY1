@@ -90,4 +90,9 @@ class AnalyticsController extends GetxController {
       isLoadingCharts.value = false;
     }
   }
+
+  @override
+  void onClose() {
+    super.onClose();
+  }
 }

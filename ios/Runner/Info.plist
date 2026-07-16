@@ -66,5 +66,15 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>Arvind Party needs camera access for live streaming and video calls</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Arvind Party needs microphone access for live streaming and voice rooms</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Arvind Party needs photo library access to upload profile pictures and share content</string>
+	<key>NSCameraWhenInUseUsageDescription</key>
+	<string>Arvind Party needs camera access for live streaming</string>
+	<key>NSMicrophoneWhenInUseUsageDescription</key>
+	<string>Arvind Party needs microphone access for live streaming</string>
 </dict>
 </plist>

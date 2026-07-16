@@ -10,42 +10,49 @@ class FriendRepository {
     try {
       final response = await _api.get('/friends');
       return (response['data'] as List).map((e) => FriendModel.fromJson(e)).toList();
-    } catch (e) { return _mockFriends(FriendStatus.friends); }
+    } catch (e) { return []; }
   }
 
   Future<List<FriendModel>> getFollowers() async {
     try {
       final response = await _api.get('/friends/followers');
       return (response['data'] as List).map((e) => FriendModel.fromJson(e)).toList();
-    } catch (e) { return _mockFollowers(); }
+    } catch (e) { return []; }
   }
 
   Future<List<FriendModel>> getFollowing() async {
     try {
       final response = await _api.get('/friends/following');
       return (response['data'] as List).map((e) => FriendModel.fromJson(e)).toList();
-    } catch (e) { return _mockFollowing(); }
+    } catch (e) { return []; }
   }
 
   Future<List<FriendModel>> getMutualFriends(String userId) async {
     try {
       final response = await _api.get('/friends/mutual', queryParameters: {'userId': userId});
       return (response['data'] as List).map((e) => FriendModel.fromJson(e)).toList();
-    } catch (e) { return _mockMutual(); }
+    } catch (e) { return []; }
   }
 
   Future<List<FriendRequestModel>> getIncomingRequests() async {
     try {
       final response = await _api.get('/friends/requests/incoming');
       return (response['data'] as List).map((e) => FriendRequestModel.fromJson(e)).toList();
-    } catch (e) { return _mockIncomingRequests(); }
+    } catch (e) { return []; }
   }
 
   Future<List<FriendRequestModel>> getOutgoingRequests() async {
     try {
       final response = await _api.get('/friends/requests/outgoing');
       return (response['data'] as List).map((e) => FriendRequestModel.fromJson(e)).toList();
-    } catch (e) { return _mockOutgoingRequests(); }
+    } catch (e) { return []; }
+  }
+
+  Future<List<FriendModel>> searchUsers(String query) async {
+    try {
+      final response = await _api.get('/friends/search', queryParameters: {'q': query});
+      return (response['data'] as List).map((e) => FriendModel.fromJson(e)).toList();
+    } catch (e) { return []; }
   }
 
   Future<void> sendFriendRequest(String userId) async => await _api.post('/friends/request', data: {'userId': userId});
@@ -54,34 +61,4 @@ class FriendRepository {
   Future<void> followUser(String userId) async => await _api.post('/friends/follow', data: {'userId': userId});
   Future<void> unfollowUser(String userId) async => await _api.delete('/friends/follow', data: {'userId': userId});
   Future<void> removeFriend(String userId) async => await _api.delete('/friends/$userId');
-
-  List<FriendModel> _mockFriends(FriendStatus status) => List.generate(8, (i) => FriendModel(
-    id: 'f$i', username: 'Friend $i', avatarUrl: 'https://picsum.photos/seed/f$i/100',
-    status: status, mutualFriendsCount: (i * 2) % 5, isOnline: i % 2 == 0,
-  ));
-
-  List<FriendModel> _mockFollowers() => List.generate(5, (i) => FriendModel(
-    id: 'fol$i', username: 'Follower $i', avatarUrl: 'https://picsum.photos/seed/fol$i/100',
-    status: FriendStatus.follower, isOnline: i % 3 == 0,
-  ));
-
-  List<FriendModel> _mockFollowing() => List.generate(6, (i) => FriendModel(
-    id: 'folg$i', username: 'Following $i', avatarUrl: 'https://picsum.photos/seed/folg$i/100',
-    status: FriendStatus.following, isOnline: i % 2 != 0,
-  ));
-
-  List<FriendModel> _mockMutual() => List.generate(3, (i) => FriendModel(
-    id: 'mut$i', username: 'Mutual $i', avatarUrl: 'https://picsum.photos/seed/mut$i/100',
-    status: FriendStatus.friends, mutualFriendsCount: (i + 1) * 2,
-  ));
-
-  List<FriendRequestModel> _mockIncomingRequests() => List.generate(3, (i) => FriendRequestModel(
-    id: 'inr$i', senderId: 'sender$i', senderName: 'Incoming User $i',
-    senderAvatar: 'https://picsum.photos/seed/inr$i/100', createdAt: DateTime.now().subtract(Duration(hours: i + 1)),
-  ));
-
-  List<FriendRequestModel> _mockOutgoingRequests() => List.generate(2, (i) => FriendRequestModel(
-    id: 'outr$i', senderId: 'me$i', senderName: 'Me',
-    senderAvatar: 'https://picsum.photos/seed/outr$i/100', createdAt: DateTime.now().subtract(Duration(days: i + 1)),
-  ));
 }

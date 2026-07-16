@@ -5,6 +5,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../../routes/app_routes.dart';
 import '../../models/room_models.dart';
 import '../controllers/room_controller.dart';
 
@@ -20,7 +21,7 @@ class RoomCard extends StatelessWidget {
     final hasPassword = (room.password ?? room.roomPassword ?? '').isNotEmpty;
 
     return GestureDetector(
-      onTap: () => Get.toNamed('/room-detail', arguments: {'roomId': room.id}),
+      onTap: () => Get.toNamed(AppRoutes.roomDetail, arguments: {'roomId': room.id}),
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(12),

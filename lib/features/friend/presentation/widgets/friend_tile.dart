@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../routes/app_routes.dart';
 import '../../models/friend_model.dart';
 import '../controllers/friend_controller.dart';
 
@@ -34,7 +35,9 @@ class FriendTile extends GetView<FriendController> {
     switch (friend.status) {
       case FriendStatus.friends:
         return Row(mainAxisSize: MainAxisSize.min, children: [
-          IconButton(icon: const Icon(Icons.chat_bubble_outline, color: Colors.blue), onPressed: () {}),
+          IconButton(icon: const Icon(Icons.chat_bubble_outline, color: Colors.blue), onPressed: () {
+            Get.toNamed(AppRoutes.chat, arguments: {'userId': friend.id, 'userName': friend.username});
+          }),
           PopupMenuButton<String>(onSelected: (value) {
             if (value == 'remove') controller.removeFriend(friend.id);
           }, itemBuilder: (context) => const [

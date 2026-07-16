@@ -99,7 +99,6 @@ class RoomSettingsController extends GetxController {
         roomPassword.value = data['roomPassword']?.toString() ?? '';
       }
     } catch (e) {
-      debugPrint('Error loading settings: $e');
     } finally {
       isLoading.value = false;
     }
@@ -144,7 +143,6 @@ class RoomSettingsController extends GetxController {
         return false;
       }
     } catch (e) {
-      debugPrint('Error saving settings: $e');
       Get.snackbar(
         'Error',
         'Failed to save room settings: $e',
@@ -156,5 +154,10 @@ class RoomSettingsController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  @override
+  void onClose() {
+    super.onClose();
   }
 }

@@ -15,7 +15,43 @@ class RoomChatScreen extends GetView<ChatController> {
     Get.put(ChatController());
     // controller.initChat removed - use loadMessages instead
     return Scaffold(
-      appBar: AppBar(title: Text(roomName), actions: [IconButton(icon: const Icon(Icons.more_vert), onPressed: () {})]),
+      appBar: AppBar(title: Text(roomName), actions: [IconButton(icon: const Icon(Icons.more_vert), onPressed: () {
+        Get.bottomSheet(
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: const BoxDecoration(
+              color: Color(0xFF2A2A3E),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.search, color: Colors.white),
+                  title: const Text('Search Messages', style: TextStyle(color: Colors.white)),
+                  onTap: () { Get.back(); },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.notifications_off_outlined, color: Colors.orange),
+                  title: const Text('Mute Notifications', style: TextStyle(color: Colors.white)),
+                  onTap: () {
+                    Get.back();
+                    Get.snackbar('Muted', 'Notifications muted for this chat',
+                        snackPosition: SnackPosition.BOTTOM,
+                        backgroundColor: Colors.orange.withValues(alpha: 0.8),
+                        colorText: Colors.white);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.delete_outline, color: Colors.red),
+                  title: const Text('Clear Chat', style: TextStyle(color: Colors.red)),
+                  onTap: () { Get.back(); },
+                ),
+              ],
+            ),
+          ),
+        );
+      })]),
       body: Obx(() {
         if (controller.isLoading.value) return const Center(child: CircularProgressIndicator());
         return Column(children: [

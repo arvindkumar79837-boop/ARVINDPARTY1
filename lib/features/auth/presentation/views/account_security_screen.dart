@@ -6,6 +6,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import '../../../../routes/app_routes.dart';
 import '../controllers/auth_controller.dart';
 
 class AccountSecurityScreen extends StatelessWidget {
@@ -164,28 +165,28 @@ class AccountSecurityScreen extends StatelessWidget {
           iconColor: const Color(0xFF64B5F6),
           title: 'Device Binding',
           subtitle: 'Manage your bound devices',
-          onTap: () => Get.toNamed('/device-binding'),
+          onTap: () => Get.toNamed(AppRoutes.deviceBinding),
         ),
         _buildSecurityTile(
           icon: Icons.device_hub_outlined,
           iconColor: Colors.purple,
           title: 'Multi-Device Control',
           subtitle: 'Control access across devices',
-          onTap: () => Get.toNamed('/multi-device-control'),
+          onTap: () => Get.toNamed(AppRoutes.multiDeviceControl),
         ),
         _buildSecurityTile(
           icon: Icons.security_outlined,
           iconColor: Colors.orange,
           title: 'Session Management',
           subtitle: 'View and manage active sessions',
-          onTap: () => Get.toNamed('/session-management'),
+          onTap: () => Get.toNamed(AppRoutes.sessionManagement),
         ),
         _buildSecurityTile(
           icon: Icons.lock_outlined,
           iconColor: Colors.red,
           title: 'Change Password',
           subtitle: 'Update your account password',
-          onTap: () => Get.toNamed('/password-reset'),
+          onTap: () => Get.toNamed(AppRoutes.passwordReset),
         ),
         _buildSecurityTile(
           icon: Icons.visibility_outlined,

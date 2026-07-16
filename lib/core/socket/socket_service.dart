@@ -5,7 +5,6 @@
 
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
@@ -84,24 +83,20 @@ class SocketService extends GetxService {
       isConnected.value = true;
       connectionAttempts.value = 0;
       _startHeartbeat();
-      debugPrint('[Socket] Connected');
     });
 
     _socket!.onDisconnect((_) {
       isConnected.value = false;
       _stopHeartbeat();
-      debugPrint('[Socket] Disconnected');
     });
 
     _socket!.onConnectError((err) {
       isConnected.value = false;
       connectionAttempts.value++;
-      debugPrint('[Socket] Connection Error: $err');
       _scheduleReconnect();
     });
 
     _socket!.onError((err) {
-      debugPrint('[Socket] Error: $err');
     });
 
     _socket!.connect();
@@ -147,7 +142,6 @@ class SocketService extends GetxService {
     if (_socket != null && _socket!.connected) {
       _socket!.emit(event, data);
     } else {
-      debugPrint('[Socket] Cannot emit $event, disconnected');
     }
   }
 

@@ -36,6 +36,9 @@ class WalletController extends GetxController {
   var isAgencyWalletLoading = false.obs;
   var isAgencyOwner = false.obs;
 
+  // Gift Coins
+  final giftAmountController = TextEditingController();
+
   // Config & Rates
   var coinBuyRate = 10.0.obs;
   var diamondBuyRate = 0.0.obs;
@@ -114,6 +117,7 @@ class WalletController extends GetxController {
     accountDetailsController.dispose();
     contributionCoinsController.dispose();
     contributionDiamondsController.dispose();
+    giftAmountController.dispose();
     super.onClose();
   }
 
@@ -128,7 +132,7 @@ class WalletController extends GetxController {
   Future<void> fetchMainWallet() async {
     try {
       isLoading.value = true;
-      final response = await _api.get('/api/wallet/wallet');
+      final response = await _api.get('/api/wallet');
       if (response['success'] == true && response['data'] != null) {
         final data = response['data'];
         coinBalance.value = data['coins'] ?? 0;
@@ -170,7 +174,7 @@ class WalletController extends GetxController {
     try {
       isRefreshing.value = true;
       final queryParams = walletType != null ? '?walletType=$walletType' : '';
-      final response = await _api.get('/api/wallet/wallet/transactions$queryParams');
+      final response = await _api.get('/api/wallet/transactions$queryParams');
       if (response['success'] == true && response['data'] != null) {
         final data = response['data'];
         final List<dynamic> txns = data['transactions'] ?? [];
@@ -190,7 +194,7 @@ class WalletController extends GetxController {
   Future<void> fetchFamilyWallet() async {
     try {
       isFamilyWalletLoading.value = true;
-      final response = await _api.get('/api/wallet/wallet/family');
+      final response = await _api.get('/api/wallet/family');
       if (response['success'] == true && response['data'] != null) {
         final data = response['data'];
         if (data['wallet'] != null) {
@@ -217,7 +221,7 @@ class WalletController extends GetxController {
   Future<void> fetchFamilyTransactions() async {
     try {
       isRefreshing.value = true;
-      final response = await _api.get('/api/wallet/wallet/family/transactions');
+      final response = await _api.get('/api/wallet/family/transactions');
       if (response['success'] == true && response['data'] != null) {
         final data = response['data'];
         final List<dynamic> txns = data['transactions'] ?? [];
@@ -245,7 +249,7 @@ class WalletController extends GetxController {
 
     try {
       isContributing.value = true;
-      final response = await _api.post('/api/wallet/wallet/family/contribute', body: {
+      final response = await _api.post('/api/wallet/family/contribute', body: {
         'coins': coins,
         'diamonds': diamonds,
       });
@@ -277,7 +281,7 @@ class WalletController extends GetxController {
   Future<void> fetchAgencyWallet() async {
     try {
       isAgencyWalletLoading.value = true;
-      final response = await _api.get('/api/wallet/wallet/agency');
+      final response = await _api.get('/api/wallet/agency');
       if (response['success'] == true && response['data'] != null) {
         final data = response['data'];
         if (data['wallet'] != null) {
@@ -304,7 +308,7 @@ class WalletController extends GetxController {
 
   Future<void> fetchAgencyTransactions() async {
     try {
-      final response = await _api.get('/api/wallet/wallet/agency/transactions');
+      final response = await _api.get('/api/wallet/agency/transactions');
       if (response['success'] == true && response['data'] != null) {
         final data = response['data'];
         final List<dynamic> txns = data['transactions'] ?? [];
@@ -327,7 +331,7 @@ class WalletController extends GetxController {
     }
     try {
       isProcessingWithdraw.value = true;
-      final response = await _api.post('/api/wallet/wallet/agency/withdraw/request', body: {
+      final response = await _api.post('/api/wallet/agency/withdraw/request', body: {
         'amount': amount,
       });
       if (response['success'] == true) {
@@ -350,25 +354,23 @@ class WalletController extends GetxController {
 
   Future<void> fetchPackages() async {
     try {
-      final response = await _api.get('/api/wallet/wallet/packages');
+      final response = await _api.get('/api/wallet/packages');
       if (response['success'] == true && response['data'] != null) {
         final List<dynamic> pkgs = response['data'];
         packages.value = pkgs.map((p) => RechargePackage.fromJson(p)).toList();
       }
     } catch (e) {
-      debugPrint('Failed to fetch packages: $e');
     }
   }
 
   Future<void> fetchWithdrawMethods() async {
     try {
-      final response = await _api.get('/api/wallet/wallet/withdraw-methods');
+      final response = await _api.get('/api/wallet/withdraw-methods');
       if (response['success'] == true && response['data'] != null) {
         final List<dynamic> methods = response['data'];
         withdrawMethods.value = methods.map((m) => WithdrawMethod.fromJson(m)).toList();
       }
     } catch (e) {
-      debugPrint('Failed to fetch withdraw methods: $e');
     }
   }
 
@@ -382,7 +384,7 @@ class WalletController extends GetxController {
 
     try {
       isProcessingRecharge.value = true;
-      final response = await _api.post('/api/wallet/wallet/recharge/create-order', body: {
+      final response = await _api.post('/api/wallet/recharge/create-order', body: {
         'amount': selectedPackage.value!.price,
         'packageId': selectedPackage.value!.id,
       });
@@ -423,7 +425,7 @@ class WalletController extends GetxController {
       } else {
         body['amount'] = amount.toInt();
       }
-      final response = await _api.post('/api/wallet/wallet/withdraw/request', body: body);
+      final response = await _api.post('/api/wallet/withdraw/request', body: body);
       if (response['success'] == true) {
         Get.snackbar('Success', 'Withdrawal request submitted',
             snackPosition: SnackPosition.BOTTOM,
@@ -443,13 +445,12 @@ class WalletController extends GetxController {
 
   Future<void> fetchWithdrawalStatus() async {
     try {
-      final response = await _api.get('/api/wallet/wallet/withdraw/status');
+      final response = await _api.get('/api/wallet/withdraw/status');
       if (response['success'] == true && response['data'] != null) {
         final List<dynamic> withdrawals = response['data'] ?? [];
         pendingWithdrawals.value = withdrawals.where((w) => w['status'] == 'PENDING' || w['status'] == 'PROCESSING').length;
       }
     } catch (e) {
-      debugPrint('Failed to fetch withdrawal status: $e');
     }
   }
 
@@ -464,7 +465,7 @@ class WalletController extends GetxController {
             backgroundColor: Colors.red.withValues(alpha: 0.8), colorText: Colors.white);
         return;
       }
-      final response = await _api.post('/api/wallet/wallet/exchange', body: {'diamondsToExchange': amount});
+      final response = await _api.post('/api/wallet/exchange', body: {'diamondsToExchange': amount});
       if (response['success'] == true && response['data'] != null) {
         final data = response['data'];
         coinBalance.value = data['coinsReceived'] ?? coinBalance.value;
@@ -481,11 +482,32 @@ class WalletController extends GetxController {
     }
   }
 
+  // ===================== SEND GIFT COINS =====================
+
+  Future<void> sendGiftCoins(int amount) async {
+    try {
+      final response = await _api.post('/api/wallet/send', body: {
+        'amount': amount,
+        'type': 'gift',
+      });
+      if (response['success'] == true) {
+        coinBalance.value -= amount;
+        Get.snackbar('Gift Sent!', '$amount coins sent as gift',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.green.withValues(alpha: 0.8), colorText: Colors.white);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to send gift coins: ${e.toString()}',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red.withValues(alpha: 0.8), colorText: Colors.white);
+    }
+  }
+
   // ===================== SEND GIFT =====================
 
   Future<void> sendGift(String recipientId, String giftId, String giftName, int quantity, int costPerGift) async {
     try {
-      final response = await _api.post('/api/wallet/wallet/gift/send', body: {
+      final response = await _api.post('/api/wallet/gift/send', body: {
         'recipientId': recipientId,
         'giftId': giftId,
         'giftName': giftName,
@@ -550,7 +572,6 @@ class WalletController extends GetxController {
         rewardTransactions.value = List<Map<String, dynamic>>.from(response['data']);
       }
     } catch (e) {
-      debugPrint('Failed to fetch reward transactions: $e');
     }
   }
 

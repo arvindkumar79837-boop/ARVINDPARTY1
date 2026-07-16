@@ -4,7 +4,6 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import '../../../../core/socket/socket_service.dart';
 
@@ -40,28 +39,23 @@ class RoomSocketService extends GetxService {
   void _setupEventListeners() {
     // Room events
     _socket.on('room:user_joined', (data) {
-      debugPrint('[RoomSocket] User joined: ${data['userId']}');
       _handleUserJoined(data);
     });
 
     _socket.on('room:user_left', (data) {
-      debugPrint('[RoomSocket] User left: ${data['userId']}');
       _handleUserLeft(data);
     });
 
     _socket.on('room:updated', (data) {
-      debugPrint('[RoomSocket] Room updated');
       _handleRoomUpdated(data);
     });
 
     // Message events
     _socket.on('room:message', (data) {
-      debugPrint('[RoomSocket] New message');
       _handleNewMessage(data);
     });
 
     _socket.on('chat:private', (data) {
-      debugPrint('[RoomSocket] Private message');
       _handlePrivateMessage(data);
     });
 
@@ -71,33 +65,27 @@ class RoomSocketService extends GetxService {
 
     // Gift events
     _socket.on('gift:received', (data) {
-      debugPrint('[RoomSocket] Gift received');
       _handleGiftReceived(data);
     });
 
     _socket.on('gift:animation', (data) {
-      debugPrint('[RoomSocket] Gift animation');
       _handleGiftAnimation(data);
     });
 
     // Seat events
     _socket.on('seat:occupied', (data) {
-      debugPrint('[RoomSocket] Seat occupied: ${data['seatNumber']}');
       _handleSeatOccupied(data);
     });
 
     _socket.on('seat:vacant', (data) {
-      debugPrint('[RoomSocket] Seat vacant: ${data['seatNumber']}');
       _handleSeatVacant(data);
     });
 
     _socket.on('seat:media-updated', (data) {
-      debugPrint('[RoomSocket] Media updated');
       _handleMediaUpdated(data);
     });
 
     _socket.on('seat:muted', (data) {
-      debugPrint('[RoomSocket] Seat muted');
       _handleSeatMuted(data);
     });
 
@@ -111,27 +99,22 @@ class RoomSocketService extends GetxService {
 
     // PK Battle events
     _socket.on('pk:started', (data) {
-      debugPrint('[RoomSocket] PK battle started');
     });
 
     _socket.on('pk:ended', (data) {
-      debugPrint('[RoomSocket] PK battle ended');
     });
 
     // Host events
     _socket.on('user:kicked', (data) {
-      debugPrint('[RoomSocket] User kicked');
       _handleUserKicked(data);
     });
 
     _socket.on('kicked:from-room', (data) {
-      debugPrint('[RoomSocket] Kicked from room');
       _handleKickedFromRoom(data);
     });
 
     // Error events
     _socket.on('error', (data) {
-      debugPrint('[RoomSocket] Error: ${data['message']}');
       _errorController.add(data['message'] ?? 'Unknown error');
     });
 
@@ -149,11 +132,9 @@ class RoomSocketService extends GetxService {
     });
 
     _socket.on('raise_hand_approved', (data) {
-      debugPrint('[RoomSocket] Raise hand approved');
     });
 
     _socket.on('gift_error', (data) {
-      debugPrint('[RoomSocket] Gift error: ${data['message']}');
       _errorController.add(data['message'] ?? 'Gift error');
     });
   }
@@ -166,9 +147,7 @@ class RoomSocketService extends GetxService {
       if (!connectedRooms.contains(roomId)) {
         connectedRooms.add(roomId);
       }
-      debugPrint('[RoomSocket] Joined room: $roomId');
     } catch (e) {
-      debugPrint('[RoomSocket] Join room error: $e');
       _errorController.add('Failed to join room');
     }
   }
@@ -181,9 +160,7 @@ class RoomSocketService extends GetxService {
       seats.remove(roomId);
       messages.remove(roomId);
       gifts.remove(roomId);
-      debugPrint('[RoomSocket] Left room: $roomId');
     } catch (e) {
-      debugPrint('[RoomSocket] Leave room error: $e');
     }
   }
 
@@ -195,7 +172,6 @@ class RoomSocketService extends GetxService {
       'message': message,
       'messageType': messageType,
     });
-    debugPrint('[RoomSocket] Sent message to room: $roomId');
   }
 
   void sendPrivateMessage(String receiverId, String message) {
@@ -219,7 +195,6 @@ class RoomSocketService extends GetxService {
       'receiverId': receiverId,
       'quantity': quantity,
     });
-    debugPrint('[RoomSocket] Sent gift: $giftId x$quantity');
   }
 
   // ═══════ SEAT ACTIONS ═══════════════════════════════════════════════════
@@ -422,7 +397,6 @@ class RoomSocketService extends GetxService {
   }
 
   void _handleNewRaiseHand(dynamic data) {
-    debugPrint('[RoomSocket] New raise hand: $data');
   }
 
   // ═══════ UTILITY METHODS ═══════════════════════════════════════════════

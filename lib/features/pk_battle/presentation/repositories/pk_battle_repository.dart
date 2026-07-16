@@ -4,7 +4,6 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 
 import '../../../../core/constants/api_constants.dart';
@@ -18,7 +17,7 @@ class PkBattleRepository {
   String? _getToken() {
     try {
       return Get.find<AuthSessionManager>().token.value;
-    } catch (e) { debugPrint('Error: $e'); return null; }
+    } catch (_) { return null; }
   }
 
   Options _authOptions() => Options(headers: {

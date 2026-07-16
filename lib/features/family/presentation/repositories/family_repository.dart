@@ -702,4 +702,49 @@ class FamilyRepository {
       throw ApiException(message: e.toString());
     }
   }
+
+  // ─── TREASURY OPERATIONS ─────────────────────────────────────────────
+
+  Future<Map<String, dynamic>> contributeToTreasury(double amount, {String? note}) async {
+    try {
+      final response = await _api.dio.post(
+        '/families/treasury/contribute',
+        data: {
+          'amount': amount,
+          if (note != null && note.isNotEmpty) 'note': note,
+        },
+      );
+      return response as Map<String, dynamic>;
+    } catch (e) {
+      throw ApiException(message: e.toString());
+    }
+  }
+
+  Future<Map<String, dynamic>> withdrawFromTreasury(double amount, {String? reason}) async {
+    try {
+      final response = await _api.dio.post(
+        '/families/treasury/withdraw',
+        data: {
+          'amount': amount,
+          if (reason != null && reason.isNotEmpty) 'reason': reason,
+        },
+      );
+      return response as Map<String, dynamic>;
+    } catch (e) {
+      throw ApiException(message: e.toString());
+    }
+  }
+
+  Future<Map<String, dynamic>> getTreasuryHistory({int page = 1, int limit = 20}) async {
+    try {
+      final response = await _api.dio.get(
+        '/families/treasury/history',
+        queryParameters: {'page': page, 'limit': limit},
+      );
+      final data = response as Map<String, dynamic>;
+      return data['data'] as Map<String, dynamic>? ?? data;
+    } catch (e) {
+      throw ApiException(message: e.toString());
+    }
+  }
 }

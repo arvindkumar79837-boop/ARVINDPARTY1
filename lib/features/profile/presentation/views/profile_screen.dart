@@ -5,9 +5,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-// Import the User model
+import '../../../../routes/app_routes.dart';
 import '../controllers/profile_controller.dart';
-import 'placeholder_screen.dart'; // Keep for now
+import 'edit_profile_screen.dart';
 
 class ProfileScreen extends GetView<ProfileController> {
   const ProfileScreen({super.key});
@@ -21,20 +21,16 @@ class ProfileScreen extends GetView<ProfileController> {
           IconButton(
             icon: const Icon(Icons.edit),
             onPressed: () {
-              // TODO: Implement edit profile screen navigation
-              Get.to(() => const PlaceholderScreen(title: 'Edit Profile'));
+              Get.to(() => const EditProfileScreen());
             },
           ),
         ],
       ),
-      // Use Obx to react to changes in the controller's state
       body: Obx(() {
-        // Handle loading state
         if (controller.isLoading.value && controller.userProfile.value == null) {
           return const Center(child: CircularProgressIndicator());
         }
 
-        // Handle error or no user data state
         final user = controller.userProfile.value;
         if (user == null) {
           return const Center(
@@ -45,13 +41,11 @@ class ProfileScreen extends GetView<ProfileController> {
           );
         }
 
-        // Main profile UI, now using the 'user' model object
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Cover Photo - Now from user data
               Container(
                 height: 150,
                 decoration: BoxDecoration(
@@ -59,7 +53,7 @@ class ProfileScreen extends GetView<ProfileController> {
                   borderRadius: BorderRadius.circular(12),
                   image: (user.avatar != null && user.avatar!.isNotEmpty)
                       ? DecorationImage(
-                          image: NetworkImage(user.avatar!), // Using a generic image for cover
+                          image: NetworkImage(user.avatar!),
                           fit: BoxFit.cover,
                         )
                       : null,
@@ -70,7 +64,6 @@ class ProfileScreen extends GetView<ProfileController> {
               ),
               const SizedBox(height: 16),
 
-              // Avatar, Name, VIP Badge, Verification
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
@@ -101,7 +94,7 @@ class ProfileScreen extends GetView<ProfileController> {
                           children: [
                             Flexible(
                               child: Text(
-                                user.name ?? user.username, // Use name, fallback to username
+                                user.name ?? user.username,
                                 style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -112,7 +105,6 @@ class ProfileScreen extends GetView<ProfileController> {
                                 child: Icon(Icons.verified, color: Colors.blue, size: 20),
                               ),
                             const SizedBox(width: 8),
-                            // VIP Badge - Dynamic
                             if (user.vipTier != 'free')
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -128,7 +120,6 @@ class ProfileScreen extends GetView<ProfileController> {
                           ],
                         ),
                         const SizedBox(height: 4),
-                        // Display user's coins
                         Row(
                           children: [
                             const Icon(Icons.monetization_on, color: Color(0xFFD4AF37), size: 16),
@@ -143,7 +134,6 @@ class ProfileScreen extends GetView<ProfileController> {
               ),
               const SizedBox(height: 24),
 
-              // Bio - From user data
               const Text(
                 'Bio',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
@@ -155,7 +145,6 @@ class ProfileScreen extends GetView<ProfileController> {
               ),
               const SizedBox(height: 24),
 
-              // Details Section - From user data
               _buildInfoRow(Icons.person_outline, 'Gender', user.gender ?? 'Not specified'),
               _buildInfoRow(Icons.cake_outlined, 'Birthday', user.dob?.toString().substring(0, 10) ?? 'Not specified'),
               _buildInfoRow(Icons.numbers, 'User ID', user.arvindId ?? user.id),
@@ -163,12 +152,11 @@ class ProfileScreen extends GetView<ProfileController> {
               
               const Divider(height: 32),
 
-              // Navigation Section
-              _buildNavigationRow(Icons.link, 'Social Links', () => Get.to(() => const PlaceholderScreen(title: 'Social Links'))),
-              _buildNavigationRow(Icons.photo_library_outlined, 'Personal Gallery', () => Get.to(() => const PlaceholderScreen(title: 'Personal Gallery'))),
-              _buildNavigationRow(Icons.privacy_tip_outlined, 'Privacy Settings', () => Get.to(() => const PlaceholderScreen(title: 'Privacy Settings'))),
-              _buildNavigationRow(Icons.block, 'Block List', () => Get.to(() => const PlaceholderScreen(title: 'Block List'))),
-              _buildNavigationRow(Icons.history, 'Visitor History', () => Get.to(() => const PlaceholderScreen(title: 'Visitor History'))),
+              _buildNavigationRow(Icons.link, 'Social Links', () => Get.toNamed(AppRoutes.socialLinks)),
+              _buildNavigationRow(Icons.photo_library_outlined, 'Personal Gallery', () => Get.toNamed(AppRoutes.gallery)),
+              _buildNavigationRow(Icons.privacy_tip_outlined, 'Privacy Settings', () => Get.toNamed(AppRoutes.privacy)),
+              _buildNavigationRow(Icons.block, 'Block List', () => Get.toNamed(AppRoutes.blockList)),
+              _buildNavigationRow(Icons.history, 'Visitor History', () => Get.toNamed(AppRoutes.visitorHistory)),
 
               const Divider(height: 32),
             ],
@@ -178,7 +166,6 @@ class ProfileScreen extends GetView<ProfileController> {
     );
   }
 
-  // Helper widget for info rows
   Widget _buildInfoRow(IconData icon, String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -200,7 +187,6 @@ class ProfileScreen extends GetView<ProfileController> {
     );
   }
 
-  // Helper widget for navigation rows
   Widget _buildNavigationRow(IconData icon, String label, VoidCallback onTap) {
     return InkWell(
       onTap: onTap,

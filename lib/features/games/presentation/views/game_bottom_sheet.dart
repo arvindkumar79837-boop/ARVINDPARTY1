@@ -136,13 +136,26 @@ class _GameBottomSheetState extends State<GameBottomSheet> {
                   height: 40,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
-                    image: DecorationImage(
-                      image: NetworkImage(widget.game.thumbnailUrl.isNotEmpty
-                          ? widget.game.thumbnailUrl
-                          : 'https://via.placeholder.com/40'),
-                      fit: BoxFit.cover,
-                    ),
+                    color: Colors.white.withValues(alpha: 0.1),
                   ),
+                  child: widget.game.thumbnailUrl.isNotEmpty
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.network(
+                            widget.game.thumbnailUrl,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => const Icon(
+                              Icons.sports_esports,
+                              color: Colors.white54,
+                              size: 22,
+                            ),
+                          ),
+                        )
+                      : const Icon(
+                          Icons.sports_esports,
+                          color: Colors.white54,
+                          size: 22,
+                        ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(

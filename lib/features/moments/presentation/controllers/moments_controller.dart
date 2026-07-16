@@ -91,4 +91,9 @@ class MomentsController extends GetxController {
       Get.snackbar('Error', 'Failed to add comment');
     }
   }
+
+  @override
+  void onClose() {
+    super.onClose();
+  }
 }

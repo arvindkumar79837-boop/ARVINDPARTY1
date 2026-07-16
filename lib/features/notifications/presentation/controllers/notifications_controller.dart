@@ -42,4 +42,9 @@ class NotificationsController extends GetxController {
       Get.snackbar('Error', 'Failed to mark notification as read');
     }
   }
+
+  @override
+  void onClose() {
+    super.onClose();
+  }
 }

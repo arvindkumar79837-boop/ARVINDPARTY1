@@ -167,4 +167,9 @@ class RankingController extends GetxController {
       myRanks.clear();
     }
   }
+
+  @override
+  void onClose() {
+    super.onClose();
+  }
 }

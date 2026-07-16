@@ -1,9 +1,11 @@
 import 'package:get/get.dart';
+import '../../../../core/services/api_service.dart';
 import '../../models/friend_model.dart';
 import '../repositories/friend_repository.dart';
 
 class FriendController extends GetxController {
   final FriendRepository _repo = FriendRepository();
+  final ApiService _api = Get.find<ApiService>();
 
   final friends = <FriendModel>[].obs;
   final followers = <FriendModel>[].obs;
@@ -46,13 +48,9 @@ class FriendController extends GetxController {
   Future<void> sendRequest(String userId) async {
     try {
       await _repo.sendFriendRequest(userId);
-      final dummy = FriendRequestModel(
-        id: 'temp_out_$userId',
-        senderId: 'me',
-        senderName: 'Me',
-        createdAt: DateTime.now(),
-      );
-      outgoingRequests.add(dummy);
+      try {
+        outgoingRequests.assignAll(await _repo.getOutgoingRequests());
+      } catch (_) {}
       Get.snackbar('Sent', 'Friend request sent!');
     } catch (e) {
       Get.snackbar('Error', 'Failed to send request');
@@ -86,7 +84,14 @@ class FriendController extends GetxController {
       await _repo.followUser(userId);
       final existing = following.firstWhereOrNull((f) => f.id == userId);
       if (existing == null) {
-        following.add(FriendModel(id: userId, username: 'User $userId', status: FriendStatus.following));
+        String username = 'User';
+        try {
+          final profile = await _api.get('/users/$userId');
+          username = profile['username']?.toString() ?? profile['name']?.toString() ?? 'User';
+        } catch (_) {
+          username = 'User';
+        }
+        following.add(FriendModel(id: userId, username: username, status: FriendStatus.following));
       }
       Get.snackbar('Followed', 'You are now following this user');
     } catch (e) {
@@ -124,4 +129,9 @@ class FriendController extends GetxController {
   }
 
   void clearMutualFriends() => mutualFriends.clear();
+
+  @override
+  void onClose() {
+    super.onClose();
+  }
 }

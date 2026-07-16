@@ -1,3 +1,5 @@
+import 'env_config.dart';
+
 class AppConstants {
   // ===== APP INFO =====
   static const String appName = 'ARVIND PARTY';
@@ -26,9 +28,9 @@ class AppConstants {
   static const int minWithdrawalAmount = 100;
   static const int maxWithdrawalAmount = 1000000;
 
-  static const double giftCommissionRate = 0.70;
-  static const double agencyCommissionRate = 0.15;
-  static const double platformCommissionRate = 0.15;
+  static const double giftCommissionRate = EnvConfig.giftCommissionRate;
+  static const double agencyCommissionRate = EnvConfig.agencyCommissionRate;
+  static const double platformCommissionRate = EnvConfig.platformCommissionRate;
 
   // ===== LEVEL SYSTEM =====
   static const int maxLevel = 200;

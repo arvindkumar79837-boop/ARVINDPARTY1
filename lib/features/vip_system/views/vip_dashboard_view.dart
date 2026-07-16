@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../routes/app_routes.dart';
 import '../controllers/vip_system_controller.dart';
 import '../models/vip_system_model.dart';
 
@@ -37,7 +38,7 @@ class VipDashboardView extends GetView<VipSystemController> {
               : const SizedBox.shrink()),
           IconButton(
             icon: const Icon(Icons.leaderboard),
-            onPressed: () => Get.toNamed('/vip-leaderboard'),
+            onPressed: () => Get.toNamed(AppRoutes.vipLeaderboard),
           ),
         ],
       ),
@@ -84,7 +85,7 @@ class VipDashboardView extends GetView<VipSystemController> {
           const Text('Login to view VIP Status', style: TextStyle(fontSize: 18, color: Colors.grey)),
           const SizedBox(height: 16),
           ElevatedButton(
-            onPressed: () => Get.toNamed('/login'),
+            onPressed: () => Get.toNamed(AppRoutes.login),
             child: const Text('Login'),
           ),
         ],
@@ -248,13 +249,13 @@ class VipDashboardView extends GetView<VipSystemController> {
         const SizedBox(height: 10),
         Row(
           children: [
-            _actionButton(Icons.store, 'VIP Shop', Colors.amber, () => Get.toNamed('/vip-shop')),
+            _actionButton(Icons.store, 'VIP Shop', Colors.amber, () => Get.toNamed(AppRoutes.vipShop)),
             const SizedBox(width: 12),
-            _actionButton(Icons.flag, 'Missions', Colors.blue, () => Get.toNamed('/vip-missions')),
+            _actionButton(Icons.flag, 'Missions', Colors.blue, () => Get.toNamed(AppRoutes.vipMissions)),
             const SizedBox(width: 12),
-            _actionButton(Icons.palette, 'Cosmetics', Colors.pink, () => Get.toNamed('/vip-cosmetics')),
+            _actionButton(Icons.palette, 'Cosmetics', Colors.pink, () => Get.toNamed(AppRoutes.vipCosmetics)),
             const SizedBox(width: 12),
-            _actionButton(Icons.card_giftcard, 'Premium', Colors.purple, () => Get.toNamed('/premium')),
+            _actionButton(Icons.card_giftcard, 'Premium', Colors.purple, () => Get.toNamed(AppRoutes.premium)),
           ],
         ),
       ],
@@ -389,7 +390,7 @@ class VipDashboardView extends GetView<VipSystemController> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                onPressed: () => Get.toNamed('/premium'),
+                onPressed: () => Get.toNamed(AppRoutes.premium),
                 icon: const Icon(Icons.stars, size: 16),
                 label: const Text('Subscribe Now'),
                 style: ElevatedButton.styleFrom(

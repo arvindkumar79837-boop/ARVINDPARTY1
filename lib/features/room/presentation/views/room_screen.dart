@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../controllers/room_controller.dart'; // Safely targets your relative sub-folder layout
+import '../controllers/room_controller.dart';
 import '../widgets/room_banner_widget.dart';
 import '../widgets/room_bottom_bar_widget.dart';
 import '../widgets/room_chat_widget.dart';
@@ -15,9 +15,8 @@ class RoomScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final ctrl = Get.find<RoomController>();
 
-    // FIXED: Upgraded from legacy WillPopScope to state-safe PopScope API configuration
     return PopScope(
-      canPop: false, 
+      canPop: false,
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) return;
         _showExitDialog(ctrl);
@@ -27,40 +26,24 @@ class RoomScreen extends StatelessWidget {
         body: SafeArea(
           child: Column(
             children: [
-              // ── 1. HEADER CONTAINER (Title, Online limits metrics parameters) ──
               const RoomHeaderWidget(),
-
-              // ── 2. SCROLLABLE LIVE INTERACTION HUB BODY ───────────────────────
               Expanded(
                 child: SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
                   child: Column(
                     children: [
-                      // FIXED: Removed the broken duplicate non-existent 'RoomHeader()' widget line reference
                       const RoomBannerWidget(),
-
                       const SizedBox(height: 8),
-
-                      // Seat Grid Configuration Interface Deck (Handles 8/10/15/20/25 sizes scales)
                       const SeatGridWidget(),
-
                       const SizedBox(height: 8),
-
-                      // FIXED: Migrated legacy withOpacity layout format syntax to contemporary performance rules
                       Divider(color: Colors.white.withValues(alpha: 0.05), height: 1),
-
                       const SizedBox(height: 4),
-
-                      // Real-time Text Messaging Flow Viewer Widgets Panel
                       const RoomChatWidget(),
-
                       const SizedBox(height: 4),
                     ],
                   ),
                 ),
               ),
-
-              // ── 3. BOTTOM AUDIO SHIELD CONTROLS BAR (Mic, Chat toggles, Gifts catalog) ──
               const RoomBottomBarWidget(),
             ],
           ),
@@ -69,9 +52,6 @@ class RoomScreen extends StatelessWidget {
     );
   }
 
-  // ══════════════════════════════════════════════════════════════
-  // DISSOCIATION DIALOG WORKFLOW WARNING ENVIRONMENT
-  // ══════════════════════════════════════════════════════════════
   void _showExitDialog(RoomController ctrl) {
     Get.dialog(
       AlertDialog(
@@ -92,8 +72,8 @@ class RoomScreen extends StatelessWidget {
           ),
           TextButton(
             onPressed: () {
-              Get.back(); // Dismiss context warning overlay anchor window
-              ctrl.leaveRoom(); // Execution detachment loop trigger pipeline
+              Get.back(result: true);
+              ctrl.leaveRoom();
             },
             child: const Text(
               'Leave',
@@ -102,6 +82,11 @@ class RoomScreen extends StatelessWidget {
           ),
         ],
       ),
-    );
+    ).then((result) {
+      if (result != true) {
+        // Dialog was dismissed without pressing Leave (e.g. tapped outside).
+        // PopScope will re-intercept back attempts normally.
+      }
+    });
   }
 }

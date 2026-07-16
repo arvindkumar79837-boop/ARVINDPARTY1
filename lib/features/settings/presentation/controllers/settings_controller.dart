@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 
 import '../../../../core/localization/languages.dart';
 import '../../../../core/localization/localization_service.dart';
+import '../../../../routes/app_routes.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/services/auth_session_manager.dart';
 
@@ -177,7 +178,7 @@ class SettingsController extends GetxController {
 
       if (response['success'] == true) {
         Get.find<AuthSessionManager>().clearSession();
-        Get.offAllNamed('/login');
+        Get.offAllNamed(AppRoutes.login);
       }
     } catch (e) {
       Get.snackbar('Error', 'Failed to delete account', snackPosition: SnackPosition.BOTTOM);
@@ -361,5 +362,10 @@ class SettingsController extends GetxController {
 
   bool checkBlockStatus(bool isBlocked) {
     return isBlocked;
+  }
+
+  @override
+  void onClose() {
+    super.onClose();
   }
 }

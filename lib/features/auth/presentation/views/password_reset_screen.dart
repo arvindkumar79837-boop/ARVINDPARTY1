@@ -98,11 +98,11 @@ class PasswordResetScreen extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: _ResetTypeButton(
+            child:             _ResetTypeButton(
               label: 'Phone',
               icon: Icons.phone,
               isSelected: true,
-              onTap: () {},
+              onTap: () => controller.resetType.value = 'phone',
             ),
           ),
           Expanded(
@@ -110,7 +110,7 @@ class PasswordResetScreen extends StatelessWidget {
               label: 'Email',
               icon: Icons.email,
               isSelected: false,
-              onTap: () {},
+              onTap: () => controller.resetType.value = 'email',
             ),
           ),
         ],

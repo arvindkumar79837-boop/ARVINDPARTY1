@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../../routes/app_routes.dart';
 import '../../../../features/wallet/presentation/controllers/wallet_controller.dart';
 
 class AdminWalletManagementView extends StatelessWidget {
@@ -36,7 +37,7 @@ class AdminWalletManagementView extends StatelessWidget {
             _buildBalanceCard('Pending Withdrawals', controller.pendingWithdrawals.value, Icons.pending_actions, Colors.orange),
             const SizedBox(height: 24),
             ElevatedButton.icon(
-              onPressed: () => Get.toNamed('/admin/withdrawals'),
+              onPressed: () => Get.toNamed(AppRoutes.adminWithdrawals),
               icon: const Icon(Icons.list),
               label: const Text('Manage Withdrawals'),
             ),

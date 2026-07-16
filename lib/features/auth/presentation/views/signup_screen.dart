@@ -5,6 +5,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../../routes/app_routes.dart';
 import '../controllers/auth_controller.dart';
 import '../widgets/auth_text_field.dart';
 
@@ -141,7 +142,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         child: ElevatedButton(
                           onPressed: () {
                             // For mobile app, redirect to phone auth for signup
-                            Get.toNamed('/phone-auth');
+                            Get.toNamed(AppRoutes.phoneAuth);
                           },
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 12),

@@ -22,7 +22,6 @@ class DealerService extends GetxService {
       }
       return null;
     } catch (e) {
-      debugPrint('Get Dealer Wallet Error: $e');
       return null;
     }
   }
@@ -45,7 +44,6 @@ class DealerService extends GetxService {
       }
       return null;
     } catch (e) {
-      debugPrint('Transfer Coins Error: $e');
       return null;
     }
   }
@@ -68,7 +66,6 @@ class DealerService extends GetxService {
       }
       return null;
     } catch (e) {
-      debugPrint('Request Refund Error: $e');
       return null;
     }
   }
@@ -84,7 +81,6 @@ class DealerService extends GetxService {
       }
       return [];
     } catch (e) {
-      debugPrint('Get Dealer Transactions Error: $e');
       return [];
     }
   }
@@ -97,7 +93,6 @@ class DealerService extends GetxService {
       }
       return null;
     } catch (e) {
-      debugPrint('Get Dealer Stats Error: $e');
       return null;
     }
   }
@@ -117,7 +112,6 @@ class DealerService extends GetxService {
       }
       return null;
     } catch (e) {
-      debugPrint('Get All Dealers Error: $e');
       return null;
     }
   }
@@ -132,7 +126,6 @@ class DealerService extends GetxService {
       });
       return response.data['success'] == true;
     } catch (e) {
-      debugPrint('Update Dealer Level Error: $e');
       return false;
     }
   }
@@ -145,7 +138,6 @@ class DealerService extends GetxService {
       });
       return response.data['success'] == true;
     } catch (e) {
-      debugPrint('Toggle Dealer Status Error: $e');
       return false;
     }
   }
@@ -160,7 +152,6 @@ class DealerService extends GetxService {
       });
       return response.data['success'] == true;
     } catch (e) {
-      debugPrint('Credit Dealer Wallet Error: $e');
       return false;
     }
   }

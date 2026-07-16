@@ -5,6 +5,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../../routes/app_routes.dart';
 import '../controllers/auth_controller.dart';
 import '../widgets/profile_header.dart';
 
@@ -60,7 +61,7 @@ class ProfileScreen extends StatelessWidget {
                 children: [
                   ProfileHeader(
                     user: user,
-                    onEditPressed: () => Get.toNamed('/edit-profile'),
+                    onEditPressed: () => Get.toNamed(AppRoutes.editProfile),
                   ),
                   const SizedBox(height: 24),
                   _buildMenuSection(context, controller),
@@ -79,27 +80,27 @@ class ProfileScreen extends StatelessWidget {
         _MenuItem(
           icon: Icons.person_outline,
           label: 'Edit Profile',
-          onTap: () => Get.toNamed('/edit-profile'),
+          onTap: () => Get.toNamed(AppRoutes.editProfile),
         ),
         _MenuItem(
           icon: Icons.lock_outline,
           label: 'Change Password',
-          onTap: () => Get.toNamed('/change-password'),
+          onTap: () => Get.toNamed(AppRoutes.changePassword),
         ),
         _MenuItem(
           icon: Icons.star_outline,
           label: 'VIP Status',
-          onTap: () => Get.toNamed('/vip'),
+          onTap: () => Get.toNamed(AppRoutes.vip),
         ),
         _MenuItem(
           icon: Icons.settings,
           label: 'Settings',
-          onTap: () {},
+          onTap: () => Get.toNamed(AppRoutes.settingsPage),
         ),
         _MenuItem(
           icon: Icons.help_outline,
           label: 'Help & Support',
-          onTap: () {},
+          onTap: () => Get.toNamed(AppRoutes.support),
         ),
       ],
     );

@@ -3,9 +3,9 @@
 // ARVIND PARTY - AUTH CONTROLLER (Phone OTP Auth with Node.js Backend)
 // ═══════════════════════════════════════════════════════════════════════════
 
-import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import '../../../../core/services/auth_session_manager.dart';
+import '../../../../routes/app_routes.dart';
 import '../../models/auth_model.dart';
 import '../repositories/auth_repository.dart';
 
@@ -154,7 +154,6 @@ class AuthController extends GetxController {
     try {
       await authRepository.logout();
     } catch (e) {
-      debugPrint('Error during token validation: $e');
     } finally {
       isLoggedIn.value = false;
     }
@@ -165,7 +164,7 @@ class AuthController extends GetxController {
     isNewUser.value = false;
     await _session.clearSession();
     isLoading.value = false;
-    Get.offAllNamed('/login');
+    Get.offAllNamed(AppRoutes.login);
   }
 
   Future<void> fetchCurrentUser() async {
@@ -184,17 +183,21 @@ class AuthController extends GetxController {
           currentUser.value = user;
           return;
         } catch (e) {
-          debugPrint('Auth error: $e');
         }
       }
       isLoggedIn.value = false;
       currentUser.value = null;
       token.value = '';
       await _session.clearSession();
-      Get.offAllNamed('/login');
+      Get.offAllNamed(AppRoutes.login);
     }
   }
 
   String getAuthToken() => _session.token.value ?? token.value;
   String getUserId() => _session.userId.value ?? currentUser.value?.id ?? '';
+
+  @override
+  void onClose() {
+    super.onClose();
+  }
 }
