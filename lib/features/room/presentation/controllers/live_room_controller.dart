@@ -716,14 +716,16 @@ class LiveRoomController extends GetxController {
     Get.back();
   }
 
-  // List of registered socket event names for symmetric cleanup
+  // All socket.on event names registered in _initSocket — symmetric cleanup
   static const List<String> _socketEvents = [
-    'room_joined', 'room_error', 'seat_updated', 'seat_locked', 'seat_unlocked',
-    'user_kicked', 'user_muted', 'user_unmuted',
+    'receive_room_message', 'seat_updated', 'seat_layout_changed',
+    'gift_animation', 'system_announcement',
+    'user_kicked', 'user_admin_muted', 'raise_hand_notification',
+    'room_closed',
     'member_joined', 'member_left', 'members_list',
-    'member_promoted', 'member_demoted',
-    'gift_received', 'live_gift_effect', 'gift_goal_updated',
-    'send_gift',
+    'user_unmuted', 'member_promoted', 'member_demoted', 'member_banned',
+    'seat_claimed', 'seat_vacated', 'user_voice_state_changed',
+    'connection_error',
   ];
 
   @override
