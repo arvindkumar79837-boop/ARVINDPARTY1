@@ -74,6 +74,15 @@ class FamilyController extends GetxController {
 
   @override
   void onClose() {
+    _socket.off('family:new_message');
+    _socket.off('family:invitation_received');
+    _socket.off('family:member_joined');
+    _socket.off('family:level_up');
+    _socket.off('family:stay:reward');
+    _socket.off('family:stay:status');
+    _socket.off('family:pk_update');
+    _socket.off('family:pk_ended');
+    _socket.off('family:war_update');
     familyNameController.dispose();
     familyBadgeController.dispose();
     familySloganController.dispose();

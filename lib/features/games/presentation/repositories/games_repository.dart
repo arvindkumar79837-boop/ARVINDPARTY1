@@ -177,6 +177,9 @@ class GamesRepository {
   }
 
   void dispose() {
-    // Clean up socket listeners if needed
+    _socketService.off('game_update');
+    _socketService.off('game_completed');
+    _socketService.off('game_ended');
+    _socketService.off('error');
   }
 }
