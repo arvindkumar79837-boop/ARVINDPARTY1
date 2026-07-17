@@ -426,6 +426,31 @@ class RoomSocketService extends GetxService {
       leaveRoom(roomId);
     }
 
+    _socket.off('room:user_joined');
+    _socket.off('room:user_left');
+    _socket.off('room:updated');
+    _socket.off('room:message');
+    _socket.off('chat:private');
+    _socket.off('chat:typing');
+    _socket.off('gift:received');
+    _socket.off('gift:animation');
+    _socket.off('seat:occupied');
+    _socket.off('seat:vacant');
+    _socket.off('seat:media-updated');
+    _socket.off('seat:muted');
+    _socket.off('seat:update');
+    _socket.off('seat:updated');
+    _socket.off('pk:started');
+    _socket.off('pk:ended');
+    _socket.off('user:kicked');
+    _socket.off('kicked:from-room');
+    _socket.off('error');
+    _socket.off('receive_message');
+    _socket.off('room_online_update');
+    _socket.off('new_raise_hand');
+    _socket.off('raise_hand_approved');
+    _socket.off('gift_error');
+
     _messageController.close();
     _giftController.close();
     _seatController.close();

@@ -11,12 +11,12 @@ import 'package:arvind_party/core/services/livekit_service.dart';
 import 'package:arvind_party/features/room/models/room_models.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
+import '../../../../core/services/auth_session_manager.dart';
 
 class LiveRoomController extends GetxController {
   final ApiService _apiService = Get.find<ApiService>();
-  final GetStorage _storage = GetStorage();
+  final AuthSessionManager _authSession = Get.find<AuthSessionManager>();
 
   // ─── LiveKit Service ───────────────────────────────────────
   final LiveKitService liveKitService = Get.find<LiveKitService>();
@@ -33,9 +33,9 @@ class LiveRoomController extends GetxController {
   });
   io.Socket? socket;
 
-  String get currentUserId => _storage.read('user_id') ?? '';
-  String get currentUserName => _storage.read('user_name') ?? 'Guest';
-  String get currentUserAvatar => _storage.read('user_avatar') ?? '';
+  String get currentUserId => _authSession.userId.value ?? '';
+  String get currentUserName => _authSession.userName.value ?? 'Guest';
+  String get currentUserAvatar => _authSession.userAvatar.value ?? '';
 
   // ─── Connection States ──────────────────────────────────────
   final isConnected = false.obs;
@@ -119,15 +119,15 @@ class LiveRoomController extends GetxController {
 
   void _initSocket() {
     try {
-      final userId = _storage.read('user_id');
-      if (userId == null) {
+      final userId = _authSession.userId.value;
+      if (userId == null || userId.isEmpty) {
         Get.snackbar('Error', 'You are not logged in.',
             backgroundColor: Colors.redAccent);
         return;
       }
 
-      final serverUrl = _storage.read('socket_url') ?? EnvConfig.socketUrl;
-      final token = _storage.read('token') ?? '';
+      final serverUrl = EnvConfig.socketUrl;
+      final token = _authSession.token.value ?? '';
       socket = io.io(
         serverUrl,
         io.OptionBuilder()
@@ -495,7 +495,7 @@ class LiveRoomController extends GetxController {
       'senderId': currentUserId,
       'senderName': currentUserName,
       'message': text.trim(),
-      'isVip': _storage.read('is_vip') ?? false,
+      'isVip': false,
     });
   }
 

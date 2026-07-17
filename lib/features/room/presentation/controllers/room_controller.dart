@@ -493,6 +493,8 @@ class RoomController extends LiveRoomController {
 
   @override
   void onClose() {
+    socket?.off('pk_score_updated');
+    socket?.off('room_background_updated');
     chatScrollController.dispose();
     super.onClose();
   }

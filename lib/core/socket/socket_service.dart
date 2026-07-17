@@ -10,6 +10,7 @@ import 'package:socket_io_client/socket_io_client.dart' as io;
 
 import '../constants/env_config.dart';
 import '../services/auth_session_manager.dart';
+import '../../routes/app_routes.dart';
 
 class SocketService extends GetxService {
   io.Socket? _socket;
@@ -85,10 +86,11 @@ class SocketService extends GetxService {
       _startHeartbeat();
     });
 
-    _socket!.on('force_logout', (data) {
+    _socket!.on('force_logout', (data) async {
       final authSession = Get.find<AuthSessionManager>();
-      authSession.logout();
+      await authSession.clearSession();
       disconnect();
+      Get.offAllNamed(AppRoutes.login);
     });
 
     _socket!.onDisconnect((_) {

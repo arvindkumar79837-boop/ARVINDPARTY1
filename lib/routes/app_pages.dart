@@ -24,6 +24,7 @@ import '../features/agency/presentation/views/create_agency_screen.dart';
 // Analytics
 import '../features/analytics/presentation/views/analytics_dashboard_screen.dart';
 import '../features/analytics/presentation/bindings/analytics_binding.dart';
+import '../core/middleware/auth_guard_middleware.dart';
 import '../features/auth/presentation/bindings/auth_binding.dart';
 import '../features/auth/presentation/views/account_security_screen.dart';
 import '../features/auth/presentation/views/device_binding_screen.dart';
@@ -759,21 +760,25 @@ class AppPages {
     GetPage(
       name: AppRoutes.adminDashboard,
       page: () => const AdminDashboardScreen(),
+      middlewares: [AuthGuardMiddleware()],
       binding: AdminBinding(),
     ),
     GetPage(
       name: AppRoutes.adminStaff,
       page: () => const StaffManagementScreen(),
+      middlewares: [AuthGuardMiddleware()],
       binding: AdminBinding(),
     ),
     GetPage(
       name: AppRoutes.adminBroadcast,
       page: () => const BroadcastScreen(),
+      middlewares: [AuthGuardMiddleware()],
       binding: AdminBinding(),
     ),
     GetPage(
       name: AppRoutes.walletManagement,
       page: () => const AdminWalletManagementView(),
+      middlewares: [AuthGuardMiddleware()],
       binding: AdminBinding(),
     ),
 
@@ -781,6 +786,7 @@ class AppPages {
     GetPage(
       name: AppRoutes.globalAnalytics,
       page: () => const AnalyticsDashboardScreen(),
+      middlewares: [AuthGuardMiddleware()],
       binding: AnalyticsBinding(),
     ),
 
@@ -802,6 +808,7 @@ class AppPages {
     GetPage(
       name: AppRoutes.adminWithdrawals,
       page: () => const AdminWalletManagementView(),
+      middlewares: [AuthGuardMiddleware()],
       binding: AdminBinding(),
     ),
   ];
