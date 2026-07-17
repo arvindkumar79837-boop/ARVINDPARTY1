@@ -85,6 +85,12 @@ class SocketService extends GetxService {
       _startHeartbeat();
     });
 
+    _socket!.on('force_logout', (data) {
+      final authSession = Get.find<AuthSessionManager>();
+      authSession.logout();
+      disconnect();
+    });
+
     _socket!.onDisconnect((_) {
       isConnected.value = false;
       _stopHeartbeat();

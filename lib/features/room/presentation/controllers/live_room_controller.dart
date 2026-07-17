@@ -127,11 +127,13 @@ class LiveRoomController extends GetxController {
       }
 
       final serverUrl = _storage.read('socket_url') ?? EnvConfig.socketUrl;
+      final token = _storage.read('token') ?? '';
       socket = io.io(
         serverUrl,
         io.OptionBuilder()
             .setTransports(['websocket'])
             .disableAutoConnect()
+            .setAuth(<String, dynamic>{'token': token})
             .build(),
       );
       socket!.connect();

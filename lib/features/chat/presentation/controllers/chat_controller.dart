@@ -122,6 +122,7 @@ class ChatController extends GetxController {
 
   @override
   void onClose() {
+    _socket.off('chat:private');
     textController.dispose();
     super.onClose();
   }

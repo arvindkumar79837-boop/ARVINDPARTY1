@@ -212,6 +212,11 @@ class RoomFeaturesController extends GetxController {
   @override
   void onClose() {
     leaveRoom();
+    _socketService.off('room:levelUpdate');
+    _socketService.off('room:statsUpdate');
+    _socketService.off('room:rewardsUpdate');
+    _socketService.off('room:socialUpdate');
+    _socketService.off('room:noticesUpdate');
     super.onClose();
   }
 }
