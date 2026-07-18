@@ -1,87 +1,26 @@
 {
   "project_info": {
-    "project_number": "936691114067",
-    "project_id": "arvind-party-1",
-    "storage_bucket": "arvind-party-1.firebasestorage.app"
+    "project_number": "504194469723",
+    "project_id": "arvind-6d29e",
+    "storage_bucket": "arvind-6d29e.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:936691114067:android:e4d6a3f647ce71a85ce6a6",
+        "mobilesdk_app_id": "1:504194469723:android:df887e155742d99154547e",
         "android_client_info": {
           "package_name": "com.arvindparty.app"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "936691114067-r7gj7j0q5b0g61vmmgq2ph1uvdfservd.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.arvindparty.app",
-            "certificate_hash": "b75ca09189882b2b03c165e1d342c21080dbf14f"
-          }
-        },
-        {
-          "client_id": "936691114067-mfkajpen0d1uctg9b4j6sd79uhi9cs1p.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyD2E3SWB2-PNJvDSnONVmw_t_JiQKwda6c"
+          "current_key": "AIzaSyDSKUWCm0hw862czHAmDMhVjJ3D3DCWSzU"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "936691114067-mfkajpen0d1uctg9b4j6sd79uhi9cs1p.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "936691114067-1dnn5sqnbp90b1o7k4n5rcjrcssecl9i.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.arvindparty.app"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:936691114067:android:c60087baf64c41695ce6a6",
-        "android_client_info": {
-          "package_name": "com.arvindparty.app"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "936691114067-mfkajpen0d1uctg9b4j6sd79uhi9cs1p.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyD2E3SWB2-PNJvDSnONVmw_t_JiQKwda6c"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "936691114067-mfkajpen0d1uctg9b4j6sd79uhi9cs1p.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "936691114067-1dnn5sqnbp90b1o7k4n5rcjrcssecl9i.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.arvindparty.app"
-              }
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }

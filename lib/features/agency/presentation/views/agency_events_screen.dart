@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controllers/agency_controller.dart';
 
 class AgencyEventsScreen extends StatelessWidget {
   const AgencyEventsScreen({super.key});

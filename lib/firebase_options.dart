@@ -11,10 +11,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions? get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure by running the FlutterFire CLI.',
-      );
+      return web;
     }
 
     switch (defaultTargetPlatform) {
@@ -23,15 +20,9 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure by running the FlutterFire CLI.',
-        );
+        return macos;
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure by running the FlutterFire CLI.',
-        );
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -45,20 +36,46 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyD2E3SWB2-PNJvDSnONVmw_t_JiQKwda6c',
-    appId: '1:936691114067:android:e4d6a3f647ce71a85ce6a6',
-    messagingSenderId: '936691114067',
-    projectId: 'arvind-party-1',
-    storageBucket: 'arvind-party-1.firebasestorage.app',
+    apiKey: 'AIzaSyDSKUWCm0hw862czHAmDMhVjJ3D3DCWSzU',
+    appId: '1:504194469723:android:df887e155742d99154547e',
+    messagingSenderId: '504194469723',
+    projectId: 'arvind-6d29e',
+    storageBucket: 'arvind-6d29e.firebasestorage.app',
+  );
+  static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyCuIOnkS8MbjIv7Q45tKV4uLbjSY2JjAag',
+    appId: '1:504194469723:ios:e72715a782a47dd754547e',
+    messagingSenderId: '504194469723',
+    projectId: 'arvind-6d29e',
+    storageBucket: 'arvind-6d29e.firebasestorage.app',
+    iosBundleId: 'com.arvindparty.app',
+  );
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyCnOaruqlWNUny_-SKCbW9xYBEifjegF_M',
+    appId: '1:504194469723:web:91d88d32f34aa7aa54547e',
+    messagingSenderId: '504194469723',
+    projectId: 'arvind-6d29e',
+    authDomain: 'arvind-6d29e.firebaseapp.com',
+    storageBucket: 'arvind-6d29e.firebasestorage.app',
+    measurementId: 'G-XW9WR262VC',
   );
 
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCvxj0PUKB_M36aOs-G3uj2I6QOgeqQqJA',
-    appId: '1:59307295659:ios:83ea99a01ef06f2438c8ee',
-    messagingSenderId: '59307295659',
-    projectId: 'arvind-party-e583b',
-    storageBucket: 'arvind-party-e583b.firebasestorage.app',
-    iosClientId: '59307295659-67l2civ6ltmpkpcvfhs1daegam83s19v.apps.googleusercontent.com',
-    iosBundleId: 'com.arvind.party.arvindparty',
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyCuIOnkS8MbjIv7Q45tKV4uLbjSY2JjAag',
+    appId: '1:504194469723:ios:a1b71d394c42ff7d54547e',
+    messagingSenderId: '504194469723',
+    projectId: 'arvind-6d29e',
+    storageBucket: 'arvind-6d29e.firebasestorage.app',
+    iosBundleId: 'com.example.arvindParty',
+  );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyCnOaruqlWNUny_-SKCbW9xYBEifjegF_M',
+    appId: '1:504194469723:web:0147a6d038ec414e54547e',
+    messagingSenderId: '504194469723',
+    projectId: 'arvind-6d29e',
+    authDomain: 'arvind-6d29e.firebaseapp.com',
+    storageBucket: 'arvind-6d29e.firebasestorage.app',
+    measurementId: 'G-DYJHFW02FW',
   );
 }

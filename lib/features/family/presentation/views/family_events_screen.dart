@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controllers/family_controller.dart';
 
 class FamilyEventsScreen extends StatelessWidget {
   const FamilyEventsScreen({super.key});

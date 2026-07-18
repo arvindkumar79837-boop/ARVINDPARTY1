@@ -235,8 +235,4 @@ class DeviceBindingController extends GetxController {
     fetchBoundDevices();
   }
 
-  @override
-  void onClose() {
-    super.onClose();
-  }
 }

@@ -164,7 +164,6 @@ class PowerMatrixController extends GetxController {
         final data = response['data'] as List<dynamic>? ?? [];
         history.assignAll(data.map((h) => PowerMatrixHistory.fromJson(h)).toList());
       }
-    } catch (e) {
     } finally {
       isLoadingHistory.value = false;
     }
@@ -216,8 +215,4 @@ class PowerMatrixController extends GetxController {
     return result.allowed ? Colors.green : Colors.red;
   }
 
-  @override
-  void onClose() {
-    super.onClose();
-  }
 }

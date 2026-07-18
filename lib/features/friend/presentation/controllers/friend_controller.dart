@@ -84,7 +84,7 @@ class FriendController extends GetxController {
       await _repo.followUser(userId);
       final existing = following.firstWhereOrNull((f) => f.id == userId);
       if (existing == null) {
-        String username = 'User';
+        var username = 'User';
         try {
           final profile = await _api.get('/users/$userId');
           username = profile['username']?.toString() ?? profile['name']?.toString() ?? 'User';
@@ -130,8 +130,4 @@ class FriendController extends GetxController {
 
   void clearMutualFriends() => mutualFriends.clear();
 
-  @override
-  void onClose() {
-    super.onClose();
-  }
 }

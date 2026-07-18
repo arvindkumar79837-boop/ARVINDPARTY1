@@ -57,8 +57,4 @@ class SearchController extends GetxController {
     results.clear();
   }
 
-  @override
-  void onClose() {
-    super.onClose();
-  }
 }

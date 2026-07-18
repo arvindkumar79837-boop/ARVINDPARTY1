@@ -351,7 +351,7 @@ class _SpeakingWavesPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5;
 
-    for (int i = 0; i < 3; i++) {
+    for (var i = 0; i < 3; i++) {
       final phase = (progress + i * 0.33) % 1.0;
       final radius = 32.0 + phase * 14.0;
       final opacity = (1.0 - phase).clamp(0.0, 1.0);

@@ -239,7 +239,6 @@ class RoomController extends LiveRoomController {
       if (response is Map && response['success'] == true) {
         currentRoom.value = RoomModel.fromJson(Map<String, dynamic>.from(response['room'] ?? response['data']));
       }
-    } catch (e) {
     } finally {
       isLoading.value = false;
     }

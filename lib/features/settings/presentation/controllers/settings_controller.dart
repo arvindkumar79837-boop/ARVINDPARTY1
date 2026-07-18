@@ -364,8 +364,4 @@ class SettingsController extends GetxController {
     return isBlocked;
   }
 
-  @override
-  void onClose() {
-    super.onClose();
-  }
 }

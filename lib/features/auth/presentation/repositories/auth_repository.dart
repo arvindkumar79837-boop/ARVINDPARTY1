@@ -197,7 +197,7 @@ class AuthRepository {
           }),
         );
       }
-    } on DioException catch (e) {
+    } on DioException {
     } finally {
       await _session.clearSession();
     }

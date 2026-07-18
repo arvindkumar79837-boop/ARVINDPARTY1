@@ -764,8 +764,4 @@ class AdminController extends GetxController {
     }
   }
 
-  @override
-  void onClose() {
-    super.onClose();
-  }
 }

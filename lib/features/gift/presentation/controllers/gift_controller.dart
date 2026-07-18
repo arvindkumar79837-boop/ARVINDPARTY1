@@ -82,7 +82,6 @@ class GiftController extends GetxController {
         luckyGifts.assignAll((cat['lucky'] as List? ?? []).map((g) => GiftModel.fromJson(Map<String, dynamic>.from(g))).toList());
         festivalGifts.assignAll((cat['festival'] as List? ?? []).map((g) => GiftModel.fromJson(Map<String, dynamic>.from(g))).toList());
       }
-    } catch (e) {
     } finally {
       isLoading.value = false;
     }

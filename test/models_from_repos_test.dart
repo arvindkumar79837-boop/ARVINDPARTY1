@@ -52,7 +52,7 @@ void main() {
         id: 'c2',
         name: 'Chat 2',
         lastMessage: 'Test message',
-        lastMessageTime: DateTime(2024, 1, 1),
+        lastMessageTime: DateTime(2024, 1),
         unreadCount: 0,
       );
       final json = chat.toJson();
@@ -158,7 +158,7 @@ void main() {
       expect(GiftModel(id: 'g', giftName: 'v', type: GiftType.vehicle).isHighEndGift, true);
       expect(GiftModel(id: 'g', giftName: 'c', type: GiftType.castle).isHighEndGift, true);
       expect(GiftModel(id: 'g', giftName: 's', type: GiftType.svga).isHighEndGift, true);
-      expect(GiftModel(id: 'g', giftName: 'f', type: GiftType.static).isHighEndGift, false);
+      expect(GiftModel(id: 'g', giftName: 'f').isHighEndGift, false);
     });
 
     test('isInteractiveGift', () {
@@ -170,7 +170,7 @@ void main() {
     test('isCosmeticGift', () {
       expect(GiftModel(id: 'g', giftName: 'f', type: GiftType.frame).isCosmeticGift, true);
       expect(GiftModel(id: 'g', giftName: 'a', type: GiftType.avatar).isCosmeticGift, true);
-      expect(GiftModel(id: 'g', giftName: 's', type: GiftType.static).isCosmeticGift, false);
+      expect(GiftModel(id: 'g', giftName: 's').isCosmeticGift, false);
     });
   });
 
@@ -302,7 +302,6 @@ void main() {
         senderName: 's',
         receiverId: 'r',
         receiverName: 'r',
-        comboMultiplier: 1,
       );
       expect(ev.isComboGift, false);
     });

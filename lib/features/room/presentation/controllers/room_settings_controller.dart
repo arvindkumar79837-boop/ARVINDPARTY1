@@ -98,7 +98,6 @@ class RoomSettingsController extends GetxController {
         hasPassword.value = data['hasPassword'] == true;
         roomPassword.value = data['roomPassword']?.toString() ?? '';
       }
-    } catch (e) {
     } finally {
       isLoading.value = false;
     }
@@ -156,8 +155,4 @@ class RoomSettingsController extends GetxController {
     }
   }
 
-  @override
-  void onClose() {
-    super.onClose();
-  }
 }

@@ -66,8 +66,4 @@ class ShopController extends GetxController {
 
   void setCategory(String cat) => selectedCategory.value = cat;
 
-  @override
-  void onClose() {
-    super.onClose();
-  }
 }

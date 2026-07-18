@@ -98,10 +98,6 @@ class LevelController extends GetxController {
     return 'Newcomer';
   }
 
-  @override
-  void onClose() {
-    super.onClose();
-  }
 }
 
 class LevelMilestone {

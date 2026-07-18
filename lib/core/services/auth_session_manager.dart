@@ -10,9 +10,9 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 
+import '../../routes/app_routes.dart';
 import '../constants/env_config.dart';
 import '../services/api_service.dart';
-import '../../routes/app_routes.dart';
 
 /// Reactive authentication status for driving splash → login/home transitions.
 /// Initial state is [unknown]; after session load it transitions to either

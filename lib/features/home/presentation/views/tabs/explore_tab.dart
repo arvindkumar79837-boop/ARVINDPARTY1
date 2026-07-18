@@ -91,7 +91,6 @@ class _ExploreTabState extends State<ExploreTab> {
         _hasMore = data.length >= _pageSize;
         _currentPage.value = 1;
       }
-    } catch (e) {
     } finally {
       _isSearching.value = false;
     }

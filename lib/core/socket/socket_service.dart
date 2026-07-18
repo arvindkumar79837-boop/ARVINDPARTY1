@@ -8,9 +8,9 @@ import 'dart:async';
 import 'package:get/get.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
+import '../../routes/app_routes.dart';
 import '../constants/env_config.dart';
 import '../services/auth_session_manager.dart';
-import '../../routes/app_routes.dart';
 
 class SocketService extends GetxService {
   io.Socket? _socket;

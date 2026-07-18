@@ -8,7 +8,7 @@ class AuthGuardMiddleware extends GetMiddleware {
   RouteSettings? redirect(String? route) {
     final auth = Get.find<AuthSessionManager>();
     if (auth.authStatus.value != AuthStatus.authenticated) {
-      return RouteSettings(name: '/login');
+      return const RouteSettings(name: '/login');
     }
     return null;
   }

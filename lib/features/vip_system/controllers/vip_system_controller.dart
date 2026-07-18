@@ -282,8 +282,4 @@ class VipSystemController extends GetxController {
 
   int get currentSVIPLevel => vipStatus.value?.svipLevel ?? 0;
 
-  @override
-  void onClose() {
-    super.onClose();
-  }
 }

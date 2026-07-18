@@ -88,10 +88,6 @@ class ProfileController extends GetxController {
 
   String get userId => _session.userId.value ?? '';
 
-  @override
-  void onClose() {
-    super.onClose();
-  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────

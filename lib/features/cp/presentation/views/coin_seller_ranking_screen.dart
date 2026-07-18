@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controllers/coin_seller_controller.dart';
 
 class CoinSellerRankingScreen extends StatelessWidget {
   const CoinSellerRankingScreen({super.key});

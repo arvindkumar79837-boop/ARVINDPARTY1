@@ -96,7 +96,7 @@ class RechargeHistoryScreen extends StatelessWidget {
           Expanded(
             child: Column(
               children: [
-                Text('5', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.amber)),
+                const Text('5', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.amber)),
                 Text('Total Recharges', style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.5))),
               ],
             ),
@@ -105,7 +105,7 @@ class RechargeHistoryScreen extends StatelessWidget {
           Expanded(
             child: Column(
               children: [
-                Text('25,000', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.green)),
+                const Text('25,000', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.green)),
                 Text('Total Coins', style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.5))),
               ],
             ),
@@ -114,7 +114,7 @@ class RechargeHistoryScreen extends StatelessWidget {
           Expanded(
             child: Column(
               children: [
-                Text('₹2,500', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.blue)),
+                const Text('₹2,500', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.blue)),
                 Text('Amount Paid', style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.5))),
               ],
             ),
@@ -131,9 +131,9 @@ class RechargeHistoryScreen extends StatelessWidget {
         color: Colors.white.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
       ),
-      child: DefaultTabController(
+      child: const DefaultTabController(
         length: 3,
-        child: const TabBar(
+        child: TabBar(
           indicatorColor: Colors.amber,
           labelColor: Colors.amber,
           unselectedLabelColor: Colors.white54,

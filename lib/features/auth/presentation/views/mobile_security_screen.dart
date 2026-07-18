@@ -226,7 +226,7 @@ class MobileSecurityScreen extends StatelessWidget {
                       colorText: Colors.white,
                     );
                   },
-                  activeColor: color,
+                  activeThumbColor: color,
                 ),
               );
             }).toList(),

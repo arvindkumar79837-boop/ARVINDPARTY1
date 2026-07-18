@@ -58,7 +58,7 @@ class TransactionHistoryScreen extends StatelessWidget {
               children: [
                 const Icon(Icons.arrow_downward, color: Colors.green, size: 20),
                 const SizedBox(height: 4),
-                Text('+25,450', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.green)),
+                const Text('+25,450', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.green)),
                 Text('Income', style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.5))),
               ],
             ),
@@ -69,7 +69,7 @@ class TransactionHistoryScreen extends StatelessWidget {
               children: [
                 const Icon(Icons.arrow_upward, color: Colors.red, size: 20),
                 const SizedBox(height: 4),
-                Text('-18,200', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red)),
+                const Text('-18,200', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red)),
                 Text('Spent', style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.5))),
               ],
             ),
@@ -78,9 +78,9 @@ class TransactionHistoryScreen extends StatelessWidget {
           Expanded(
             child: Column(
               children: [
-                Icon(Icons.account_balance_wallet, color: Colors.amber, size: 20),
+                const Icon(Icons.account_balance_wallet, color: Colors.amber, size: 20),
                 const SizedBox(height: 4),
-                Text('+7,250', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.amber)),
+                const Text('+7,250', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.amber)),
                 Text('Net', style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.5))),
               ],
             ),

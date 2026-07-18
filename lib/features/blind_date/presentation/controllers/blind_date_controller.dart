@@ -67,8 +67,4 @@ class BlindDateController extends GetxController {
     isSearching.value = false;
   }
 
-  @override
-  void onClose() {
-    super.onClose();
-  }
 }

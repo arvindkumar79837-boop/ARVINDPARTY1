@@ -25,7 +25,7 @@ void main() {
     });
 
     test('commission rates sum to 1.0', () {
-      final total = AppConstants.giftCommissionRate +
+      const total = AppConstants.giftCommissionRate +
           AppConstants.agencyCommissionRate +
           AppConstants.platformCommissionRate;
       expect(total, closeTo(1.0, 0.001));
@@ -84,7 +84,6 @@ void main() {
         success: true,
         message: 'OK',
         data: 'test',
-        statusCode: 200,
       );
       expect(response.success, isTrue);
       expect(response.message, 'OK');
@@ -113,7 +112,7 @@ void main() {
     });
 
     test('toString contains key info', () {
-      final response = ApiResponse<int>(success: true, message: 'ok', statusCode: 200);
+      final response = ApiResponse<int>(success: true, message: 'ok');
       expect(response.toString(), contains('success: true'));
       expect(response.toString(), contains('message: ok'));
     });

@@ -166,10 +166,6 @@ class SupportController extends GetxController {
   List<SupportTicket> get resolvedTickets =>
       tickets.where((t) => t.status == 'resolved').toList();
 
-  @override
-  void onClose() {
-    super.onClose();
-  }
 }
 
 class FaqItem {

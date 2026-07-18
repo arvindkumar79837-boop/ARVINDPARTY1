@@ -82,8 +82,4 @@ class GamesController extends GetxController {
     errorMessage.value = '';
   }
 
-  @override
-  void onClose() {
-    super.onClose();
-  }
 }

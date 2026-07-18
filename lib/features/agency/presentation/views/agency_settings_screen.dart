@@ -217,7 +217,7 @@ class AgencySettingsScreen extends StatelessWidget {
                       colorText: Colors.white,
                     );
                   },
-                  activeColor: Colors.orange,
+                  activeThumbColor: Colors.orange,
                 ),
               );
             }).toList(),

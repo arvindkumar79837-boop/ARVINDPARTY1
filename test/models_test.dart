@@ -136,7 +136,7 @@ void main() {
     });
 
     test('copyWith creates new instance', () {
-      final original = WalletBalance(coins: 10, diamonds: 5, beans: 2);
+      const original = WalletBalance(coins: 10, diamonds: 5, beans: 2);
       final copied = original.copyWith(coins: 20);
       expect(copied.coins, 20);
       expect(copied.diamonds, 5);
@@ -415,18 +415,18 @@ void main() {
     });
 
     test('empty seat has correct status', () {
-      final seat = SeatData(seatIndex: 0);
+      const seat = SeatData(seatIndex: 0);
       expect(seat.status, SeatStatus.empty);
       expect(seat.isOccupied, false);
     });
 
     test('locked seat has correct status', () {
-      final seat = SeatData(seatIndex: 0, isLocked: true);
+      const seat = SeatData(seatIndex: 0, isLocked: true);
       expect(seat.status, SeatStatus.locked);
     });
 
     test('toJson roundtrip', () {
-      final seat = SeatData(seatIndex: 3, userId: 'u1', userName: 'Test');
+      const seat = SeatData(seatIndex: 3, userId: 'u1', userName: 'Test');
       final json = seat.toJson();
       final restored = SeatData.fromJson(json);
       expect(restored.seatIndex, 3);
@@ -436,7 +436,7 @@ void main() {
 
   group('RoomTask', () {
     test('progressPercent calculates correctly', () {
-      final task = RoomTask(taskId: 't1', title: 'Send 10 gifts', targetValue: 10, currentValue: 5);
+      const task = RoomTask(taskId: 't1', title: 'Send 10 gifts', targetValue: 10, currentValue: 5);
       expect(task.progressPercent, closeTo(0.5, 0.01));
     });
 
@@ -547,7 +547,7 @@ void main() {
     });
 
     test('copyWith preserves existing values', () {
-      final seat = SeatModel(index: 1, userId: 'u1', userName: 'A', isMuted: true);
+      const seat = SeatModel(index: 1, userId: 'u1', userName: 'A', isMuted: true);
       final updated = seat.copyWith(userName: 'B');
       expect(updated.userName, 'B');
       expect(updated.isMuted, true);

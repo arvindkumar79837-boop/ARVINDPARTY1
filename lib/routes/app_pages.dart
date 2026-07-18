@@ -5,6 +5,7 @@
 
 import 'package:get/get.dart';
 
+import '../core/middleware/auth_guard_middleware.dart';
 import '../features/admin/presentation/bindings/admin_binding.dart';
 // Admin
 import '../features/admin/presentation/views/admin_dashboard_screen.dart';
@@ -21,13 +22,13 @@ import '../features/agency/presentation/views/agency_members_screen.dart';
 import '../features/agency/presentation/views/agency_ranking_screen.dart';
 import '../features/agency/presentation/views/agency_salary_screen.dart';
 import '../features/agency/presentation/views/create_agency_screen.dart';
+import '../features/analytics/presentation/bindings/analytics_binding.dart';
 // Analytics
 import '../features/analytics/presentation/views/analytics_dashboard_screen.dart';
-import '../features/analytics/presentation/bindings/analytics_binding.dart';
-import '../core/middleware/auth_guard_middleware.dart';
 import '../features/auth/presentation/bindings/auth_binding.dart';
 import '../features/auth/presentation/views/account_security_screen.dart';
 import '../features/auth/presentation/views/device_binding_screen.dart';
+import '../features/auth/presentation/views/edit_profile_screen.dart' as auth_edit;
 import '../features/auth/presentation/views/email_login_screen.dart';
 // Auth
 import '../features/auth/presentation/views/login_screen.dart';
@@ -43,6 +44,7 @@ import '../features/block/bindings/block_binding.dart';
 // Block
 import '../features/block/views/blacklist_screen.dart';
 import '../features/chat/presentation/bindings/chat_binding.dart';
+import '../features/chat/presentation/views/private_chat_screen.dart';
 // Chat
 import '../features/chat/presentation/views/room_chat_screen.dart';
 import '../features/cp/presentation/bindings/coin_seller_binding.dart';
@@ -50,6 +52,7 @@ import '../features/cp/presentation/bindings/coin_seller_binding.dart';
 import '../features/cp/presentation/views/coin_seller_home_screen.dart' as cp_home;
 import '../features/cp/presentation/views/coin_seller_profile_screen.dart' as cp_profile;
 import '../features/cp/presentation/views/coin_seller_ranking_screen.dart' as cp_ranking;
+import '../features/cp/presentation/views/coin_seller_transactions_screen.dart';
 import '../features/cp/presentation/views/recharge_history_screen.dart' as cp_recharge;
 import '../features/cp/presentation/views/settlement_history_screen.dart' as cp_settlement;
 import '../features/dealer/presentation/controllers/dealer_controller.dart';
@@ -106,15 +109,18 @@ import '../features/notifications/presentation/bindings/notifications_binding.da
 import '../features/notifications/presentation/views/notification_screen.dart';
 import '../features/profile/presentation/bindings/profile_binding.dart';
 import '../features/profile/presentation/views/complete_profile_screen.dart';
+import '../features/profile/presentation/views/gallery_screen.dart';
 import '../features/profile/presentation/views/mission_screen.dart' as profile_mission;
 // Profile
 import '../features/profile/presentation/views/profile_screen.dart';
 import '../features/profile/presentation/views/transaction_history_screen.dart';
 import '../features/profile/presentation/views/user_profile_view.dart';
+import '../features/profile/presentation/views/visitor_history_screen.dart';
 import '../features/ranking/presentation/bindings/ranking_binding.dart';
 // Ranking
 import '../features/ranking/presentation/views/game_leaderboard_screen.dart';
 import '../features/room/presentation/bindings/room_binding.dart';
+import '../features/room/presentation/views/create_room_screen.dart';
 // Room Admin
 import '../features/room/presentation/views/host_controls_screen.dart';
 import '../features/room/presentation/views/live_room_screen.dart';
@@ -129,8 +135,10 @@ import '../features/search/presentation/bindings/search_binding.dart';
 // Search
 import '../features/search/presentation/views/search_screen.dart' as search_screen;
 import '../features/settings/presentation/bindings/settings_binding.dart';
+import '../features/settings/presentation/views/privacy_screen.dart';
 // Settings
 import '../features/settings/presentation/views/settings_screen.dart';
+import '../features/settings/presentation/views/social_links_screen.dart';
 import '../features/shop/presentation/bindings/shop_binding.dart';
 // Shop
 import '../features/shop/presentation/views/shop_screen.dart';
@@ -140,16 +148,6 @@ import '../features/splash/presentation/views/splash_screen.dart';
 import '../features/support/presentation/bindings/support_binding.dart';
 // Support
 import '../features/support/presentation/views/support_screen.dart';
-import '../features/room/presentation/views/create_room_screen.dart';
-import '../features/profile/presentation/views/gallery_screen.dart';
-import '../features/auth/presentation/views/edit_profile_screen.dart' as auth_edit;
-import '../features/wallet/presentation/views/payment_success_screen.dart';
-import '../features/settings/presentation/views/privacy_screen.dart';
-import '../features/settings/presentation/views/social_links_screen.dart';
-import '../features/profile/presentation/views/visitor_history_screen.dart';
-import '../features/chat/presentation/views/private_chat_screen.dart';
-import '../features/cp/presentation/views/coin_seller_transactions_screen.dart';
-
 import '../features/vip_system/bindings/vip_system_binding.dart';
 import '../features/vip_system/views/vip_cosmetics_view.dart';
 // VIP System NEW (VIP 1-15, SVIP, Premium, Cosmetics, Missions)
@@ -160,6 +158,7 @@ import '../features/vip_system/views/vip_shop_view.dart';
 import '../features/wallet/presentation/bindings/wallet_binding.dart';
 import '../features/wallet/presentation/views/coin_wallet_screen.dart';
 import '../features/wallet/presentation/views/diamond_wallet_screen.dart';
+import '../features/wallet/presentation/views/payment_success_screen.dart';
 import '../features/wallet/presentation/views/reward_wallet_screen.dart';
 import '../features/wallet/presentation/views/treasury_panel_screen.dart';
 // User Center

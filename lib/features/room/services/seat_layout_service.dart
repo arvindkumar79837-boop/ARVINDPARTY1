@@ -90,7 +90,7 @@ class SeatLayoutService extends GetxService {
     final config = calculateLayout(seatCount, mode: mode);
     final positions = <SeatPosition>[];
 
-    for (int i = 0; i < seatCount; i++) {
+    for (var i = 0; i < seatCount; i++) {
       final row = i ~/ config.columns;
       final col = i % config.columns;
       positions.add(SeatPosition(row: row, col: col, seatIndex: i));
@@ -113,7 +113,7 @@ class SeatLayoutService extends GetxService {
     sorted.sort((a, b) => _rolePriority(a.role).compareTo(_rolePriority(b.role)));
 
     final assignments = List<String>.filled(totalSeats, '');
-    int nextSeat = 0;
+    var nextSeat = 0;
 
     for (final member in sorted) {
       if (nextSeat >= totalSeats) break;
@@ -169,7 +169,7 @@ class SeatLayoutService extends GetxService {
 
   /// Returns the first available empty seat index, or -1 if none available.
   int findNextAvailableSeat(List<SeatData> seats) {
-    for (int i = 0; i < seats.length; i++) {
+    for (var i = 0; i < seats.length; i++) {
       if (!seats[i].isOccupied && !seats[i].isLocked) {
         return i;
       }
@@ -179,7 +179,7 @@ class SeatLayoutService extends GetxService {
 
   /// Finds the seat index for a specific user.
   int findUserSeat(List<SeatData> seats, String userId) {
-    for (int i = 0; i < seats.length; i++) {
+    for (var i = 0; i < seats.length; i++) {
       if (seats[i].userId == userId) {
         return i;
       }

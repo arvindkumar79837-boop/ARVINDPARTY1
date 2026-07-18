@@ -49,18 +49,18 @@ void main() {
 
   group('Token validation logic', () {
     test('null token is not valid', () {
-      final token = null;
+      const token = null;
       expect(token != null && token.isNotEmpty, isFalse);
     });
 
     test('empty token is not valid', () {
-      final token = '';
-      expect(token != null && token.isNotEmpty, isFalse);
+      const token = '';
+      expect(token.isNotEmpty, isFalse);
     });
 
     test('non-empty token is valid', () {
-      final token = 'abc123';
-      expect(token != null && token.isNotEmpty, isTrue);
+      const token = 'abc123';
+      expect(token.isNotEmpty, isTrue);
     });
   });
 
@@ -119,14 +119,14 @@ void main() {
   group('Auth headers generation', () {
     test('Bearer token format is correct', () {
       const token = 'my_jwt_token';
-      final header = 'Bearer $token';
+      const header = 'Bearer $token';
       expect(header, 'Bearer my_jwt_token');
       expect(header.startsWith('Bearer '), isTrue);
     });
 
     test('empty token produces valid header', () {
       const token = '';
-      final header = 'Bearer $token';
+      const header = 'Bearer $token';
       expect(header, 'Bearer ');
     });
   });

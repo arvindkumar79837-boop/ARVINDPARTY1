@@ -229,10 +229,6 @@ class InventoryController extends GetxController {
   int get totalItems => allItems.length;
   int get equippedItems => allItems.where((i) => i.isEquipped).length;
 
-  @override
-  void onClose() {
-    super.onClose();
-  }
 }
 
 class InventoryItem {

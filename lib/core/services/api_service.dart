@@ -92,7 +92,6 @@ class ApiService extends getx.GetxService {
       backgroundColor: const Color(0xFF2A2A3E),
       colorText: const Color(0xFFFF8906),
       margin: const EdgeInsets.all(12),
-      duration: const Duration(seconds: 3),
     );
   }
 
@@ -105,7 +104,6 @@ class ApiService extends getx.GetxService {
       backgroundColor: const Color(0xFF2A2A3E),
       colorText: const Color(0xFFFF8906),
       margin: const EdgeInsets.all(12),
-      duration: const Duration(seconds: 3),
     );
   }
 
@@ -118,7 +116,6 @@ class ApiService extends getx.GetxService {
       backgroundColor: const Color(0xFF2A2A3E),
       colorText: const Color(0xFFFF8906),
       margin: const EdgeInsets.all(12),
-      duration: const Duration(seconds: 3),
     );
   }
 

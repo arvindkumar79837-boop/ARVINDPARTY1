@@ -30,7 +30,7 @@ class PrivacyScreen extends StatelessWidget {
       title: Text(title, style: const TextStyle(color: Colors.white)),
       value: initialValue,
       onChanged: (_) {},
-      activeColor: const Color(0xFFFFC107),
+      activeThumbColor: const Color(0xFFFFC107),
     );
   }
 }

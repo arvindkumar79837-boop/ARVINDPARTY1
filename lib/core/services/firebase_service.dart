@@ -159,7 +159,7 @@ class FirebaseService extends GetxService {
         password: password,
       );
       return credential;
-    } on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException {
       rethrow;
     }
   }
@@ -174,7 +174,7 @@ class FirebaseService extends GetxService {
         password: password,
       );
       return credential;
-    } on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException {
       rethrow;
     }
   }

@@ -153,7 +153,6 @@ class AuthController extends GetxController {
     isLoading.value = true;
     try {
       await authRepository.logout();
-    } catch (e) {
     } finally {
       isLoggedIn.value = false;
     }
@@ -196,8 +195,4 @@ class AuthController extends GetxController {
   String getAuthToken() => _session.token.value ?? token.value;
   String getUserId() => _session.userId.value ?? currentUser.value?.id ?? '';
 
-  @override
-  void onClose() {
-    super.onClose();
-  }
 }

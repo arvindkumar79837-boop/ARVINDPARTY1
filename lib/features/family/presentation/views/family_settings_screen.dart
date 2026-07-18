@@ -292,7 +292,7 @@ class FamilySettingsScreen extends StatelessWidget {
                       colorText: Colors.white,
                     );
                   },
-                  activeColor: Colors.deepPurple,
+                  activeThumbColor: Colors.deepPurple,
                 ),
               );
             }).toList(),

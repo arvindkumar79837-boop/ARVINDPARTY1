@@ -32,7 +32,6 @@ class WithdrawalController extends GetxController {
         withdrawalHistory.assignAll(List<Map<String, dynamic>>.from(response['data'] ?? []));
         _computeCounts();
       }
-    } catch (e) {
     } finally {
       isLoading.value = false;
     }
@@ -70,8 +69,4 @@ class WithdrawalController extends GetxController {
     }
   }
 
-  @override
-  void onClose() {
-    super.onClose();
-  }
 }
