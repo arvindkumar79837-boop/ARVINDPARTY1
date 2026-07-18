@@ -124,7 +124,7 @@ class FeatureFlagService extends GetxService {
   bool _getDefaultValue(String flagKey) {
     const defaults = {
       'new_games_enabled': false,
-      'webview_games': false,
+      'webview_games': true,
       'advanced_analytics': false,
       'family_war_2v2': false,
       'new_onboarding': true,

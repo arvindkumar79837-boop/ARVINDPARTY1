@@ -3,6 +3,9 @@
 // ARVIND PARTY - LIVE ROOM SCREEN (REBUILT WITH FULL UI & GetX)
 // ═══════════════════════════════════════════════════════════════════════════
 
+import 'package:arvind_party/core/services/feature_flag_service.dart';
+import 'package:arvind_party/features/games/presentation/controllers/game_controller.dart';
+import 'package:arvind_party/features/games/presentation/views/game_bottom_sheet.dart';
 import 'package:arvind_party/features/room/presentation/controllers/live_room_controller.dart';
 import 'package:arvind_party/features/room/presentation/widgets/chat_box.dart';
 import 'package:arvind_party/features/room/presentation/widgets/gift_animation_overlay.dart';
@@ -229,6 +232,12 @@ class LiveRoomScreen extends StatelessWidget {
                 );
               },
             ),
+            // Mini Games Button (WebView)
+            if (Get.find<FeatureFlagService>().webviewGamesEnabled)
+              IconButton(
+                icon: const Icon(Icons.sports_esports, color: Colors.amber),
+                onPressed: () => _openGamesSheet(context),
+              ),
             // Mute/Unmute Button
             Obx(() => IconButton(
                   icon: Icon(
@@ -237,6 +246,81 @@ class LiveRoomScreen extends StatelessWidget {
                   ),
                   onPressed: () => controller.toggleMute(),
                 )),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _openGamesSheet(BuildContext context) {
+    if (!Get.isRegistered<GameController>()) {
+      Get.put(GameController());
+    }
+    final gameController = Get.find<GameController>();
+
+    Get.bottomSheet(
+      Container(
+        height: MediaQuery.of(context).size.height * 0.6,
+        decoration: const BoxDecoration(
+          color: Color(0xFF1A1A2E),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Mini Games', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Colors.white54, size: 20),
+                    onPressed: () => Get.back(),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Obx(() {
+                if (gameController.isLoadingGames.value) {
+                  return const Center(child: CircularProgressIndicator(color: Colors.orange));
+                }
+                if (gameController.activeGames.isEmpty) {
+                  return const Center(child: Text('No games available', style: TextStyle(color: Colors.white38)));
+                }
+                return ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  itemCount: gameController.activeGames.length,
+                  itemBuilder: (ctx, index) {
+                    final game = gameController.activeGames[index];
+                    return Card(
+                      color: Colors.white.withValues(alpha: 0.06),
+                      margin: const EdgeInsets.symmetric(vertical: 4),
+                      child: ListTile(
+                        leading: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: game.thumbnailUrl.isNotEmpty
+                              ? Image.network(game.thumbnailUrl, width: 48, height: 48, fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) => const Icon(Icons.sports_esports, color: Colors.orange))
+                              : const Icon(Icons.sports_esports, color: Colors.orange, size: 32),
+                        ),
+                        title: Text(game.name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                        subtitle: Text(
+                          '${game.minBetAmount}-${game.maxBetAmount} coins  •  ${game.gameType}',
+                          style: const TextStyle(color: Colors.white54, fontSize: 12),
+                        ),
+                        trailing: const Icon(Icons.play_circle_fill, color: Colors.orange, size: 28),
+                        onTap: () {
+                          Get.back();
+                          gameController.selectGame(game);
+                          Get.bottomSheet(GameBottomSheet(game: game));
+                        },
+                      ),
+                    );
+                  },
+                );
+              }),
+            ),
           ],
         ),
       ),

@@ -3,6 +3,9 @@
 // ARVIND PARTY - GAMES SCREEN
 // ═══════════════════════════════════════════════════════════════════════════
 
+import 'package:arvind_party/core/services/feature_flag_service.dart';
+import 'package:arvind_party/features/games/presentation/controllers/game_controller.dart';
+import 'package:arvind_party/features/games/presentation/views/game_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/games_controller.dart';
@@ -110,6 +113,17 @@ class GameScreen extends GetView<GamesController> {
             ),
 
             const SizedBox(height: 24),
+
+            // ─── WEBVIEW GAMES SECTION ──────────────────────────────
+            if (Get.find<FeatureFlagService>().webviewGamesEnabled) ...[
+              const Text(
+                'WebView Games',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+              ),
+              const SizedBox(height: 12),
+              _WebViewGamesSection(),
+              const SizedBox(height: 24),
+            ],
 
             // ─── LEADERBOARD ────────────────────────────────────────
             const Text(
@@ -242,5 +256,84 @@ class _GameCard extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class _WebViewGamesSection extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    if (!Get.isRegistered<GameController>()) {
+      Get.put(GameController());
+    }
+    final gameController = Get.find<GameController>();
+
+    return Obx(() {
+      if (gameController.isLoadingGames.value) {
+        return const Padding(
+          padding: EdgeInsets.all(24),
+          child: Center(child: CircularProgressIndicator(color: Colors.orange)),
+        );
+      }
+      if (gameController.activeGames.isEmpty) {
+        return Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: const Color(0xFF1A1A2E),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: const Center(child: Text('No WebView games available yet', style: TextStyle(color: Colors.grey))),
+        );
+      }
+      return SizedBox(
+        height: 180,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: gameController.activeGames.length,
+          itemBuilder: (ctx, index) {
+            final game = gameController.activeGames[index];
+            return GestureDetector(
+              onTap: () {
+                gameController.selectGame(game);
+                Get.bottomSheet(GameBottomSheet(game: game));
+              },
+              child: Container(
+                width: 150,
+                margin: const EdgeInsets.only(right: 12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1A1A2E),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      child: ClipRRect(
+                        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                        child: game.thumbnailUrl.isNotEmpty
+                            ? Image.network(game.thumbnailUrl, fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => const Center(child: Icon(Icons.sports_esports, color: Colors.orange, size: 40)))
+                            : const Center(child: Icon(Icons.sports_esports, color: Colors.orange, size: 40)),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(game.name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13), maxLines: 1, overflow: TextOverflow.ellipsis),
+                          const SizedBox(height: 2),
+                          Text('${game.minBetAmount}-${game.maxBetAmount} coins', style: const TextStyle(color: Colors.white54, fontSize: 11)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      );
+    });
   }
 }
