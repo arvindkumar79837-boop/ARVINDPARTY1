@@ -110,7 +110,7 @@ class LiveKitService extends GetxService {
       for (final participant in _room!.remoteParticipants.values) {
         if (participant.identity == uid) {
           for (final publication in participant.audioTrackPublications) {
-            await publication.setEnabled(!mute);
+            await participant.setTrackEnabled(publication.sid, !mute);
           }
           break;
         }

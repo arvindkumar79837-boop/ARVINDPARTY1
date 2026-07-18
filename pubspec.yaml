@@ -26,7 +26,7 @@ dependencies:
 
   # UI
   cached_network_image: 3.4.1
-  font_awesome_flutter: ^10.8.2
+  font_awesome_flutter: ^10.9.0
 
   # Phone Auth
   pinput: ^3.0.1
