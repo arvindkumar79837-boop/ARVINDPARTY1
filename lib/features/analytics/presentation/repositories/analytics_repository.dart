@@ -14,11 +14,6 @@ class AnalyticsRepository {
     }
   }
 
-  Future<Map<String, dynamic>> _getAuthHeaders() async {
-    final token = _getToken();
-    return token != null ? {'Authorization': 'Bearer $token'} : {};
-  }
-
   Future<Map<String, dynamic>> getRevenueSummary() async {
     try {
       final response = await _api.get('/analytics/revenue/summary');

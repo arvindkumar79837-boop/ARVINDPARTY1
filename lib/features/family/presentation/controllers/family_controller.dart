@@ -370,6 +370,7 @@ class FamilyController extends GetxController {
       currentAdminCount.value = data['currentAdminCount'] ?? 0;
       maxAdminSlots.value = data['maxAdminSlots'] ?? 5;
     } catch (e) {
+      // Silently fail - non-critical data
     }
   }
 
@@ -516,7 +517,7 @@ class FamilyController extends GetxController {
 
   Future<void> startStaySession({String? roomId, int seatIndex = 0}) async {
     try {
-      final result = await _repo.startStaySession(roomId: roomId, seatIndex: seatIndex);
+      await _repo.startStaySession(roomId: roomId, seatIndex: seatIndex);
       isStayActive.value = true;
       Get.snackbar('Stay Started', 'You are now earning rewards for staying in the room!');
       fetchMyStaySession();
@@ -527,8 +528,8 @@ class FamilyController extends GetxController {
 
   Future<void> redeemStayReward() async {
     try {
-      final result = await _repo.redeemStayReward();
-      final data = result['data'] as Map<String, dynamic>? ?? result;
+      final response = await _repo.redeemStayReward();
+      final data = response['data'] as Map<String, dynamic>? ?? response;
       Get.snackbar(
         'Reward Earned!',
         '+${data['coinsEarned'] ?? 0} coins & +${data['xpEarned'] ?? 0} XP',
@@ -557,6 +558,7 @@ class FamilyController extends GetxController {
       isStayActive.value = staySession.value != null;
       stayHistory.assignAll(List<Map<String, dynamic>>.from(data['history'] ?? []));
     } catch (e) {
+      // Silently fail - non-critical data
     }
   }
 
@@ -567,6 +569,7 @@ class FamilyController extends GetxController {
       final config = await _repo.getRewardConfig();
       rewardConfig.value = config;
     } catch (e) {
+      // Silently fail - non-critical data
     }
   }
 
@@ -677,6 +680,7 @@ class FamilyController extends GetxController {
       final items = await _repo.getShopItems();
       shopItems.assignAll(items);
     } catch (e) {
+      // Silently fail - non-critical data
     }
   }
 
@@ -696,6 +700,7 @@ class FamilyController extends GetxController {
       final inventory = await _repo.getShopItems(category: 'inventory');
       familyInventory.assignAll(inventory);
     } catch (e) {
+      // Silently fail - non-critical data
     }
   }
 
@@ -706,6 +711,7 @@ class FamilyController extends GetxController {
       final pk = await _repo.getPKBattle('current');
       activePK.value = pk;
     } catch (e) {
+      // Silently fail - non-critical data
     }
   }
 
@@ -714,6 +720,7 @@ class FamilyController extends GetxController {
       final history = await _repo.getPKBattle('history');
       pkHistory.assignAll(history['data'] as List<Map<String, dynamic>>? ?? []);
     } catch (e) {
+      // Silently fail - non-critical data
     }
   }
 
@@ -724,6 +731,7 @@ class FamilyController extends GetxController {
       final wars = await _repo.getFamilyWars();
       activeWars.assignAll(wars);
     } catch (e) {
+      // Silently fail - non-critical data
     }
   }
 
@@ -732,12 +740,13 @@ class FamilyController extends GetxController {
       final history = await _repo.getMyActiveWars();
       warHistory.assignAll(history);
     } catch (e) {
+      // Silently fail - non-critical data
     }
   }
 
   Future<void> registerForWar(String warId) async {
     try {
-      final result = await _repo.startFamilyWar(warId);
+      await _repo.startFamilyWar(warId);
       Get.snackbar('Success', 'Registered for war!');
       await fetchActiveWars();
     } catch (e) {

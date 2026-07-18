@@ -198,6 +198,7 @@ class AuthRepository {
         );
       }
     } on DioException {
+      // Logout request may fail if token is invalid
     } finally {
       await _session.clearSession();
     }

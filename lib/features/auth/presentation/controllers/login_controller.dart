@@ -126,7 +126,7 @@ class LoginController extends GetxController {
 
       if (token != null) {
         loadingMessage.value = 'Authenticating with backend...';
-        final response = await authRepository.socialLogin(
+        await authRepository.socialLogin(
           provider: 'google',
           providerUid: token,
           email: userCredential.user?.email,
@@ -233,7 +233,7 @@ class LoginController extends GetxController {
     try {
       loadingMessage.value = 'Setting up guest account...';
 
-      final response = await authRepository.guestLogin();
+      await authRepository.guestLogin();
 
       Get.snackbar(
         'Welcome',

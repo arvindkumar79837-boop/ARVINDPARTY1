@@ -59,7 +59,7 @@ class MessageBubble extends GetView<ChatController> {
     ),
     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       if (!isMe) Text(message.senderName, style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.w500, fontSize: 12)),
-      Text(message.text ?? '', style: const TextStyle(fontSize: 16)),
+      Text(message.text, style: const TextStyle(fontSize: 16)),
     ]),
   );
 
@@ -78,7 +78,7 @@ class MessageBubble extends GetView<ChatController> {
     padding: const EdgeInsets.all(8), margin: const EdgeInsets.only(bottom: 4),
     decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(8),
       border: Border(left: BorderSide(color: isMe ? Colors.blue : Colors.grey, width: 3))),
-    child: Text(replied.isDeleted ? 'Deleted message' : (replied.text ?? 'Sticker'),
+    child: Text(replied.isDeleted ? 'Deleted message' : replied.text,
       maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.grey.shade700, fontSize: 12)),
   );
 

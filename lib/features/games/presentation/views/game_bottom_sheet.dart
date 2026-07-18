@@ -89,30 +89,6 @@ class _GameBottomSheetState extends State<GameBottomSheet> {
     _webViewController!.runJavaScript(javascript);
   }
 
-  Future<void> _handleGameResult(int winAmount) async {
-    try {
-      await _gameController.endGameSession(winAmount);
-      if (mounted) {
-        Get.back();
-        Get.snackbar(
-          'Game Over',
-          winAmount > 0 ? 'You won $winAmount ${widget.game.rewardType}!' : 'Better luck next time!',
-          backgroundColor: winAmount > 0 ? Colors.green : Colors.red,
-          colorText: Colors.white,
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        Get.snackbar(
-          'Error',
-          'Failed to process game result: $e',
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-        );
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Container(

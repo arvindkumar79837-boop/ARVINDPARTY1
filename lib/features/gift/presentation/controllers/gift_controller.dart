@@ -166,6 +166,7 @@ class GiftController extends GetxController {
         giftHistory.assignAll(data.map((g) => GiftHistoryModel.fromJson(Map<String, dynamic>.from(g))).toList());
       }
     } catch (e) {
+      // Silently fail - non-critical data
     }
   }
 
@@ -177,6 +178,7 @@ class GiftController extends GetxController {
         giftRanking.assignAll(data.map((g) => Map<String, dynamic>.from(g)).toList());
       }
     } catch (e) {
+      // Silently fail - non-critical data
     }
   }
 
@@ -188,6 +190,7 @@ class GiftController extends GetxController {
         inventory.assignAll(data.map((i) => GiftInventoryItem.fromJson(Map<String, dynamic>.from(i))).toList());
       }
     } catch (e) {
+      // Silently fail - non-critical data
     }
   }
 
@@ -200,17 +203,16 @@ class GiftController extends GetxController {
         uniqueCollectionCount.value = response['uniqueGiftsCount'] ?? 0;
       }
     } catch (e) {
+      // Silently fail - non-critical data
     }
   }
 
   Future<void> fetchGiftStatistics() async {
     // Returns map with totals
     try {
-      final response = await _apiService.get('/gifts/statistics');
-      if (response is Map && response['success'] == true) {
-        final stats = response['statistics'] as Map? ?? {};
-      }
+      await _apiService.get('/gifts/statistics');
     } catch (e) {
+      // Silently fail - non-critical data
     }
   }
 
@@ -226,6 +228,7 @@ class GiftController extends GetxController {
         currentGiftGoal.value = goal;
       }
     } catch (e) {
+      // Silently fail - non-critical data
     }
   }
 

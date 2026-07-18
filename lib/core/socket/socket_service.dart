@@ -35,6 +35,7 @@ class SocketService extends GetxService {
 
   @override
   void onInit() {
+    super.onInit();
     _waitForAuthAndConnect();
   }
 

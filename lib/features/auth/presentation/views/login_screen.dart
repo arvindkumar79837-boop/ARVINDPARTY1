@@ -571,32 +571,3 @@ class _SocialButton extends StatelessWidget {
   }
 }
 
-class _PhoneButton extends StatelessWidget {
-  final VoidCallback onTap;
-  const _PhoneButton({required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return OutlinedButton(
-      onPressed: onTap,
-      style: OutlinedButton.styleFrom(
-        side: const BorderSide(color: Colors.white54, width: 1.5),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-        backgroundColor: Colors.white.withValues(alpha: 0.05),
-      ),
-      child: const Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.phone_android, color: Colors.white, size: 20),
-          SizedBox(width: 8),
-          Text(
-            'Sign up with Phone Number',
-            style: TextStyle(
-              color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}

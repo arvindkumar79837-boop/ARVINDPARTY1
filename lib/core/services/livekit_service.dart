@@ -26,6 +26,7 @@ class LiveKitService extends GetxService {
     try {
       await LiveKitClient.initialize();
     } catch (e) {
+      // Initialization may fail if already initialized
     }
   }
 
@@ -39,7 +40,6 @@ class LiveKitService extends GetxService {
     try {
       final tokenResponse = await _fetchLiveKitToken(roomId, userId, userName);
       final token = tokenResponse['token'] as String?;
-      final liveKitRoom = tokenResponse['liveKitRoom'] as String? ?? roomId;
       final liveKitWs = tokenResponse['liveKitWsUrl'] as String? ?? liveKitWsUrl;
 
       if (token == null || token.isEmpty) return false;
@@ -75,6 +75,7 @@ class LiveKitService extends GetxService {
       remoteUsers.clear();
       activeUsers.clear();
     } catch (e) {
+      // Leave may fail if already disconnected
     }
   }
 
@@ -83,6 +84,7 @@ class LiveKitService extends GetxService {
       await _localParticipant?.setMicrophoneEnabled(enable);
       isMicEnabled.value = enable;
     } catch (e) {
+      // Microphone toggle may fail if not connected
     }
   }
 
@@ -91,6 +93,7 @@ class LiveKitService extends GetxService {
       await _localParticipant?.setCameraEnabled(enable);
       isCameraEnabled.value = enable;
     } catch (e) {
+      // Camera toggle may fail if not connected
     }
   }
 
@@ -109,9 +112,8 @@ class LiveKitService extends GetxService {
       if (_room == null) return;
       for (final participant in _room!.remoteParticipants.values) {
         if (participant.identity == uid) {
-          for (final publication in participant.audioTrackPublications) {
-            await participant.setTrackEnabled(publication.sid, !mute);
-          }
+          // Note: LiveKit SDK does not expose client-side remote track muting
+          // This should be handled server-side via socket or control API
           break;
         }
       }
@@ -126,6 +128,7 @@ class LiveKitService extends GetxService {
       // Remote participant removal is handled server-side via socket events.
       // LiveKit client SDK does not expose a client-side kick API.
     } catch (e) {
+      // Kick may fail if room is null
     }
   }
 
@@ -144,6 +147,7 @@ class LiveKitService extends GetxService {
 
       return {};
     } catch (e) {
+      // Token fetch may fail due to network issues
       return {};
     }
   }

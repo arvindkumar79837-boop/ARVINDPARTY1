@@ -70,6 +70,7 @@ class EventsController extends GetxController {
       final result = await _repo.fetchActiveEvents();
       activeEvents.assignAll(result);
     } catch (e) {
+      // Silently fail - non-critical data
     }
   }
 
@@ -78,6 +79,7 @@ class EventsController extends GetxController {
       final result = await _repo.fetchTournaments();
       tournaments.assignAll(result);
     } catch (e) {
+      // Silently fail - non-critical data
     }
   }
 
@@ -86,6 +88,7 @@ class EventsController extends GetxController {
       final result = await _repo.fetchChampionships();
       championships.assignAll(result);
     } catch (e) {
+      // Silently fail - non-critical data
     }
   }
 
@@ -94,6 +97,7 @@ class EventsController extends GetxController {
       final result = await _repo.fetchTreasureHunts();
       treasureHunts.assignAll(result);
     } catch (e) {
+      // Silently fail - non-critical data
     }
   }
 
@@ -103,6 +107,7 @@ class EventsController extends GetxController {
       final result = await _repo.fetchActiveLuckyDraws();
       luckyDraws.assignAll(result);
     } catch (e) {
+      // Silently fail - non-critical data
     }
   }
 
@@ -334,6 +339,7 @@ class EventsController extends GetxController {
       final result = await _repo.fetchMasterActiveEvents();
       activeEvents.assignAll(result);
     } catch (e) {
+      // Silently fail - non-critical data
     }
   }
 
@@ -376,35 +382,37 @@ class EventsController extends GetxController {
   Future<void> fetchEventsDashboard() async {
     try {
       final dashboard = await _repo.getEventsDashboard();
-      final pending = dashboard['pending_events'] as List<dynamic>? ?? [];
-      final completed = dashboard['completed_events'] as List<dynamic>? ?? [];
       Get.put<EventsController>(this, permanent: true);
       // Controller will expose these via observables in next iteration
     } catch (e) {
+      // Silently fail - non-critical data
     }
   }
 
   Future<void> fetchWelcomeWeekTasks() async {
     try {
-      final tasks = await _repo.getWelcomeWeekTasks();
+      await _repo.getWelcomeWeekTasks();
       // Will be exposed via observable in next iteration
     } catch (e) {
+      // Silently fail - non-critical data
     }
   }
 
   Future<void> fetchFestivalGifts({String? festivalType}) async {
     try {
-      final gifts = await _repo.getFestivalGifts(festivalType);
+      await _repo.getFestivalGifts(festivalType);
       // Will be exposed via observable in next iteration
     } catch (e) {
+      // Silently fail - non-critical data
     }
   }
 
   Future<void> fetchAnniversaryRewards({int? year}) async {
     try {
-      final rewards = await _repo.getAnniversaryRewards(year);
+      await _repo.getAnniversaryRewards(year);
       // Will be exposed via observable in next iteration
     } catch (e) {
+      // Silently fail - non-critical data
     }
   }
 

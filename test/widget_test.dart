@@ -44,8 +44,8 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           theme: AppTheme.darkTheme,
-          home: const Scaffold(
-            appBar: AppBar(title: Text('Test')),
+          home: Scaffold(
+            appBar: AppBar(title: const Text('Test')),
           ),
         ),
       );

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controllers/coin_seller_controller.dart';
 
 class RechargeHistoryScreen extends StatelessWidget {
   const RechargeHistoryScreen({super.key});

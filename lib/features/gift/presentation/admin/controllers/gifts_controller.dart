@@ -1,4 +1,6 @@
 
+import 'dart:typed_data';
+
 import 'package:arvind_party/core/constants/api_constants.dart';
 import 'package:arvind_party/core/services/api_service.dart';
 import 'package:arvind_party/core/socket/socket_service.dart';

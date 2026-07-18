@@ -140,7 +140,7 @@ class AgencyHomeScreen extends StatelessWidget {
 
   Widget _buildStatCard(String title, String value, Color color, IconData icon) {
     return Card(
-      color: color.withOpacity(0.1),
+      color: Color.fromRGBO(color.red, color.green, color.blue, 0.1),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
@@ -326,9 +326,9 @@ class _ActionButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: Color.fromRGBO(color.red, color.green, color.blue, 0.1),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withOpacity(0.3)),
+          border: Border.all(color: Color.fromRGBO(color.red, color.green, color.blue, 0.3)),
         ),
         child: Column(
           children: [
@@ -418,7 +418,6 @@ class AgentsScreen extends StatelessWidget {
           itemCount: controller.agents.length,
           itemBuilder: (context, index) {
             final agent = controller.agents[index];
-            final recruiter = agent['recruiterId'] as Map<String, dynamic>?;
 
             return Card(
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -558,7 +557,7 @@ class ReportsScreen extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 6),
       child: ListTile(
-        leading: CircleAvatar(backgroundColor: color.withOpacity(0.2), child: Text(value[0])),
+        leading: CircleAvatar(backgroundColor: Color.fromRGBO(color.red, color.green, color.blue, 0.2), child: Text(value[0])),
         title: Text(title),
         trailing: Text(
           value,

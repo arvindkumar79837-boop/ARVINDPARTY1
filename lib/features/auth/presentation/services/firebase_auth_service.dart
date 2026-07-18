@@ -19,7 +19,6 @@ class FirebaseAuthService extends GetxService {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   final DeviceInfoPlugin _deviceInfo = DeviceInfoPlugin();
   final ApiService _apiService = Get.find<ApiService>();
-  final AuthSessionManager _session = Get.find<AuthSessionManager>();
   final GetStorage _storage = GetStorage();
 
   var isFirebaseInitialized = false.obs;
@@ -57,7 +56,7 @@ class FirebaseAuthService extends GetxService {
       } else if (Platform.isIOS) {
         final iosInfo = await _deviceInfo.iosInfo;
         return {
-          'deviceId': iosInfo.identifierForVendor ?? 'unknown_ios',
+          'deviceId': iosInfo.identifierForVendor,
           'deviceModel': iosInfo.model,
           'deviceBrand': 'Apple',
           'deviceOS': 'iOS ${iosInfo.systemVersion}',
@@ -74,6 +73,7 @@ class FirebaseAuthService extends GetxService {
         };
       }
     } catch (e) {
+      // Device info retrieval may fail on unsupported platforms
     }
     return null;
   }
