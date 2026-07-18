@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../../../../core/services/api_service.dart';
+import '../../../../core/services/api_service.dart';
 
 class RoomSettingsController extends GetxController {
   final ApiService _apiService = Get.find<ApiService>();

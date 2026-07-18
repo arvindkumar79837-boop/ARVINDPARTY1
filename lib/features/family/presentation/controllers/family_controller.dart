@@ -178,6 +178,10 @@ class FamilyController extends GetxController {
     }
   }
 
+  Future<void> fetchFamilyData() async {
+    await fetchMyFamily();
+  }
+
   bool validateCreateForm() {
     return createFormKey.currentState?.validate() ?? false;
   }

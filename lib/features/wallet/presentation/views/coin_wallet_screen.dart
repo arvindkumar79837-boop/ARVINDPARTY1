@@ -10,13 +10,11 @@ import '../../../../routes/app_routes.dart';
 import '../../services/payment_service.dart';
 import '../controllers/wallet_controller.dart';
 
-class CoinWalletScreen extends StatelessWidget {
+class CoinWalletScreen extends GetView<WalletController> {
   const CoinWalletScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<WalletController>();
-
     return Scaffold(
       backgroundColor: const Color(0xFF1A1A2E),
       appBar: AppBar(

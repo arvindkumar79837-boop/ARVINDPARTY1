@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../services/auth_session_manager.dart';
 
@@ -6,7 +8,7 @@ class AuthGuardMiddleware extends GetMiddleware {
   RouteSettings? redirect(String? route) {
     final auth = Get.find<AuthSessionManager>();
     if (auth.authStatus.value != AuthStatus.authenticated) {
-      return const RouteSettings(name: '/login');
+      return RouteSettings(name: '/login');
     }
     return null;
   }

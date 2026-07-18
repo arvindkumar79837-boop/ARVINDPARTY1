@@ -44,6 +44,9 @@ class LoginController extends GetxController {
   var guestDeviceId = ''.obs;
   var guestSessionExpiry = DateTime.now().add(const Duration(days: 30)).obs;
 
+  // Password visibility toggle
+  var obscurePassword = true.obs;
+
   // Password reset
   var resetType = 'phone'.obs;
 

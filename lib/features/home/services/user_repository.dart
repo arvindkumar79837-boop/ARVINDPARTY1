@@ -4,7 +4,7 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import 'package:get/get.dart';
-import '../../../../core/services/api_service.dart';
+import '../../../core/services/api_service.dart';
 
 class UserRepository extends GetxService {
   final ApiService _api = Get.find<ApiService>();

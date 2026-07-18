@@ -6,8 +6,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
-import '../../../../core/services/api_service.dart';
-import '../../../../routes/app_routes.dart';
+import '../../../core/services/api_service.dart';
+import '../../../routes/app_routes.dart';
 
 class PaymentService extends GetxService {
   static PaymentService get to => Get.find<PaymentService>();

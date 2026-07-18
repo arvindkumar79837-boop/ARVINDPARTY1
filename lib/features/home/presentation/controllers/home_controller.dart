@@ -5,8 +5,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../../../core/services/api_service.dart';
-import '../../../../../routes/app_routes.dart';
+import '../../../../core/services/api_service.dart';
+import '../../../../routes/app_routes.dart';
 import '../../models/home_model.dart';
 import '../repositories/home_repository.dart';
 

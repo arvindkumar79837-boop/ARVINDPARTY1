@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../chat/presentation/views/room_chat_screen.dart';
+import '../../../../chat/presentation/views/room_chat_screen.dart';
 
 class MessagesTab extends StatelessWidget {
   const MessagesTab({super.key});

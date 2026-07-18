@@ -1,3 +1,8 @@
+import java.io.File
+import java.io.FileOutputStream
+import java.util.Base64
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -19,8 +24,10 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_17)
+        }
     }
 
     defaultConfig {
@@ -42,15 +49,16 @@ android {
             // KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD
             val keystoreBase64 = System.getenv("KEYSTORE_BASE64")
             if (keystoreBase64 != null) {
-                val keystoreBytes = java.util.Base64.getDecoder().decode(keystoreBase64)
-                storeFile = file("release-keystore.jks")
-                java.io.FileOutputStream(storeFile).use { it.write(keystoreBytes) }
+                val keystoreBytes: ByteArray = Base64.getDecoder().decode(keystoreBase64)
+                storeFile = File("release-keystore.jks")
+                FileOutputStream(storeFile!!).use { stream -> stream.write(keystoreBytes) }
                 storePassword = System.getenv("KEYSTORE_PASSWORD") ?: ""
                 keyAlias = System.getenv("KEY_ALIAS") ?: ""
                 keyPassword = System.getenv("KEY_PASSWORD") ?: ""
             } else {
                 // Local development: use debug keystore as fallback
-                storeFile = file(System.getProperty("user.home"), ".android/debug.keystore")
+                val homeDir = System.getProperty("user.home")
+                storeFile = File(homeDir, ".android/debug.keystore")
                 storePassword = "android"
                 keyAlias = "androiddebugkey"
                 keyPassword = "android"

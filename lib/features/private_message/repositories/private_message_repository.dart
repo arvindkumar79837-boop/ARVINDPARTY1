@@ -2,8 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:get/get.dart' hide FormData, MultipartFile;
 import 'package:get_storage/get_storage.dart';
 
-import '../../../../core/services/api_service.dart';
-import '../../../../core/utils/api_exception.dart';
+import '../../../core/services/api_service.dart';
+import '../../../core/utils/api_exception.dart';
 import '../models/private_message_model.dart';
 
 class PrivateMessageRepository {

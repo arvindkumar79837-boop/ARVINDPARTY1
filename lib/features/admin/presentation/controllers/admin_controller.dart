@@ -103,13 +103,13 @@ class AdminController extends GetxController {
     return null;
   }
 
-  String? validateWalletUserId(String value) {
-    if (value.isEmpty) return 'User ID is required';
+  String? validateWalletUserId(String? value) {
+    if (value == null || value.isEmpty) return 'User ID is required';
     return null;
   }
 
-  String? validateWalletAmount(String value) {
-    if (value.isEmpty) return 'Amount is required';
+  String? validateWalletAmount(String? value) {
+    if (value == null || value.isEmpty) return 'Amount is required';
     final parsed = double.tryParse(value);
     if (parsed == null) return 'Enter a valid number';
     if (parsed <= 0) return 'Amount must be greater than 0';

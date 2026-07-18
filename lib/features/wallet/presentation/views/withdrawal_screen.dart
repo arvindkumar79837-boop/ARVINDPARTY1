@@ -184,7 +184,7 @@ class WithdrawalScreen extends StatelessWidget {
         children: [
           const Row(
             children: [
-              Icon(Icons.money_off_csmd_outlined, color: Colors.teal, size: 20),
+              Icon(Icons.money_off_outlined, color: Colors.teal, size: 20),
               SizedBox(width: 8),
               Text('Request Withdrawal', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
             ],

@@ -7,12 +7,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/login_controller.dart';
 
-class PasswordResetScreen extends StatelessWidget {
+class PasswordResetScreen extends GetView<LoginController> {
   const PasswordResetScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<LoginController>();
 
     return Scaffold(
       backgroundColor: const Color(0xFF1A1A2E),

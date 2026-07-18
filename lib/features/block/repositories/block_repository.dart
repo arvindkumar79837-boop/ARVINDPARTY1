@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 
-import '../../../../core/services/api_service.dart';
+import '../../../core/services/api_service.dart';
 import '../models/block_model.dart';
 
 class BlockRepository {

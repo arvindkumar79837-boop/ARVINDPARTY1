@@ -177,7 +177,7 @@ class AdminWalletManagementView extends StatelessWidget {
     required String hint,
     TextInputType keyboardType = TextInputType.text,
     required ValueChanged<String> onChanged,
-    String? Function(String)? validator,
+    String? Function(String?)? validator,
   }) {
     return TextFormField(
       style: const TextStyle(color: Colors.white),

@@ -16,9 +16,10 @@ class EnvConfig {
   static String get currentEnv => isProduction ? 'production' : isStaging ? 'staging' : 'development';
 
   // Fallback dev URL for physical device on same LAN
-  static const String devBaseUrl = 'https://api.arvindparty.com';
-  static const String stagingBaseUrl = 'https://staging-api.arvindparty.com';
-  static const String prodBaseUrl = 'https://api.arvindparty.com';
+  static const String devBaseUrl = 'http://222.167.207.78:5000';
+  static const String stagingBaseUrl = 'http://222.167.207.78:5000';
+  static const String prodBaseUrl = 'http://222.167.207.78:5000';
+  
 
   /// Returns the effective base URL.
   static String get effectiveDevBaseUrl => prodBaseUrl;

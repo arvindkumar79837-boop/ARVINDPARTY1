@@ -474,6 +474,22 @@ class RoomController extends LiveRoomController {
     Get.back();
   }
 
+  Future<void> muteAllMembers() async {
+    socket?.emit('admin_mute_all', {'roomId': roomId});
+  }
+
+  Future<void> unmuteAllMembers() async {
+    socket?.emit('admin_unmute_all', {'roomId': roomId});
+  }
+
+  Future<void> lockAllSeats() async {
+    socket?.emit('admin_lock_all_seats', {'roomId': roomId, 'locked': true});
+  }
+
+  Future<void> unlockAllSeats() async {
+    socket?.emit('admin_lock_all_seats', {'roomId': roomId, 'locked': false});
+  }
+
   @override
   void onInit() {
     super.onInit();

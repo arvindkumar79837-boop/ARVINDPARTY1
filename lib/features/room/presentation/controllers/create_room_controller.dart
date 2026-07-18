@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../../../../core/services/api_service.dart';
-import '../../../../../routes/app_routes.dart';
+import '../../../../core/services/api_service.dart';
+import '../../../../routes/app_routes.dart';
 
 class CreateRoomController extends GetxController {
   final ApiService _apiService = Get.find<ApiService>();

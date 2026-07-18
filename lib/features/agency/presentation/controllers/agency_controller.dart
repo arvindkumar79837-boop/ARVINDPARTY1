@@ -37,6 +37,10 @@ class AgencyController extends GetxController {
     }
   }
 
+  Future<void> fetchAgencyData() async {
+    await loadAgencyData();
+  }
+
   Future<void> fetchMembers() async {
     try {
       isLoading.value = true;

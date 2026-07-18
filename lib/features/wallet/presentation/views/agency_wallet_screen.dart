@@ -6,7 +6,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../routes/app_routes.dart';
+import '../../../../routes/app_routes.dart';
 import '../controllers/wallet_controller.dart';
 
 class AgencyWalletScreen extends StatelessWidget {
@@ -179,7 +179,7 @@ class AgencyWalletScreen extends StatelessWidget {
     return Row(
       children: [
         Expanded(child: _buildActionButton(
-          icon: Icons.money_off_csmd_outlined,
+          icon: Icons.money_off_outlined,
           label: 'Withdraw',
           color: Colors.red,
           onTap: () {

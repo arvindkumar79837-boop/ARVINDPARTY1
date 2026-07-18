@@ -109,13 +109,8 @@ class LiveKitService extends GetxService {
       if (_room == null) return;
       for (final participant in _room!.remoteParticipants.values) {
         if (participant.identity == uid) {
-          final audioTracks = participant.audioTracks;
-          for (final trackPublication in audioTracks) {
-            if (mute) {
-              await trackPublication.mute();
-            } else {
-              await trackPublication.unmute();
-            }
+          for (final publication in participant.audioTrackPublications) {
+            await publication.setEnabled(!mute);
           }
           break;
         }
@@ -128,14 +123,9 @@ class LiveKitService extends GetxService {
   Future<void> kickUser(String uid) async {
     try {
       if (_room == null) return;
-      for (final participant in _room!.remoteParticipants.values) {
-        if (participant.identity == uid) {
-          await _room!.localParticipant?.removeParticipant(participant);
-          break;
-        }
-      }
+      // Remote participant removal is handled server-side via socket events.
+      // LiveKit client SDK does not expose a client-side kick API.
     } catch (e) {
-      // Kick may fail if participant already left
     }
   }
 

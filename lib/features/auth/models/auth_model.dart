@@ -32,6 +32,8 @@ class User {
   final String? gender;
   final DateTime? dob;
 
+  String get uid => id;
+
   User({
     required this.id,
     this.username = '',
