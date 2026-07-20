@@ -32,6 +32,12 @@ class _ExploreTabState extends State<ExploreTab> {
 
   static const _pageSize = 20;
 
+  // Country & Topic filters
+  final RxString _selectedCountry = ''.obs;
+  final RxString _selectedTopic = ''.obs;
+  static const _countries = ['', 'IN', 'US', 'AE', 'SA', 'PK', 'BD', 'NP', 'LK'];
+  static const _topics = ['', 'Music', 'Chatting', 'Gaming', 'Dating', 'Comedy', 'Talk Show', 'Study'];
+
   static const _trendingCategories = [
     {'name': 'Music', 'icon': '🎵', 'color': '#FF6B6B'},
     {'name': 'Party', 'icon': '🎉', 'color': '#FF8906'},
@@ -129,6 +135,25 @@ class _ExploreTabState extends State<ExploreTab> {
     _hasMore = true;
   }
 
+  Future<void> _loadDiscoverRooms() async {
+    try {
+      final params = <String, String>{};
+      if (_selectedCountry.value.isNotEmpty) params['country'] = _selectedCountry.value;
+      if (_selectedTopic.value.isNotEmpty) params['topic'] = _selectedTopic.value;
+      params['limit'] = '40';
+      final resp = await _api.dio.get('/luxury/discover', queryParameters: params);
+      if (resp.data['success'] == true) {
+        final rooms = (resp.data['data']?['rooms'] as List?) ?? [];
+        ctrl.trendingRooms.clear();
+        for (final r in rooms) {
+          ctrl.trendingRooms.add(r);
+        }
+      }
+    } catch (e) {
+      debugPrint('_loadDiscoverRooms error: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -144,6 +169,50 @@ class _ExploreTabState extends State<ExploreTab> {
               controller: _searchController,
               onChanged: _onSearch,
               onClear: _clearSearch,
+            ),
+
+            const SizedBox(height: 4),
+
+            // ── Country / Topic Filter Chips ────────────────────────────
+            SizedBox(
+              height: 40,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                children: [
+                  // Country chips
+                  ..._countries.map((c) => Padding(
+                    padding: const EdgeInsets.only(right: 6),
+                    child: Obx(() => FilterChip(
+                      label: Text(c.isEmpty ? 'All Countries' : c, style: TextStyle(color: _selectedCountry.value == c ? Colors.white : Colors.white54, fontSize: 12)),
+                      selected: _selectedCountry.value == c,
+                      onSelected: (_) { _selectedCountry.value = c; _loadDiscoverRooms(); },
+                      selectedColor: const Color(0xFF6C63FF),
+                      backgroundColor: const Color(0xFF1A1A2E),
+                      side: BorderSide.none,
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      visualDensity: VisualDensity.compact,
+                    )),
+                  )),
+                  const SizedBox(width: 8),
+                  // Topic chips
+                  ..._topics.map((t) => Padding(
+                    padding: const EdgeInsets.only(right: 6),
+                    child: Obx(() => FilterChip(
+                      label: Text(t.isEmpty ? 'All Topics' : t, style: TextStyle(color: _selectedTopic.value == t ? Colors.white : Colors.white54, fontSize: 12)),
+                      selected: _selectedTopic.value == t,
+                      onSelected: (_) { _selectedTopic.value = t; _loadDiscoverRooms(); },
+                      selectedColor: const Color(0xFFFF8906),
+                      backgroundColor: const Color(0xFF1A1A2E),
+                      side: BorderSide.none,
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      visualDensity: VisualDensity.compact,
+                    )),
+                  )),
+                ],
+              ),
             ),
 
             const SizedBox(height: 4),

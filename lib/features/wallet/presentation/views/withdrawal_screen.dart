@@ -211,6 +211,58 @@ class WithdrawalScreen extends StatelessWidget {
               ),
             ),
           ),
+          const SizedBox(height: 8),
+          // Minimum withdrawal notice
+          Obx(() {
+            final minW = controller.minWithdrawal.value;
+            return Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFF8906).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.info_outline, color: Color(0xFFFF8906), size: 16),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Minimum withdrawal: $minW diamonds. Requests below this will be rejected.',
+                      style: const TextStyle(color: Color(0xFFFF8906), fontSize: 12),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+          const SizedBox(height: 4),
+          // Below-minimum warning (shown reactively)
+          Obx(() {
+            final entered = int.tryParse(controller.withdrawAmountController.text) ?? 0;
+            final minW = controller.minWithdrawal.value;
+            if (entered > 0 && entered < minW) {
+              return Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.red.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.warning_amber, color: Colors.redAccent, size: 16),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Amount $entered is below minimum ($minW). Please enter at least $minW diamonds.',
+                        style: const TextStyle(color: Colors.redAccent, fontSize: 12, fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+            return const SizedBox.shrink();
+          }),
           const SizedBox(height: 12),
           TextField(
             controller: controller.accountDetailsController,

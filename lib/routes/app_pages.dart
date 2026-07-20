@@ -155,6 +155,8 @@ import '../features/vip_system/views/vip_dashboard_view.dart';
 import '../features/vip_system/views/vip_missions_view.dart';
 import '../features/vip_system/views/vip_premium_view.dart';
 import '../features/vip_system/views/vip_shop_view.dart';
+import '../features/premium/presentation/bindings/premium_binding.dart';
+import '../features/premium/presentation/views/premium_screen.dart';
 import '../features/wallet/presentation/bindings/wallet_binding.dart';
 import '../features/wallet/presentation/views/coin_wallet_screen.dart';
 import '../features/wallet/presentation/views/diamond_wallet_screen.dart';
@@ -307,8 +309,8 @@ class AppPages {
     ),
     GetPage(
       name: AppRoutes.premium,
-      page: () => const PremiumView(),
-      binding: VipSystemBinding(),
+      page: () => const PremiumScreen(),
+      binding: PremiumBinding(),
     ),
     GetPage(
       name: AppRoutes.vipLeaderboard,

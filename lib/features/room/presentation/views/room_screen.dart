@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../controllers/room_controller.dart';
+import '../widgets/music_control_bar_widget.dart';
 import '../widgets/room_banner_widget.dart';
 import '../widgets/room_bottom_bar_widget.dart';
 import '../widgets/room_chat_widget.dart';
 import '../widgets/room_header_widget.dart';
+import '../widgets/room_lock_widget.dart';
 import '../widgets/seat_grid_widget.dart';
 
 class RoomScreen extends StatelessWidget {
@@ -35,6 +37,22 @@ class RoomScreen extends StatelessWidget {
                       const RoomBannerWidget(),
                       const SizedBox(height: 8),
                       const SeatGridWidget(),
+                      const SizedBox(height: 8),
+                      // Music control bar
+                      MusicControlBar(
+                        roomId: ctrl.currentRoom.value?.roomId ?? '',
+                        isHost: ctrl.isHost,
+                      ),
+                      const SizedBox(height: 8),
+                      // Room lock widget
+                      Obx(() => Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: RoomLockWidget(
+                          roomId: ctrl.currentRoom.value?.roomId ?? '',
+                          isOwner: ctrl.isHost,
+                          isLocked: ctrl.currentRoom.value?.isLocked ?? false,
+                        ),
+                      )),
                       const SizedBox(height: 8),
                       Divider(color: Colors.white.withValues(alpha: 0.05), height: 1),
                       const SizedBox(height: 4),
