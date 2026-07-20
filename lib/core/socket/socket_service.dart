@@ -78,6 +78,9 @@ class SocketService extends GetxService {
           .setExtraHeaders({
             if (_currentToken != null) 'Authorization': 'Bearer ${_currentToken!}',
           })
+          .setAuth({
+            if (_currentToken != null) 'token': _currentToken!,
+          })
           .build(),
     );
 

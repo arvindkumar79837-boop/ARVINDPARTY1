@@ -76,5 +76,27 @@
 	<string>Arvind Party needs camera access for live streaming</string>
 	<key>NSMicrophoneWhenInUseUsageDescription</key>
 	<string>Arvind Party needs microphone access for live streaming</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<!--
+		  Default: blocks all insecure HTTP loads.
+		  Exception: only the testing server IP allows HTTP.
+
+		  TODO: Domain milne ke baad ye pura NSAppTransportSecurity
+		        section hata do ya NSAllowsArbitraryLoads ko false rakho.
+		-->
+		<key>NSAllowsArbitraryLoads</key>
+		<false/>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>222.167.207.78</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+				<key>NSExceptionRequiresForwardSecrecy</key>
+				<false/>
+			</dict>
+		</dict>
+	</dict>
 </dict>
 </plist>

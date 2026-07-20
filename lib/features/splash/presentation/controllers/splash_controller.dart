@@ -23,8 +23,9 @@ class SplashController extends GetxController {
   /// Completer that resolves when the minimum display window elapses.
   final Completer<void> _minimumDisplayElapsed = Completer<void>();
 
-  /// Worker (cancelled on controller disposal).
-  late Worker _authWorker;
+  /// Worker (cancelled on controller disposal). Nullable — only assigned
+  /// when authStatus is still `unknown` and ever() is actually registered.
+  Worker? _authWorker;
 
   /// Flag to ensure navigation fires exactly once.
   bool _navigated = false;
@@ -75,7 +76,7 @@ class SplashController extends GetxController {
   @override
   void onClose() {
     _minimumDisplayTimer?.cancel();
-    _authWorker.dispose();
+    _authWorker?.dispose();
     super.onClose();
   }
 

@@ -2,7 +2,7 @@
 // FILE: lib/core/constants/env_config.dart
 // ARVIND PARTY - CENTRALIZED ENVIRONMENT CONFIGURATION
 // ═══════════════════════════════════════════════════════════════════════════
-// Update these URLs before production deployment
+
 class EnvConfig {
   EnvConfig._();
 
@@ -11,20 +11,26 @@ class EnvConfig {
   static const bool isStaging = false;
   static const bool isDevelopment = false;
 
-  // ─── API URLs ──────────────────────────────────────────────────────
-  // Update these URLs before production deployment
-  static String get currentEnv => isProduction ? 'production' : isStaging ? 'staging' : 'development';
-
-  // Fallback dev URL for physical device on same LAN
+  // ─── BASE URLS ──────────────────────────────────────────────────────
+  //
+  // Abhi dono URLs same testing server pe point karti hain.
+  // Domain milne ke baad:
+  //   1. prodBaseUrl ko https://yourdomain.com se replace karo
+  //   2. android/app/src/main/res/xml/network_security_config.xml
+  //      se 222.167.207.78 ka exception hata do
+  //   3. ios/Runner/Info.plist se 222.167.207.78 ka
+  //      NSExceptionDomains entry hata do
+  //
   static const String devBaseUrl = 'http://222.167.207.78:5000';
   static const String stagingBaseUrl = 'http://222.167.207.78:5000';
   static const String prodBaseUrl = 'http://222.167.207.78:5000';
-  
+  // TODO: Domain milne ke baad prodBaseUrl ko 'https://yourdomain.com' se replace karo
 
-  /// Returns the effective base URL.
-  static String get effectiveDevBaseUrl => prodBaseUrl;
+  // ─── RESOLVED URL ───────────────────────────────────────────────────
+  static String get currentEnv => isProduction ? 'production' : isStaging ? 'staging' : 'development';
 
-  static String get baseUrl => isProduction ? prodBaseUrl : isStaging ? stagingBaseUrl : effectiveDevBaseUrl;
+  static String get baseUrl =>
+      isProduction ? prodBaseUrl : isStaging ? stagingBaseUrl : devBaseUrl;
 
   /// API base URL (used by ApiService via ApiConstants)
   static String get apiBaseUrl => '$baseUrl/api';
@@ -32,10 +38,12 @@ class EnvConfig {
   /// Socket server URL (used by SocketService and repositories)
   static String get socketUrl => baseUrl;
 
-  /// Plain API base URL without version suffix (for repositories using direct Dio calls)
+  /// Plain API base URL without version suffix
   static String get plainApiBaseUrl => '$baseUrl/api';
 
   // ─── TIMEOUTS ──────────────────────────────────────────────────────
+  // Testing server ke liye generous timeouts rakhe hain.
+  // Production mein isse kam kar sakte ho.
   static const int connectionTimeoutMs = 30000;
   static const int receiveTimeoutMs = 30000;
   static const int sendTimeoutMs = 30000;
@@ -65,14 +73,9 @@ class EnvConfig {
   static const int maxLoginAttempts = 5;
   static const int sessionTimeoutHours = 24;
 
-  // ─── LIVEKIT ──────────────────────────────────────────────────────────
-  // LiveKit server/API base (used for token fetching)
+  // ─── LIVEKIT ────────────────────────────────────────────────────────
   static String get liveKitApiBaseUrl => baseUrl;
-
-  /// LiveKit WebSocket URL for client connections
   static const String liveKitWsUrl = 'wss://livekit.arvindparty.com';
-
-  /// If your mobile client negotiates tokens from backend using a room ref, keep this path aligned with backend route.
   static String get liveKitTokenPath => '/room';
 
   // ─── COMMISSION RATES ─────────────────────────────────────────────

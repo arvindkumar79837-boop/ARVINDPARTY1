@@ -20,7 +20,23 @@ import 'routes/app_routes.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Catch any uncaught Dart async exceptions so the app doesn't silently crash.
+  // Errors are logged to console for debugging; in production, replace with
+  // a crash reporting service (e.g. Sentry).
+  runZonedGuarded(
+    () => _bootstrap(),
+    (error, stackTrace) {
+      debugPrint('═══ UNCAUGHT EXCEPTION ═══');
+      debugPrint('$error');
+      debugPrint('$stackTrace');
+      debugPrint('══════════════════════════');
+    },
+  );
+}
+
+Future<void> _bootstrap() async {
   ErrorWidget.builder = (FlutterErrorDetails details) {
+    debugPrint('FlutterError: ${details.exception}\n${details.stack}');
     return Material(
       color: const Color(0xFF0F0E17),
       child: Center(

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ARVIND PARTY - Network Security Configuration
+
+  Default: cleartext (HTTP) traffic is BLOCKED everywhere.
+  Exception: only the testing server IP is allowed for cleartext.
+
+  TODO: Domain milne ke baad prodBaseUrl ko https://yourdomain.com se replace
+        karo, aur is file se 222.167.207.78 ka exception hata do.
+-->
+<network-security-config>
+
+  <!-- Block cleartext everywhere by default -->
+  <base-config cleartextTrafficPermitted="false">
+    <trust-anchors>
+      <certificates src="system" />
+    </trust-anchors>
+  </base-config>
+
+  <!-- TEST SERVER ONLY — allow HTTP for backend testing -->
+  <domain-config cleartextTrafficPermitted="true">
+    <domain includeSubdomains="false">222.167.207.78</domain>
+    <trust-anchors>
+      <certificates src="system" />
+    </trust-anchors>
+  </domain-config>
+
+</network-security-config>
