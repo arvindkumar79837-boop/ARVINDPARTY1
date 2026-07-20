@@ -388,8 +388,6 @@ class SettingsScreen extends StatelessWidget {
   }
 
   void _showDeleteAccountDialog(SettingsController controller) {
-    final passwordController = TextEditingController();
-    
     Get.dialog(
       AlertDialog(
         backgroundColor: const Color(0xFF2A2A4E),
@@ -397,20 +395,26 @@ class SettingsScreen extends StatelessWidget {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
-              'This action cannot be undone. All your data will be permanently deleted.',
-              style: TextStyle(color: Colors.white70, fontSize: 13),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: passwordController,
-              style: const TextStyle(color: Colors.white),
-              obscureText: true,
-              decoration: const InputDecoration(
-                labelText: 'Enter Password',
-                labelStyle: TextStyle(color: Colors.white70),
-                border: OutlineInputBorder(),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(color: Colors.orange.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
+              child: const Row(
+                children: [
+                  Icon(Icons.info_outline, color: Colors.orange, size: 20),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      '30 din ke andar wapas login karke account cancel kar sakte ho. Uske baad permanent delete ho jayega.',
+                      style: TextStyle(color: Colors.white70, fontSize: 12),
+                    ),
+                  ),
+                ],
               ),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'Are you sure you want to delete your account? This action will start a 30-day grace period.',
+              style: TextStyle(color: Colors.white70, fontSize: 13),
             ),
           ],
         ),
@@ -421,13 +425,11 @@ class SettingsScreen extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () {
-              if (passwordController.text.isNotEmpty) {
-                controller.deleteAccount(passwordController.text);
-                Get.back();
-              }
+              controller.deleteAccount('');
+              Get.back();
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Delete Forever', style: TextStyle(color: Colors.white)),
+            child: const Text('Delete Account', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),

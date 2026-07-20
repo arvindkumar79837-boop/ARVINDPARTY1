@@ -5,6 +5,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../core/services/api_service.dart';
 
 class SupportController extends GetxController {
   final isLoading = false.obs;
@@ -57,21 +58,66 @@ class SupportController extends GetxController {
     }
   }
 
-  void loadTickets() {
+  void loadTickets() async {
     try {
-      tickets.value = [
-        SupportTicket('TK-001', 'Payment issue', 'technical', 'high', 'open',
-            DateTime.now().subtract(const Duration(hours: 2)),
-            'Cannot complete coin purchase via UPI'),
-        SupportTicket('TK-002', 'Room creation error', 'technical', 'medium', 'in_progress',
-            DateTime.now().subtract(const Duration(days: 1)),
-            'Getting error when creating password-protected room'),
-        SupportTicket('TK-003', 'Account verification', 'account', 'low', 'resolved',
-            DateTime.now().subtract(const Duration(days: 3)),
-            'Please verify my phone number'),
-      ];
+      final api = Get.find<ApiService>();
+      final response = await api.get('/support/tickets');
+      if (response['success'] == true) {
+        final List<dynamic> data = response['data'] ?? response['tickets'] ?? [];
+        tickets.value = data.map((t) => SupportTicket(
+          t['_id'] ?? '',
+          t['subject'] ?? '',
+          t['category'] ?? 'general',
+          t['priority'] ?? 'medium',
+          t['status'] ?? 'OPEN',
+          DateTime.tryParse(t['createdAt'] ?? '') ?? DateTime.now(),
+          t['messages']?.isNotEmpty == true ? t['messages'][0]['message'] ?? '' : '',
+        )).toList();
+      }
     } catch (e) {
       errorMessage.value = 'Failed to load tickets: $e';
+    }
+  }
+
+  void submitTicket() async {
+    try {
+      if (ticketSubject.value.trim().isEmpty) {
+        Get.snackbar('Error', 'Please enter a subject',
+            snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
+        return;
+      }
+      if (ticketDescription.value.trim().isEmpty) {
+        Get.snackbar('Error', 'Please describe your issue',
+            snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
+        return;
+      }
+
+      isSubmitting.value = true;
+      submitSuccess.value = false;
+
+      final api = Get.find<ApiService>();
+      final response = await api.post('/support/ticket/create', body: {
+        'subject': ticketSubject.value,
+        'message': ticketDescription.value,
+        'category': ticketCategory.value,
+      });
+
+      if (response['success'] == true) {
+        ticketSubject.value = '';
+        ticketDescription.value = '';
+        ticketCategory.value = 'technical';
+        ticketPriority.value = 'medium';
+        submitSuccess.value = true;
+        Get.snackbar('Success', 'Ticket created successfully',
+            snackPosition: SnackPosition.BOTTOM, backgroundColor: const Color(0xFFFF9800), colorText: Colors.white);
+        loadTickets();
+      }
+    } catch (e) {
+      errorMessage.value = 'Failed to submit ticket: $e';
+      Get.snackbar('Error', 'Failed to submit ticket. Please try again.',
+          snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
+    } finally {
+      isSubmitting.value = false;
     }
   }
 

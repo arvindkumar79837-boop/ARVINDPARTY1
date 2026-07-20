@@ -60,6 +60,7 @@ dependencies:
 
   # Payments
   razorpay_flutter: ^1.4.5
+  in_app_purchase: ^3.2.1
 
   # UI Enhancements
   percent_indicator: ^4.2.5

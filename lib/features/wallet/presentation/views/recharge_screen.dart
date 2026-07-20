@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../controllers/wallet_controller.dart';
+import '../../../core/services/google_play_billing_service.dart';
 
 class RechargeScreen extends StatelessWidget {
   const RechargeScreen({super.key});
@@ -195,7 +196,7 @@ class RechargeScreen extends StatelessWidget {
               child: controller.isProcessingRecharge.value
                   ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                   : Text(
-                      'Pay ₹${selectedAmount.value} via Razorpay',
+                      'Pay ₹${selectedAmount.value} via Google Play',
                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
                     ),
             ),
@@ -320,7 +321,7 @@ class RechargeScreen extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Payments are processed securely via Razorpay. UPI, Cards, Netbanking, and Wallets are supported.',
+              'Payments are processed securely via Google Play Store. Coins are purchased as consumable items.',
               style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.6)),
             ),
           ),

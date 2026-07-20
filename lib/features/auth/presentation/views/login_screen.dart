@@ -466,19 +466,19 @@ class _LoginScreenState extends State<LoginScreen> {
                     color: Colors.white.withValues(alpha: 0.8),
                     fontSize: 12.5, fontFamily: 'Poppins',
                   ),
-                  children: const [
-                    TextSpan(text: 'Agree to '),
+                  children: [
+                    const TextSpan(text: 'Agree to '),
                     TextSpan(
                       text: 'Terms of Use',
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Color(0xFF64B5F6),
                         decoration: TextDecoration.underline,
                       ),
                     ),
-                    TextSpan(text: ' and '),
+                    const TextSpan(text: ' and '),
                     TextSpan(
                       text: 'Privacy Policy',
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Color(0xFF64B5F6),
                         decoration: TextDecoration.underline,
                       ),

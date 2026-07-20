@@ -169,19 +169,47 @@ class SettingsController extends GetxController {
     }
   }
 
-  // Account Deletion
+  // Account Deletion (30-day grace period)
   void deleteAccount(String password) async {
     try {
       isLoading.value = true;
       final api = Get.find<ApiService>();
-      final response = await api.post('/support/profile/delete', body: {'password': password});
+      final response = await api.post('/legal/request-deletion', body: {
+        'reason': 'User requested account deletion',
+      });
 
       if (response['success'] == true) {
-        Get.find<AuthSessionManager>().clearSession();
-        Get.offAllNamed(AppRoutes.login);
+        final scheduledAt = response['data']?['scheduledDeletionAt'] ?? '';
+        Get.defaultDialog(
+          title: 'Account Deletion Scheduled',
+          titleStyle: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
+          middleText: 'Your account will be permanently deleted on $scheduledAt.\n\nYou can cancel by logging in again within 30 days.',
+          textConfirm: 'OK',
+          confirmTextColor: Colors.white,
+          buttonColor: Colors.orange,
+          onConfirm: () {
+            Get.find<AuthSessionManager>().clearSession();
+            Get.offAllNamed(AppRoutes.login);
+          },
+        );
       }
     } catch (e) {
       Get.snackbar('Error', 'Failed to delete account', snackPosition: SnackPosition.BOTTOM);
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  void cancelDeletion() async {
+    try {
+      isLoading.value = true;
+      final api = Get.find<ApiService>();
+      final response = await api.post('/legal/cancel-deletion', body: {});
+      if (response['success'] == true) {
+        Get.snackbar('Success', 'Account deletion cancelled', snackPosition: SnackPosition.BOTTOM);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to cancel deletion', snackPosition: SnackPosition.BOTTOM);
     } finally {
       isLoading.value = false;
     }
@@ -362,6 +390,30 @@ class SettingsController extends GetxController {
 
   bool checkBlockStatus(bool isBlocked) {
     return isBlocked;
+  }
+
+  // Content Reporting
+  void reportContent({
+    required String reportedUserId,
+    required String contentType,
+    required String reason,
+    String description = '',
+  }) async {
+    try {
+      final api = Get.find<ApiService>();
+      final response = await api.post('/moderation/report', body: {
+        'reportedUserId': reportedUserId,
+        'contentType': contentType,
+        'reason': reason,
+        'description': description,
+      });
+      if (response['success'] == true) {
+        Get.snackbar('Report Submitted', 'Thank you for your report. Our team will review it.',
+            snackPosition: SnackPosition.BOTTOM, backgroundColor: const Color(0xFFFF9800), colorText: Colors.white);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to submit report', snackPosition: SnackPosition.BOTTOM);
+    }
   }
 
 }

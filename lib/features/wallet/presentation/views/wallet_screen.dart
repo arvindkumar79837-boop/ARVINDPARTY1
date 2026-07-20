@@ -10,6 +10,7 @@ import '../models/wallet_model.dart';
 import '../widgets/currency_card.dart';
 import '../widgets/recharge_package_item.dart';
 import '../widgets/transaction_item.dart';
+import '../../../core/services/google_play_billing_service.dart';
 
 class WalletScreen extends GetView<WalletController> {
   const WalletScreen({super.key});
@@ -45,9 +46,9 @@ class WalletScreen extends GetView<WalletController> {
               ),
               const SizedBox(height: 20),
               Row(children: [
-                Expanded(child: CurrencyCard(type: CurrencyType.coins, amount: controller.coinBalance.value)),
+                Expanded(child: CurrencyCard(type: CurrencyType.coins, amount: controller.coinBalance.value, subtitle: 'Gift bhejne, VIP, Frames')),
                 const SizedBox(width: 12),
-                Expanded(child: CurrencyCard(type: CurrencyType.diamonds, amount: controller.diamondBalance.value)),
+                Expanded(child: CurrencyCard(type: CurrencyType.diamonds, amount: controller.diamondBalance.value, subtitle: 'Gift receive se milte hain')),
               ]),
               const SizedBox(height: 12),
               Row(children: [
@@ -88,15 +89,22 @@ class WalletScreen extends GetView<WalletController> {
           const SizedBox(height: 12),
           const Text('Select Payment Method', style: TextStyle(fontWeight: FontWeight.w600)),
           Obx(() => Row(children: [
-            _payChip('PayPal', 'paypal', controller.selectedPaymentMethod.value == 'paypal'),
-            _payChip('Card', 'card', controller.selectedPaymentMethod.value == 'card'),
-            _payChip('GPay', 'gpay', controller.selectedPaymentMethod.value == 'gpay'),
+            _payChip('Google Play', 'google_play', controller.selectedPaymentMethod.value == 'google_play'),
+            _payChip('Razorpay', 'razorpay', controller.selectedPaymentMethod.value == 'razorpay'),
           ])),
           const SizedBox(height: 16),
           Obx(() => ElevatedButton(
             onPressed: controller.isProcessingRecharge.value ? null : controller.processRecharge,
             child: controller.isProcessingRecharge.value ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('Pay Now'),
           )),
+          const SizedBox(height: 8),
+          TextButton(
+            onPressed: () async {
+              final billing = Get.find<GooglePlayBillingService>();
+              await billing.restorePurchases();
+            },
+            child: const Text('Restore Purchases', style: TextStyle(fontSize: 12)),
+          ),
         ]),
       ),
       actions: [TextButton(onPressed: () => Get.back(), child: const Text('Close'))],

@@ -11,6 +11,7 @@ import 'package:get_storage/get_storage.dart';
 
 import 'core/services/api_service.dart';
 import 'core/services/auth_session_manager.dart';
+import 'core/services/google_play_billing_service.dart';
 import 'core/socket/socket_service.dart';
 import 'core/utils/network_manager.dart';
 import 'firebase_options.dart';
@@ -81,6 +82,7 @@ Future<void> _bootstrap() async {
   Get.put<AuthSessionManager>(AuthSessionManager(), permanent: true);
   Get.put<SocketService>(SocketService(), permanent: true);
   Get.put<NetworkManager>(NetworkManager(), permanent: true);
+  Get.put<GooglePlayBillingService>(GooglePlayBillingService(), permanent: true);
 
   // Initialize all asynchronous services FIRST before running the app
   // This prevents race conditions where services are accessed before they're ready
