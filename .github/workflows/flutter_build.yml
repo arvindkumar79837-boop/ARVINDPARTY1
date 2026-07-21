@@ -21,14 +21,6 @@ jobs:
         with:
           channel: 'stable'
 
-      # Yeh step saari faltu files aur purani lock file ko build server se uda dega
-      - name: Clean Extra Trash and Lock Files
-        run: |
-          rm -f pubspec.lock
-          rm -f *.txt
-          rm -f *.json
-          rm -f *.py
-
       - name: Install Dependencies
         run: flutter pub get
 
