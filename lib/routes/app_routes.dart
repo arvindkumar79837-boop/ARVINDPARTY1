@@ -26,6 +26,7 @@ abstract class AppRoutes {
   static const vipCosmetics = '/vip-cosmetics';
   static const vipLeaderboard = '/vip-leaderboard';
   static const premium = '/premium';
+  static const blindDate = '/blind-date';
 
   // ═══════ USER PROFILE ═══════
   static const home = '/home';

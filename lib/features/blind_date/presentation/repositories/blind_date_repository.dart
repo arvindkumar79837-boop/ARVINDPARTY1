@@ -1,53 +1,55 @@
-// ═══════════════════════════════════════════════════════════════════════════
-// FILE: lib/features/blind_date/presentation/repositories/blind_date_repository.dart
-// ARVIND PARTY - BLIND DATE REPOSITORY
-// ═══════════════════════════════════════════════════════════════════════════
-
 import 'package:dio/dio.dart';
-import 'package:get/get.dart';
-
-import '../../../../core/constants/api_constants.dart';
 import '../../../../core/services/api_service.dart';
-import '../../../../core/services/auth_session_manager.dart';
-import '../../../../core/utils/api_exception.dart';
 
 class BlindDateRepository {
-  final _api = Get.find<ApiService>();
+  final Dio _dio;
 
-  String? _getToken() {
-    try {
-      return Get.find<AuthSessionManager>().token.value;
-    } catch (_) { return null; }
+  BlindDateRepository() : _dio = Get.find<ApiService>().dio;
+
+  Future<Map<String, dynamic>> getProfile() async {
+    final resp = await _dio.get('/blind-date/profile');
+    return resp.data;
   }
 
-  Options _authOptions() => Options(headers: {
-        if (_getToken() != null) 'Authorization': 'Bearer ${_getToken()}',
-      });
-
-  /// Start searching for a blind date match
-  /// POST /api/matchmaking/search
-  Future<Map<String, dynamic>> searchMatch() async {
-    try {
-      final response = await _api.dio.post(
-        ApiConstants.blindMatch,
-        options: _authOptions(),
-      );
-      return response as Map<String, dynamic>;
-    } catch (e) {
-      throw ApiException(message: e.toString());
-    }
+  Future<Map<String, dynamic>> updateProfile({
+    String? genderPreference,
+    int? ageRangeMin,
+    int? ageRangeMax,
+    List<String>? countryPreference,
+    bool? isEnabled,
+  }) async {
+    final resp = await _dio.put('/blind-date/profile', data: {
+      if (genderPreference != null) 'genderPreference': genderPreference,
+      if (ageRangeMin != null) 'ageRangeMin': ageRangeMin,
+      if (ageRangeMax != null) 'ageRangeMax': ageRangeMax,
+      if (countryPreference != null) 'countryPreference': countryPreference,
+      if (isEnabled != null) 'isEnabled': isEnabled,
+    });
+    return resp.data;
   }
 
-  /// Stop searching for a match
-  /// POST /api/matchmaking/stop
-  Future<void> stopSearch() async {
-    try {
-      await _api.dio.post(
-        ApiConstants.blindMatchStop,
-        options: _authOptions(),
-      );
-    } catch (e) {
-      throw ApiException(message: e.toString());
-    }
+  Future<Map<String, dynamic>> joinQueue() async {
+    final resp = await _dio.post('/blind-date/join-queue');
+    return resp.data;
+  }
+
+  Future<Map<String, dynamic>> leaveQueue() async {
+    final resp = await _dio.post('/blind-date/leave-queue');
+    return resp.data;
+  }
+
+  Future<Map<String, dynamic>> getSession(String sessionId) async {
+    final resp = await _dio.get('/blind-date/session/$sessionId');
+    return resp.data;
+  }
+
+  Future<Map<String, dynamic>> decide(String sessionId, String decision) async {
+    final resp = await _dio.post('/blind-date/$sessionId/decide', data: {'decision': decision});
+    return resp.data;
+  }
+
+  Future<Map<String, dynamic>> reportSession(String sessionId, String reason) async {
+    final resp = await _dio.post('/blind-date/$sessionId/report', data: {'reason': reason});
+    return resp.data;
   }
 }

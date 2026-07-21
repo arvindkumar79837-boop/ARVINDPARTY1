@@ -157,6 +157,8 @@ import '../features/vip_system/views/vip_premium_view.dart';
 import '../features/vip_system/views/vip_shop_view.dart';
 import '../features/premium/presentation/bindings/premium_binding.dart';
 import '../features/premium/presentation/views/premium_screen.dart';
+import '../features/blind_date/presentation/bindings/blind_date_binding.dart';
+import '../features/blind_date/presentation/views/blind_date_screen.dart';
 import '../features/wallet/presentation/bindings/wallet_binding.dart';
 import '../features/wallet/presentation/views/coin_wallet_screen.dart';
 import '../features/wallet/presentation/views/diamond_wallet_screen.dart';
@@ -311,6 +313,11 @@ class AppPages {
       name: AppRoutes.premium,
       page: () => const PremiumScreen(),
       binding: PremiumBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.blindDate,
+      page: () => const BlindDateScreen(),
+      binding: BlindDateBinding(),
     ),
     GetPage(
       name: AppRoutes.vipLeaderboard,
