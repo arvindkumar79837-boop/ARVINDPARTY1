@@ -14,6 +14,7 @@ import 'core/services/auth_session_manager.dart';
 import 'core/services/google_play_billing_service.dart';
 import 'core/socket/socket_service.dart';
 import 'core/utils/network_manager.dart';
+import 'features/auth/presentation/services/firebase_auth_service.dart';
 import 'firebase_options.dart';
 import 'routes/app_pages.dart';
 import 'routes/app_routes.dart';
@@ -101,6 +102,8 @@ Future<void> initAsynchronousServices() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    // Register FirebaseAuthService after Firebase is initialized
+    Get.put<FirebaseAuthService>(FirebaseAuthService(), permanent: true);
   } catch (e) {
     // Non-fatal — the app continues without Firebase. FCM token registration
     // will be retried later when network is available.

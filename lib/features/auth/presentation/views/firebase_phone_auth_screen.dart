@@ -7,7 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pinput/pinput.dart';
 
-import '../../../home/presentation/views/home_screen.dart';
+import '../../../../core/services/auth_session_manager.dart';
+import '../../../../routes/app_routes.dart';
 import '../services/firebase_auth_service.dart';
 
 class FirebasePhoneAuthScreen extends StatefulWidget {
@@ -83,14 +84,21 @@ class _FirebasePhoneAuthScreenState extends State<FirebasePhoneAuthScreen> {
 
     setState(() => _isLoading = false);
 
-    if (_firebaseAuthService.currentFirebaseUser.value != null) {
-      Get.offAll(() => const HomeScreen());
+    if (_firebaseAuthService.errorMessage.value.isNotEmpty) {
+      Get.snackbar(
+        'Error',
+        _firebaseAuthService.errorMessage.value,
+        backgroundColor: Colors.red.shade900,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } else if (_firebaseAuthService.currentFirebaseUser.value != null) {
+      // Session tokens saved by _completeFirebaseLogin in FirebaseAuthService
+      Get.offAllNamed(AppRoutes.home);
     } else {
       Get.snackbar(
         'Error',
-        _firebaseAuthService.errorMessage.value.isNotEmpty
-            ? _firebaseAuthService.errorMessage.value
-            : 'OTP verification failed',
+        'OTP verification failed. Please try again.',
         backgroundColor: Colors.red.shade900,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,

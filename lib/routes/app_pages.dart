@@ -37,6 +37,7 @@ import '../features/auth/presentation/views/multi_device_control_screen.dart';
 import '../features/auth/presentation/views/otp_screen.dart';
 import '../features/auth/presentation/views/password_reset_screen.dart';
 import '../features/auth/presentation/views/phone_auth_screen.dart';
+import '../features/auth/presentation/views/firebase_phone_auth_screen.dart';
 import '../features/auth/presentation/views/session_management_screen.dart';
 import '../features/auth/presentation/views/signup_screen.dart';
 import '../features/auth/presentation/views/social_login_screen.dart';
@@ -198,7 +199,7 @@ class AppPages {
     ),
     GetPage(
       name: AppRoutes.phoneAuth,
-      page: () => const PhoneAuthScreen(),
+      page: () => const FirebasePhoneAuthScreen(),
       binding: AuthBinding(),
       transition: Transition.rightToLeft,
     ),

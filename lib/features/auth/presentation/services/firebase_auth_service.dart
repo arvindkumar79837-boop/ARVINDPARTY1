@@ -19,6 +19,7 @@ class FirebaseAuthService extends GetxService {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   final DeviceInfoPlugin _deviceInfo = DeviceInfoPlugin();
   final ApiService _apiService = Get.find<ApiService>();
+  final AuthSessionManager _session = Get.find<AuthSessionManager>();
   final GetStorage _storage = GetStorage();
 
   var isFirebaseInitialized = false.obs;
@@ -215,6 +216,15 @@ class FirebaseAuthService extends GetxService {
         _storage.write('firebaseUid', firebaseUser.uid);
         _storage.write('isLoggedIn', true);
 
+        // Save session via AuthSessionManager for proper auth state management
+        await _session.saveSession(
+          token: token,
+          userId: user['_id'] ?? user['uid'] ?? '',
+          userName: user['username'] ?? user['name'] ?? '',
+          userEmail: user['email'] ?? '',
+          userAvatar: user['avatar'] ?? user['photoUrl'] ?? '',
+        );
+
         currentFirebaseUser.value = firebaseUser;
         isLoading.value = false;
 
@@ -265,6 +275,7 @@ class FirebaseAuthService extends GetxService {
       _storage.remove('refreshToken');
       _storage.remove('firebaseUid');
       _storage.remove('isLoggedIn');
+      _session.clearSession();
       currentFirebaseUser.value = null;
       isFirebaseInitialized.value = false;
     } catch (e) {
