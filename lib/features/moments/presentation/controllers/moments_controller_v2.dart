@@ -36,7 +36,7 @@ class MomentsControllerV2 extends GetxController {
   Future<void> createPost(String content, {List<String>? mediaUrls, String? mediaType}) async {
     try {
       isCreating.value = true;
-      final newPost = await _repo.createPost(content, mediaUrls: mediaUrls, mediaType: mediaType);
+      final newPost = await _repo.createPost(content: content, mediaUrls: mediaUrls, mediaType: mediaType);
       if (newPost != null) {
         posts.insert(0, newPost);
       }

@@ -113,7 +113,7 @@ class MomentsFeedTab extends GetView<MomentsController> {
             children: [
               CircleAvatar(
                 radius: 18,
-                backgroundColor: const Color(0xFFFF8906).withOpacity(0.2),
+                backgroundColor: const Color(0xFFFF8906).withValues(alpha: 0.2),
                 backgroundImage: (post['userAvatar'] != null && (post['userAvatar'] as String).isNotEmpty)
                     ? NetworkImage(post['userAvatar'])
                     : null,
@@ -233,7 +233,7 @@ class MomentsFeedTab extends GetView<MomentsController> {
                   hintText: "What's on your mind?",
                   hintStyle: const TextStyle(color: Colors.white30),
                   filled: true,
-                  fillColor: Colors.white.withOpacity(0.05),
+                  fillColor: Colors.white.withValues(alpha: 0.05),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                 ),
               ),
@@ -247,7 +247,7 @@ class MomentsFeedTab extends GetView<MomentsController> {
                 ElevatedButton(
                   onPressed: () async {
                     if (contentCtrl.text.trim().isEmpty) return;
-                    await controller.createPost(contentCtrl.text.trim());
+                    await controller.createPost(content: contentCtrl.text.trim());
                     Get.back();
                   },
                   style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF8906)),
@@ -321,7 +321,7 @@ class MomentsFeedTab extends GetView<MomentsController> {
                       hintText: 'Write a comment...',
                       hintStyle: const TextStyle(color: Colors.white30),
                       filled: true,
-                      fillColor: Colors.white.withOpacity(0.05),
+                  fillColor: Colors.white.withValues(alpha: 0.05),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
                       contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                     ),

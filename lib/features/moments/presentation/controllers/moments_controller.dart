@@ -10,8 +10,14 @@ class MomentsController extends GetxController {
   final isLoading = false.obs;
   final isCreating = false.obs;
   final posts = <Map<String, dynamic>>[].obs;
+  final isFollowingFeed = false.obs;
 
   final MomentsRepository _repo = MomentsRepository();
+
+  void setFeedMode(bool following) {
+    isFollowingFeed.value = following;
+    fetchPosts();
+  }
 
   @override
   void onInit() {

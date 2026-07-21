@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../core/services/api_service.dart';
+import '../../../../core/services/api_service.dart';
 
 class RoomLockWidget extends StatefulWidget {
   final String roomId;
@@ -45,7 +45,7 @@ class _RoomLockWidgetState extends State<RoomLockWidget> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
-          color: _locked ? const Color(0xFF9C27B0).withOpacity(0.2) : Colors.white10,
+          color: _locked ? const Color(0xFF9C27B0).withValues(alpha: 0.2) : Colors.white10,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: _locked ? const Color(0xFF9C27B0) : Colors.white24),
         ),
@@ -65,7 +65,7 @@ class _RoomLockWidgetState extends State<RoomLockWidget> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: const Color(0xFF9C27B0).withOpacity(0.2),
+        color: const Color(0xFF9C27B0).withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(12),
       ),
       child: const Row(
@@ -109,7 +109,7 @@ class _RoomLockWidgetState extends State<RoomLockWidget> {
                 hintStyle: const TextStyle(color: Colors.white24),
                 counterStyle: const TextStyle(color: Colors.white24),
                 filled: true,
-                fillColor: Colors.white.withOpacity(0.05),
+                fillColor: Colors.white.withValues(alpha: 0.05),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
               ),
             ),
@@ -122,7 +122,7 @@ class _RoomLockWidgetState extends State<RoomLockWidget> {
                 labelText: 'Duration (hours)',
                 labelStyle: const TextStyle(color: Colors.white54),
                 filled: true,
-                fillColor: Colors.white.withOpacity(0.05),
+                fillColor: Colors.white.withValues(alpha: 0.05),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
               ),
             ),
@@ -130,7 +130,7 @@ class _RoomLockWidgetState extends State<RoomLockWidget> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: const Color(0xFFFF8906).withOpacity(0.1),
+                color: const Color(0xFFFF8906).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Row(

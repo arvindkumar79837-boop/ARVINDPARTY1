@@ -40,7 +40,7 @@ class RoomScreen extends StatelessWidget {
                       const SizedBox(height: 8),
                       // Music control bar
                       MusicControlBar(
-                        roomId: ctrl.currentRoom.value?.roomId ?? '',
+                        roomId: ctrl.currentRoom.value?.id ?? '',
                         isHost: ctrl.isHost,
                       ),
                       const SizedBox(height: 8),
@@ -48,9 +48,8 @@ class RoomScreen extends StatelessWidget {
                       Obx(() => Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 12),
                         child: RoomLockWidget(
-                          roomId: ctrl.currentRoom.value?.roomId ?? '',
+                          roomId: ctrl.currentRoom.value?.id ?? '',
                           isOwner: ctrl.isHost,
-                          isLocked: ctrl.currentRoom.value?.isLocked ?? false,
                         ),
                       )),
                       const SizedBox(height: 8),
