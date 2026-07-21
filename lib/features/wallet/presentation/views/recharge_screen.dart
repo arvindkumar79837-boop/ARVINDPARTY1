@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../controllers/wallet_controller.dart';
-import '../../../core/services/google_play_billing_service.dart';
+import '../../../../core/services/google_play_billing_service.dart';
 
 class RechargeScreen extends StatelessWidget {
   const RechargeScreen({super.key});

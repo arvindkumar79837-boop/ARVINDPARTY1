@@ -10,7 +10,7 @@ import '../models/wallet_model.dart';
 import '../widgets/currency_card.dart';
 import '../widgets/recharge_package_item.dart';
 import '../widgets/transaction_item.dart';
-import '../../../core/services/google_play_billing_service.dart';
+import '../../../../core/services/google_play_billing_service.dart';
 
 class WalletScreen extends GetView<WalletController> {
   const WalletScreen({super.key});
