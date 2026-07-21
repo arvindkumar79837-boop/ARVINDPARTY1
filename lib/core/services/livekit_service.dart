@@ -1,8 +1,8 @@
 import 'package:get/get.dart';
 import 'package:livekit_client/livekit_client.dart';
 
-import '../../core/constants/env_config.dart';
-import '../services/api_service.dart';
+import '../constants/env_config.dart';
+import 'api_service.dart';
 
 class LiveKitService extends GetxService {
   final ApiService _apiService = Get.find<ApiService>();

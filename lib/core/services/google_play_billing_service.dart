@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
-import '../../../core/services/api_service.dart';
+import 'api_service.dart';
 
 class GooglePlayBillingService extends GetxController {
   final InAppPurchase _iap = InAppPurchase.instance;

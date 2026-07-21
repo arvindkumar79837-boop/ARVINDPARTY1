@@ -2,8 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
-import '../../../core/services/api_service.dart';
-import '../../../core/services/socket_service.dart';
+import '../../../../core/services/api_service.dart';
+import '../../../../core/socket/socket_service.dart';
 import '../../gift/presentation/controllers/gift_controller.dart';
 
 class SingingRoomController extends GetxController {
