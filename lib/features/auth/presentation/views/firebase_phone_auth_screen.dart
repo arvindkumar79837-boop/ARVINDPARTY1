@@ -28,6 +28,29 @@ class _FirebasePhoneAuthScreenState extends State<FirebasePhoneAuthScreen> {
   bool _isOtpSent = false;
   bool _isLoading = false;
 
+  // Country code selector — default India (+91)
+  String _selectedCountryCode = '+91';
+  String _selectedCountryFlag = '🇮🇳';
+  final List<Map<String, String>> _countryCodes = [
+    {'code': '+91', 'flag': '🇮🇳', 'name': 'India'},
+    {'code': '+1', 'flag': '🇺🇸', 'name': 'USA'},
+    {'code': '+44', 'flag': '🇬🇧', 'name': 'UK'},
+    {'code': '+971', 'flag': '🇦🇪', 'name': 'UAE'},
+    {'code': '+966', 'flag': '🇸🇦', 'name': 'Saudi Arabia'},
+    {'code': '+61', 'flag': '🇦🇺', 'name': 'Australia'},
+    {'code': '+86', 'flag': '🇨🇳', 'name': 'China'},
+    {'code': '+81', 'flag': '🇯🇵', 'name': 'Japan'},
+    {'code': '+49', 'flag': '🇩🇪', 'name': 'Germany'},
+    {'code': '+33', 'flag': '🇫🇷', 'name': 'France'},
+    {'code': '+55', 'flag': '🇧🇷', 'name': 'Brazil'},
+    {'code': '+234', 'flag': '🇳🇬', 'name': 'Nigeria'},
+    {'code': '+254', 'flag': '🇰🇪', 'name': 'Kenya'},
+    {'code': '+92', 'flag': '🇵🇰', 'name': 'Pakistan'},
+    {'code': '+880', 'flag': '🇧🇩', 'name': 'Bangladesh'},
+    {'code': '+94', 'flag': '🇱🇰', 'name': 'Sri Lanka'},
+    {'code': '+977', 'flag': '🇳🇵', 'name': 'Nepal'},
+  ];
+
   @override
   void dispose() {
     _phoneController.dispose();
@@ -40,7 +63,7 @@ class _FirebasePhoneAuthScreenState extends State<FirebasePhoneAuthScreen> {
 
     setState(() => _isLoading = true);
 
-    final phone = '+91${_phoneController.text.trim()}';
+    final phone = '$_selectedCountryCode${_phoneController.text.trim()}';
     final verificationId = await _firebaseAuthService.signInWithPhone(phone);
 
     if (verificationId != null) {
@@ -106,6 +129,77 @@ class _FirebasePhoneAuthScreenState extends State<FirebasePhoneAuthScreen> {
     }
   }
 
+  void _showCountryCodePicker() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF1A1A2E),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[600],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Select Country',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: _countryCodes.length,
+                  itemBuilder: (context, index) {
+                    final country = _countryCodes[index];
+                    final isSelected = country['code'] == _selectedCountryCode;
+                    return ListTile(
+                      leading: Text(country['flag']!, style: const TextStyle(fontSize: 24)),
+                      title: Text(
+                        country['name']!,
+                        style: TextStyle(
+                          color: isSelected ? const Color(0xFFFF8906) : Colors.white,
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                        ),
+                      ),
+                      trailing: Text(
+                        country['code']!,
+                        style: TextStyle(
+                          color: isSelected ? const Color(0xFFFF8906) : Colors.grey[400],
+                          fontSize: 16,
+                        ),
+                      ),
+                      onTap: () {
+                        setState(() {
+                          _selectedCountryCode = country['code']!;
+                          _selectedCountryFlag = country['flag']!;
+                        });
+                        Navigator.pop(context);
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -167,12 +261,31 @@ class _FirebasePhoneAuthScreenState extends State<FirebasePhoneAuthScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
                     children: [
-                      const Text(
-                        '+91',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                      // Country code dropdown
+                      GestureDetector(
+                        onTap: _showCountryCodePicker,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                _selectedCountryFlag,
+                                style: const TextStyle(fontSize: 20),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                _selectedCountryCode,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Icon(Icons.arrow_drop_down, color: Colors.grey[400], size: 20),
+                            ],
+                          ),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -187,13 +300,13 @@ class _FirebasePhoneAuthScreenState extends State<FirebasePhoneAuthScreen> {
                           controller: _phoneController,
                           keyboardType: TextInputType.phone,
                           style: const TextStyle(color: Colors.white, fontSize: 16),
-                          maxLength: 10,
+                          maxLength: 15,
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
                               return 'Phone number is required';
                             }
-                            if (value.trim().length != 10) {
-                              return 'Enter a valid 10-digit phone number';
+                            if (value.trim().length < 7) {
+                              return 'Enter a valid phone number';
                             }
                             return null;
                           },
