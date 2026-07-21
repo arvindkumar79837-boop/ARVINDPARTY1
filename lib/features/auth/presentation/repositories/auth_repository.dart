@@ -227,12 +227,10 @@ class AuthRepository {
 
   /// Social Login (Google, Apple, Facebook, Snapchat, Instagram, Guest)
   /// Matches backend: POST /api/auth/social/login
+  /// Sends Firebase ID Token — backend verifies server-side with Firebase Admin SDK
   Future<AuthResponse> socialLogin({
     required String provider,
-    required String providerUid,
-    String? email,
-    String? displayName,
-    String? photoUrl,
+    required String idToken,
     Map<String, dynamic>? deviceInfo,
   }) async {
     try {
@@ -240,10 +238,7 @@ class AuthRepository {
         '/auth/social/login',
         data: {
           'provider': provider,
-          'providerUid': providerUid,
-          if (email != null) 'email': email,
-          if (displayName != null) 'displayName': displayName,
-          if (photoUrl != null) 'photoUrl': photoUrl,
+          'idToken': idToken,
           if (deviceInfo != null) 'deviceInfo': deviceInfo,
         },
       );

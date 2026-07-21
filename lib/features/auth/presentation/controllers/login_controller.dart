@@ -122,16 +122,13 @@ class LoginController extends GetxController {
 
       loadingMessage.value = 'Signing in with Firebase...';
       final userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
-      final token = await userCredential.user?.getIdToken();
+      final idToken = await userCredential.user?.getIdToken();
 
-      if (token != null) {
+      if (idToken != null) {
         loadingMessage.value = 'Authenticating with backend...';
         await authRepository.socialLogin(
           provider: 'google',
-          providerUid: token,
-          email: userCredential.user?.email,
-          displayName: userCredential.user?.displayName,
-          photoUrl: userCredential.user?.photoURL,
+          idToken: idToken,
         );
 
         Get.snackbar(
@@ -177,15 +174,12 @@ class LoginController extends GetxController {
         return;
       }
 
-      final token = await firebaseUser.getIdToken();
-      if (token != null) {
+      final idToken = await firebaseUser.getIdToken();
+      if (idToken != null) {
         loadingMessage.value = 'Authenticating with backend...';
         await authRepository.socialLogin(
           provider: 'apple',
-          providerUid: token,
-          email: firebaseUser.email,
-          displayName: firebaseUser.displayName,
-          photoUrl: firebaseUser.photoURL,
+          idToken: idToken,
         );
 
         Get.snackbar(
