@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/singing_room_controller.dart';
 import '../views/song_search_screen.dart';
+import '../../../gift/presentation/controllers/gift_controller.dart';
 import '../../../gift/presentation/widgets/gift_picker_dialog.dart';
 
 class SingingBottomBar extends StatelessWidget {

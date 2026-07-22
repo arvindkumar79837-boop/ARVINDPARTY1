@@ -531,7 +531,11 @@ class AppPages {
     ),
     GetPage(
       name: AppRoutes.roomFeatures,
-      page: () => const RoomFeaturesScreen(),
+      page: () => const RoomFeaturesScreen(
+        roomId: '',
+        userId: '',
+        userName: '',
+      ),
       binding: RoomFeaturesBinding(),
     ),
     GetPage(

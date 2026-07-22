@@ -29,14 +29,16 @@ void main() async {
   // Catch any uncaught Dart async exceptions so the app doesn't silently crash.
   // Errors are logged to console for debugging; in production, replace with
   // a crash reporting service (e.g. Sentry).
-  runZonedGuarded(
+  runZoned(
     () => _bootstrap(),
-    (error, stackTrace) {
-      debugPrint('═══ UNCAUGHT EXCEPTION ═══');
-      debugPrint('$error');
-      debugPrint('$stackTrace');
-      debugPrint('══════════════════════════');
-    },
+    zoneSpecification: ZoneSpecification(
+      handleUncaughtError: (zone, error, stackTrace) {
+        debugPrint('═══ UNCAUGHT EXCEPTION ═══');
+        debugPrint('$error');
+        debugPrint('$stackTrace');
+        debugPrint('══════════════════════════');
+      },
+    ),
   );
 }
 
