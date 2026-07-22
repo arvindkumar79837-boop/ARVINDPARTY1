@@ -56,7 +56,7 @@ import '../features/cp/presentation/views/coin_seller_ranking_screen.dart' as cp
 import '../features/cp/presentation/views/coin_seller_transactions_screen.dart';
 import '../features/cp/presentation/views/recharge_history_screen.dart' as cp_recharge;
 import '../features/cp/presentation/views/settlement_history_screen.dart' as cp_settlement;
-import '../features/dealer/presentation/controllers/dealer_controller.dart';
+import '../features/dealer/presentation/bindings/dealer_binding.dart';
 // Dealer
 import '../features/dealer/presentation/views/dealer_wallet_screen.dart';
 import '../features/events/presentation/bindings/events_binding.dart';
@@ -132,6 +132,8 @@ import '../features/room/presentation/views/room_detail_screen.dart';
 // Room
 import '../features/room/presentation/views/room_list_screen.dart';
 import '../features/room/presentation/views/room_lock_screen.dart';
+import '../features/room_features/presentation/bindings/room_features_binding.dart';
+import '../features/room_features/presentation/views/room_features_screen.dart';
 import '../features/search/presentation/bindings/search_binding.dart';
 // Search
 import '../features/search/presentation/views/search_screen.dart' as search_screen;
@@ -528,6 +530,11 @@ class AppPages {
       binding: RoomBinding(roomId: 'roomAnalytics'),
     ),
     GetPage(
+      name: AppRoutes.roomFeatures,
+      page: () => const RoomFeaturesScreen(),
+      binding: RoomFeaturesBinding(),
+    ),
+    GetPage(
       name: AppRoutes.giftStatistics,
       page: () => const GiftHistoryScreen(),
       binding: GiftBinding(),
@@ -665,9 +672,7 @@ class AppPages {
     GetPage(
       name: AppRoutes.dealerWallet,
       page: () => const DealerWalletScreen(),
-      binding: BindingsBuilder(() {
-        Get.put(DealerController());
-      }),
+      binding: DealerBinding(),
     ),
 
     // ─── AGENCY ───────────────────────────────────────────

@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 
+import '../../../core/services/api_service.dart';
 import '../models/dealer_model.dart';
 
 class DealerService extends GetxService {
@@ -10,7 +11,7 @@ class DealerService extends GetxService {
   @override
   void onInit() {
     super.onInit();
-    _dio = Get.find<Dio>();
+    _dio = Get.find<ApiService>().dio;
   }
 
   Future<DealerWalletModel?> getDealerWallet(String dealerUid) async {

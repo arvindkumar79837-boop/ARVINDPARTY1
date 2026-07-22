@@ -9,7 +9,7 @@ class DealerWalletScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(DealerController());
+    final controller = Get.find<DealerController>();
 
     return Scaffold(
       appBar: AppBar(

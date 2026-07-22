@@ -60,6 +60,7 @@ abstract class AppRoutes {
   static const roomLock = '/room-lock';
   static const roomBackground = '/room-background';
   static const roomAnalytics = '/room-analytics';
+  static const roomFeatures = '/room-features';
 
   // ═══════ GIFT ═══════
   static const giftShop = '/gift-shop';

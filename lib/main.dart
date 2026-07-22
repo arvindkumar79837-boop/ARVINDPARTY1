@@ -9,12 +9,16 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
+import 'core/localization/localization_service.dart';
 import 'core/services/api_service.dart';
 import 'core/services/auth_session_manager.dart';
+import 'core/services/feature_flag_service.dart';
 import 'core/services/google_play_billing_service.dart';
+import 'core/services/livekit_service.dart';
 import 'core/socket/socket_service.dart';
 import 'core/utils/network_manager.dart';
 import 'features/auth/presentation/services/firebase_auth_service.dart';
+import 'features/wallet/services/payment_service.dart';
 import 'firebase_options.dart';
 import 'routes/app_pages.dart';
 import 'routes/app_routes.dart';
@@ -114,6 +118,12 @@ Future<void> initAsynchronousServices() async {
     await GetStorage.init();
   } catch (e) {
   }
+
+  // Register services that depend on GetStorage (after it's initialized)
+  Get.put<LocalizationService>(LocalizationService(), permanent: true);
+  Get.put<FeatureFlagService>(FeatureFlagService(), permanent: true);
+  Get.put<LiveKitService>(LiveKitService(), permanent: true);
+  Get.put<PaymentService>(PaymentService(), permanent: true);
 }
 
 class ArvindPartyApp extends StatelessWidget {

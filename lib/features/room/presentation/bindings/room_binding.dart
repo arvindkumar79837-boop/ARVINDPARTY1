@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 
 import '../controllers/live_room_controller.dart';
 import '../controllers/room_controller.dart';
+import '../controllers/room_settings_controller.dart';
 
 class RoomBinding extends Bindings {
   final String roomId;
@@ -29,5 +30,8 @@ class RoomBinding extends Bindings {
       roomOwnerId: roomOwnerId,
     ));
     Get.lazyPut<RoomController>(() => RoomController(roomId: roomId, roomOwnerId: roomOwnerId));
+
+    // Room settings controller for room configuration widgets
+    Get.lazyPut<RoomSettingsController>(() => RoomSettingsController());
   }
 }
