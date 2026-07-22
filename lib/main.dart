@@ -34,7 +34,7 @@ void main() async {
   runZoned(
     () => _bootstrap(),
     zoneSpecification: ZoneSpecification(
-      handleUncaughtError: (zone, error, stackTrace) {
+      handleUncaughtError: (zone, delegate, parent, error, stackTrace) {
         debugPrint('═══ UNCAUGHT EXCEPTION ═══');
         debugPrint('$error');
         debugPrint('$stackTrace');

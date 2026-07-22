@@ -36,7 +36,6 @@ import '../features/auth/presentation/views/mobile_security_screen.dart';
 import '../features/auth/presentation/views/multi_device_control_screen.dart';
 import '../features/auth/presentation/views/otp_screen.dart';
 import '../features/auth/presentation/views/password_reset_screen.dart';
-import '../features/auth/presentation/views/phone_auth_screen.dart';
 import '../features/auth/presentation/views/firebase_phone_auth_screen.dart';
 import '../features/auth/presentation/views/session_management_screen.dart';
 import '../features/auth/presentation/views/signup_screen.dart';
@@ -156,7 +155,6 @@ import '../features/vip_system/views/vip_cosmetics_view.dart';
 // VIP System NEW (VIP 1-15, SVIP, Premium, Cosmetics, Missions)
 import '../features/vip_system/views/vip_dashboard_view.dart';
 import '../features/vip_system/views/vip_missions_view.dart';
-import '../features/vip_system/views/vip_premium_view.dart';
 import '../features/vip_system/views/vip_shop_view.dart';
 import '../features/premium/presentation/bindings/premium_binding.dart';
 import '../features/premium/presentation/views/premium_screen.dart';

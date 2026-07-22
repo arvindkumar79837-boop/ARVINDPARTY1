@@ -15,6 +15,7 @@ import firebase_messaging
 import flutter_secure_storage_macos
 import flutter_webrtc
 import google_sign_in_ios
+import in_app_purchase_storekit
 import livekit_client
 import package_info_plus
 import share_plus
@@ -36,6 +37,7 @@ func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   FlutterSecureStoragePlugin.register(with: registry.registrar(forPlugin: "FlutterSecureStoragePlugin"))
   FlutterWebRTCPlugin.register(with: registry.registrar(forPlugin: "FlutterWebRTCPlugin"))
   FLTGoogleSignInPlugin.register(with: registry.registrar(forPlugin: "FLTGoogleSignInPlugin"))
+  InAppPurchasePlugin.register(with: registry.registrar(forPlugin: "InAppPurchasePlugin"))
   LiveKitPlugin.register(with: registry.registrar(forPlugin: "LiveKitPlugin"))
   FPPPackageInfoPlusPlugin.register(with: registry.registrar(forPlugin: "FPPPackageInfoPlusPlugin"))
   SharePlusMacosPlugin.register(with: registry.registrar(forPlugin: "SharePlusMacosPlugin"))

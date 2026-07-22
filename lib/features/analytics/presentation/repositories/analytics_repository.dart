@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import '../../../../core/services/api_service.dart';
+import '../../../../core/utils/api_exception.dart';
 
 class AnalyticsRepository {
   final _api = Get.find<ApiService>();

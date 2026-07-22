@@ -304,9 +304,9 @@ class GiftController extends GetxController {
     treasureDuration.value = data['durationSeconds'] ?? 30;
   }
 
-  void openGiftPicker({String targetType = 'USER', String? targetId, String? roomId}) {
+  void openGiftPicker({String targetType = 'USER', String? targetId, String? roomId, String? receiverId, String? receiverName}) {
     Get.dialog(
-      GiftPickerDialog(),
+      GiftPickerDialog(receiverId: receiverId ?? '', receiverName: receiverName ?? 'User', roomId: roomId),
       barrierDismissible: true,
     );
   }

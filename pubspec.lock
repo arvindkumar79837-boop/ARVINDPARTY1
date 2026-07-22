@@ -593,7 +593,7 @@ packages:
     source: sdk
     version: "0.0.0"
   flutter_webrtc:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: flutter_webrtc
       sha256: b832dc76c0d1577f14aaf35e9c38d4ed7667cbc89c492b7bf4505d8d5f62e08b
@@ -604,10 +604,10 @@ packages:
     dependency: "direct main"
     description:
       name: font_awesome_flutter
-      sha256: b9011df3a1fa02993630b8fb83526368cf2206a711259830325bab2f1d2a4eb0
+      sha256: "275ff26905134bcb59417cf60ad979136f1f8257f2f449914b2c3e05bbb4cd6f"
       url: "https://pub.dev"
     source: hosted
-    version: "10.12.0"
+    version: "10.7.0"
   freezed:
     dependency: "direct dev"
     description:
@@ -816,6 +816,38 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.2.2"
+  in_app_purchase:
+    dependency: "direct main"
+    description:
+      name: in_app_purchase
+      sha256: "0e9510b80b0074e89ab0a8e0fc901439b779dc9ae575ab8d419253c6e1627716"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.3.0"
+  in_app_purchase_android:
+    dependency: transitive
+    description:
+      name: in_app_purchase_android
+      sha256: b8af1b6f0e57076b5da5ede71e3af2d727017c0416ad2a41017c6ed2b102381d
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.5.0"
+  in_app_purchase_platform_interface:
+    dependency: transitive
+    description:
+      name: in_app_purchase_platform_interface
+      sha256: "0b0076cac8ce4fa7048f01e76af8b123aeb6a7c4e0dea2a5206d6664454f3e36"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.4.1"
+  in_app_purchase_storekit:
+    dependency: transitive
+    description:
+      name: in_app_purchase_storekit
+      sha256: "47d63717270133fcfa1ff8e144f6aaf9d498fa3884de43e24909737da55aedd8"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.10+1"
   intl:
     dependency: "direct main"
     description:
