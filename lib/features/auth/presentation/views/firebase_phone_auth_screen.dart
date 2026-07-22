@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pinput/pinput.dart';
 
-import '../../../../core/services/auth_session_manager.dart';
 import '../../../../routes/app_routes.dart';
 import '../services/firebase_auth_service.dart';
 

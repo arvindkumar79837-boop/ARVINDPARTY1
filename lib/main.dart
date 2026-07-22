@@ -3,6 +3,8 @@
 // ARVIND PARTY - ENTRY POINT (Firebase Auth + Node.js Backend)
 // ----------------------------------------------------------------------------
 
+import 'dart:async';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -119,6 +121,8 @@ Future<void> initAsynchronousServices() async {
   try {
     await GetStorage.init();
   } catch (e) {
+    debugPrint('═══ GetStorage init error ═══');
+    debugPrint('Error: $e');
   }
 
   // Register services that depend on GetStorage (after it's initialized)

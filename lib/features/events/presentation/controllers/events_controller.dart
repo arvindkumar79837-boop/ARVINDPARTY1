@@ -345,7 +345,7 @@ class EventsController extends GetxController {
 
   Future<void> joinEvent(String eventId) async {
     try {
-      final result = await _repo.joinEvent(eventId);
+      await _repo.joinEvent(eventId);
       Get.snackbar('Success', 'Joined event successfully!', backgroundColor: Colors.green);
       await fetchMasterActiveEvents();
       await fetchEventsDashboard();

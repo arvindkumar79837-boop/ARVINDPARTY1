@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controllers/agency_controller.dart';
 
 class AgencyRankingScreen extends StatelessWidget {
   const AgencyRankingScreen({super.key});

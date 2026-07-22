@@ -147,52 +147,6 @@ class SupportController extends GetxController {
     ticketDescription.value = value;
   }
 
-  void submitTicket() {
-    try {
-      if (ticketSubject.value.trim().isEmpty) {
-        Get.snackbar('Error', 'Please enter a subject',
-            snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
-        return;
-      }
-      if (ticketDescription.value.trim().isEmpty) {
-        Get.snackbar('Error', 'Please describe your issue',
-            snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
-        return;
-      }
-
-      isSubmitting.value = true;
-      submitSuccess.value = false;
-
-      // Simulate API call
-      final newTicket = SupportTicket(
-        'TK-${(tickets.length + 1).toString().padLeft(3, '0')}',
-        ticketSubject.value,
-        ticketCategory.value,
-        ticketPriority.value,
-        'open',
-        DateTime.now(),
-        ticketDescription.value,
-      );
-
-      tickets.insert(0, newTicket);
-
-      ticketSubject.value = '';
-      ticketDescription.value = '';
-      ticketCategory.value = 'technical';
-      ticketPriority.value = 'medium';
-
-      submitSuccess.value = true;
-      Get.snackbar('Success', 'Ticket #${newTicket.id} created successfully',
-          snackPosition: SnackPosition.BOTTOM, backgroundColor: const Color(0xFFFF9800), colorText: Colors.white);
-    } catch (e) {
-      errorMessage.value = 'Failed to submit ticket: $e';
-      Get.snackbar('Error', 'Failed to submit ticket. Please try again.',
-          snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
-    } finally {
-      isSubmitting.value = false;
-    }
-  }
-
   void selectTicket(SupportTicket ticket) {
     selectedTicket.value = ticket;
   }

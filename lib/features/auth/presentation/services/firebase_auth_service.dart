@@ -48,7 +48,7 @@ class FirebaseAuthService extends GetxService {
       if (Platform.isAndroid) {
         final androidInfo = await _deviceInfo.androidInfo;
         return {
-          'deviceId': androidInfo.serialNumber ?? androidInfo.id,
+          'deviceId': androidInfo.serialNumber,
           'deviceModel': androidInfo.model,
           'deviceBrand': androidInfo.brand,
           'deviceOS': 'Android ${androidInfo.version.release}',

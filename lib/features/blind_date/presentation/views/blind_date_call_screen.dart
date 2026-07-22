@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/blind_date_controller.dart';
-import 'blind_date_decision_screen.dart';
 
 class BlindDateCallScreen extends StatelessWidget {
   const BlindDateCallScreen({super.key});
@@ -32,7 +31,7 @@ class BlindDateCallScreen extends StatelessWidget {
               // Avatar
               CircleAvatar(
                 radius: 60,
-                backgroundColor: const Color(0xFFFF6B9D).withOpacity(0.3),
+                backgroundColor: const Color(0xFFFF6B9D).withValues(alpha: 0.3),
                 backgroundImage: other?['avatar'] != null ? NetworkImage(other!['avatar']) : null,
                 child: other?['avatar'] == null ? const Icon(Icons.person, size: 60, color: Colors.white) : null,
               ),
@@ -46,7 +45,7 @@ class BlindDateCallScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF4CAF50).withOpacity(0.2),
+                  color: const Color(0xFF4CAF50).withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Row(
@@ -63,7 +62,7 @@ class BlindDateCallScreen extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFFD700).withOpacity(0.15),
+                    color: const Color(0xFFFFD700).withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(
@@ -78,9 +77,9 @@ class BlindDateCallScreen extends StatelessWidget {
                 margin: const EdgeInsets.symmetric(horizontal: 24),
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
+                  color: Colors.white.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.white.withOpacity(0.15)),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
                 ),
                 child: Column(
                   children: [
@@ -133,9 +132,9 @@ class BlindDateCallScreen extends StatelessWidget {
             width: 64,
             height: 64,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.2),
+              color: color.withValues(alpha: 0.2),
               shape: BoxShape.circle,
-              border: Border.all(color: color.withOpacity(0.4)),
+              border: Border.all(color: color.withValues(alpha: 0.4)),
             ),
             child: Icon(icon, color: color, size: 28),
           ),

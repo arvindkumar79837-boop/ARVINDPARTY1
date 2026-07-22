@@ -250,8 +250,8 @@ class AuthRepository {
           token: auth.token,
           userId: auth.user.id,
           userName: auth.user.username,
-          userEmail: auth.user.email ?? '',
-          userAvatar: auth.user.avatar ?? '',
+          userEmail: auth.user.email,
+          userAvatar: auth.user.avatar,
         );
         return auth;
       }

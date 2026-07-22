@@ -1,18 +1,8 @@
 import 'package:get/get.dart';
 import '../../../../core/services/api_service.dart';
-import '../../../../core/services/auth_session_manager.dart';
-import '../../../../core/utils/api_exception.dart';
 
 class AnalyticsRepository {
   final _api = Get.find<ApiService>();
-
-  String? _getToken() {
-    try {
-      return Get.find<AuthSessionManager>().token.value;
-    } catch (e) {
-      return null;
-    }
-  }
 
   Future<Map<String, dynamic>> getRevenueSummary() async {
     try {

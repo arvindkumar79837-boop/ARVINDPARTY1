@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import '../controllers/singing_room_controller.dart';
 import '../views/song_search_screen.dart';
 import '../../../gift/presentation/controllers/gift_controller.dart';
-import '../../../gift/presentation/widgets/gift_picker_dialog.dart';
 
 class SingingBottomBar extends StatelessWidget {
   const SingingBottomBar({super.key});
@@ -16,7 +15,7 @@ class SingingBottomBar extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF1A1A2E),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-        border: Border(top: BorderSide(color: Colors.white.withOpacity(0.05))),
+        border: Border(top: BorderSide(color: Colors.white.withValues(alpha: 0.05))),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -64,13 +63,13 @@ class SingingBottomBar extends StatelessWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: color.withOpacity(onTap != null ? 0.15 : 0.05),
+              color: color.withValues(alpha: onTap != null ? 0.15 : 0.05),
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: color.withOpacity(onTap != null ? 1.0 : 0.4), size: 22),
+            child: Icon(icon, color: color.withValues(alpha: onTap != null ? 1.0 : 0.4), size: 22),
           ),
           const SizedBox(height: 4),
-          Text(label, style: TextStyle(color: color.withOpacity(onTap != null ? 0.9 : 0.4), fontSize: 11)),
+          Text(label, style: TextStyle(color: color.withValues(alpha: onTap != null ? 0.9 : 0.4), fontSize: 11)),
         ],
       ),
     );
@@ -100,12 +99,12 @@ class SingingBottomBar extends StatelessWidget {
                 final song = user['song'];
                 return ListTile(
                   leading: CircleAvatar(
-                    backgroundColor: Colors.white.withOpacity(0.1),
+                    backgroundColor: Colors.white.withValues(alpha: 0.1),
                     backgroundImage: user['avatar'] != null ? NetworkImage(user['avatar']) : null,
                     child: user['avatar'] == null ? Text('${i + 1}', style: const TextStyle(color: Colors.white70)) : null,
                   ),
                   title: Text(user['name'] ?? 'User', style: const TextStyle(color: Colors.white, fontSize: 13)),
-                  subtitle: song != null ? Text(song['title'] ?? '', style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 11)) : null,
+                  subtitle: song != null ? Text(song['title'] ?? '', style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 11)) : null,
                   trailing: (ctrl.isHost.value || ctrl.isCoHost.value)
                       ? IconButton(
                           onPressed: () => ctrl.removeUserFromQueue(user['userId'] ?? user['_id']),

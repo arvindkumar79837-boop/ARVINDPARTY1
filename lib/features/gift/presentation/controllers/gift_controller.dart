@@ -3,10 +3,12 @@
 // ARVIND PARTY - GIFT CONTROLLER (Extended: Lucky, Treasure, Combo, Collection, Goals)
 // ═══════════════════════════════════════════════════════════════════════════
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../core/services/api_service.dart';
 import '../../models/gift_model.dart';
+import '../widgets/gift_picker_dialog.dart';
 
 class GiftController extends GetxController {
   final ApiService _apiService = Get.find<ApiService>();
@@ -300,6 +302,13 @@ class GiftController extends GetxController {
     isTreasureActive.value = true;
     treasurePoolCoins.value = data['poolCoins'] ?? 0;
     treasureDuration.value = data['durationSeconds'] ?? 30;
+  }
+
+  void openGiftPicker({String targetType = 'USER', String? targetId, String? roomId}) {
+    Get.dialog(
+      GiftPickerDialog(),
+      barrierDismissible: true,
+    );
   }
 
   void selectGift(GiftModel gift) {

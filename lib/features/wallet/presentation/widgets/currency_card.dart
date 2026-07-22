@@ -9,12 +9,14 @@ import '../models/wallet_model.dart';
 class CurrencyCard extends StatelessWidget {
   final CurrencyType type;
   final int amount;
+  final String? subtitle;
   final VoidCallback? onTap;
 
   const CurrencyCard({
     super.key,
     required this.type,
     required this.amount,
+    this.subtitle,
     this.onTap,
   });
 
@@ -61,6 +63,17 @@ class CurrencyCard extends StatelessWidget {
                   fontWeight: FontWeight.w500,
                 ),
               ),
+              if (subtitle != null) ...[
+                Text(
+                  subtitle!,
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: Colors.grey.shade500,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 2),
+              ],
               const SizedBox(height: 4),
               Text(
                 _formatAmount(amount),
