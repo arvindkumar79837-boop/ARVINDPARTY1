@@ -1,5 +1,8 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get/get.dart';
 import 'package:livekit_client/livekit_client.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../constants/env_config.dart';
 import 'api_service.dart';
@@ -12,6 +15,7 @@ class LiveKitService extends GetxService {
   final isMicEnabled = true.obs;
   final isCameraEnabled = false.obs;
   final isScreenSharing = false.obs;
+  final isSpeakerOn = true.obs;
   final remoteUsers = <RemoteParticipant>[].obs;
   final activeUsers = <Map<String, dynamic>>[].obs;
 
@@ -26,8 +30,18 @@ class LiveKitService extends GetxService {
     try {
       await LiveKitClient.initialize();
     } catch (e) {
-      // Initialization may fail if already initialized
+      debugPrint('═══ LiveKit initialize ERROR ═══');
+      debugPrint('Error: $e');
     }
+  }
+
+  Future<bool> requestMicrophonePermission() async {
+    final status = await Permission.microphone.request();
+    if (status.isDenied) {
+      debugPrint('═══ Microphone Permission DENIED ═══');
+      return false;
+    }
+    return true;
   }
 
   Future<bool> joinRoom({
@@ -38,6 +52,12 @@ class LiveKitService extends GetxService {
     bool enableVideo = false,
   }) async {
     try {
+      final micGranted = await requestMicrophonePermission();
+      if (!micGranted) {
+        debugPrint('═══ LiveKit joinRoom ABORTED — mic permission denied ═══');
+        return false;
+      }
+
       final tokenResponse = await _fetchLiveKitToken(roomId, userId, userName);
       final token = tokenResponse['token'] as String?;
       final liveKitWs = tokenResponse['liveKitWsUrl'] as String? ?? liveKitWsUrl;
@@ -61,7 +81,10 @@ class LiveKitService extends GetxService {
       isMicEnabled.value = enableAudio;
       isCameraEnabled.value = enableVideo;
       return true;
-    } catch (e) {
+    } catch (e, stack) {
+      debugPrint('═══ LiveKit joinRoom ERROR ═══');
+      debugPrint('Room: $roomId, User: $userId, Error: $e');
+      debugPrint('Stack: $stack');
       return false;
     }
   }
@@ -75,7 +98,8 @@ class LiveKitService extends GetxService {
       remoteUsers.clear();
       activeUsers.clear();
     } catch (e) {
-      // Leave may fail if already disconnected
+      debugPrint('═══ LiveKit leaveRoom ERROR ═══');
+      debugPrint('Error: $e');
     }
   }
 
@@ -84,7 +108,8 @@ class LiveKitService extends GetxService {
       await _localParticipant?.setMicrophoneEnabled(enable);
       isMicEnabled.value = enable;
     } catch (e) {
-      // Microphone toggle may fail if not connected
+      debugPrint('═══ LiveKit toggleMicrophone ERROR ═══');
+      debugPrint('Error: $e');
     }
   }
 
@@ -93,17 +118,17 @@ class LiveKitService extends GetxService {
       await _localParticipant?.setCameraEnabled(enable);
       isCameraEnabled.value = enable;
     } catch (e) {
-      // Camera toggle may fail if not connected
+      debugPrint('═══ LiveKit toggleCamera ERROR ═══');
+      debugPrint('Error: $e');
     }
   }
 
   Future<void> toggleSpeaker(bool enable) async {
     try {
-      await _room?.localParticipant?.setCameraEnabled(false);
-      // LiveKit uses AudioManagement API for speaker routing
-      // This is handled at platform level via system audio route
+      await Helper.setSpeakerphoneOn(enable);
+      isSpeakerOn.value = enable;
     } catch (e) {
-      // Speaker toggle may not be available on all devices
+      debugPrint('Speaker toggle error: $e');
     }
   }
 
@@ -118,7 +143,8 @@ class LiveKitService extends GetxService {
         }
       }
     } catch (e) {
-      // Mute operation may fail if participant left
+      debugPrint('═══ LiveKit muteRemoteUser ERROR ═══');
+      debugPrint('Error: $e');
     }
   }
 
@@ -147,7 +173,8 @@ class LiveKitService extends GetxService {
 
       return {};
     } catch (e) {
-      // Token fetch may fail due to network issues
+      debugPrint('═══ LiveKit token fetch ERROR ═══');
+      debugPrint('Error: $e');
       return {};
     }
   }

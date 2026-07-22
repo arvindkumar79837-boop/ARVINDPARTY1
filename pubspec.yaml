@@ -17,6 +17,7 @@ dependencies:
 
   # Video / Live Streaming (LiveKit + Video Player)
   livekit_client: ^2.3.1
+  flutter_webrtc: ^0.12.4
   video_player: ^2.8.6
 
   # Firebase Auth (Phone OTP + Google Login only)
