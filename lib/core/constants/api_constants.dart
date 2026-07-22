@@ -18,8 +18,7 @@ class ApiConstants {
   static const String signup = '$auth/signup';
   static const String phoneLogin = '$auth/phone-login';
   static const String verifyOtp = '$auth/verify-otp';
-  static const String googleLogin = '$auth/google';
-  static const String appleLogin = '$auth/apple';
+
   static const String refreshToken = '$auth/refresh-token';
 
   // ─── USERS ───────────────────────────────────────────────────────────
@@ -59,7 +58,7 @@ class ApiConstants {
   static const String familyPoints = '$family/points';
   static const String familyShop = '$family/shop';
   static const String familyShopPurchase = '$family/shop/purchase';
-  static const String familyChatHistory = '$family/chat/history';
+  static const String familyChatHistory = '$family/chat/messages';
   static const String familyUpgrade = '$family/upgrade';
 
   // ─── AGENCY ──────────────────────────────────────────────────────────
@@ -175,8 +174,8 @@ class ApiConstants {
   static const String gameLeaderboard = '$games/leaderboard';
 
   // ─── LUCKY DRAW ─────────────────────────────────────────────────────
-  static const String luckyWheelRewards = '/lucky-draw/rewards';
-  static const String luckyWheelSpinDraw = '/lucky-draw/spin';
+  static const String luckyWheelRewards = '/lucky-draws/active';
+  static const String luckyWheelSpinDraw = '/lucky-draws/spin';
 
   // ─── MOMENTS ─────────────────────────────────────────────────────────
   static const String momentsFeed = '$moments/feed';

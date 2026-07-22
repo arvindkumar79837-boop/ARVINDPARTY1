@@ -162,6 +162,10 @@ import '../features/blind_date/presentation/bindings/blind_date_binding.dart';
 import '../features/blind_date/presentation/views/blind_date_screen.dart';
 import '../features/singing_room/presentation/bindings/singing_room_binding.dart';
 import '../features/singing_room/presentation/views/singing_room_screen.dart';
+import '../features/power_matrix/presentation/bindings/power_matrix_binding.dart';
+import '../features/power_matrix/presentation/views/power_matrix_view.dart';
+import '../features/youtube/presentation/bindings/youtube_binding.dart';
+import '../features/youtube/presentation/views/youtube_room_screen.dart';
 import '../features/wallet/presentation/bindings/wallet_binding.dart';
 import '../features/wallet/presentation/views/coin_wallet_screen.dart';
 import '../features/wallet/presentation/views/diamond_wallet_screen.dart';
@@ -731,6 +735,11 @@ class AppPages {
       binding: MediaBinding(),
     ),
     GetPage(
+      name: AppRoutes.youtubeRoom,
+      page: () => const YouTubeRoomScreen(),
+      binding: YouTubeBinding(),
+    ),
+    GetPage(
       name: AppRoutes.playlist,
       page: () => const PlaylistScreen(),
       binding: MediaBinding(),
@@ -746,6 +755,13 @@ class AppPages {
       name: AppRoutes.levelPage,
       page: () => const LevelScreen(),
       binding: LevelBinding(),
+    ),
+
+    // ─── POWER MATRIX ───────────────────────────────────
+    GetPage(
+      name: AppRoutes.powerMatrix,
+      page: () => const PowerMatrixView(),
+      binding: PowerMatrixBinding(),
     ),
 
     // ─── INVENTORY / BACKPACK ───────────────────────────

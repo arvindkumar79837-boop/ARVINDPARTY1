@@ -108,9 +108,13 @@ abstract class AppRoutes {
 
   // ═══════ MEDIA ═══════
   static const youtube = '/youtube';
+  static const youtubeRoom = '/youtube-room';
   static const playlist = '/playlist';
   static const mediaPlayer = '/media-player';
   static const soundEffects = '/sound-effects';
+
+  // ═══════ POWER MATRIX ═══════
+  static const powerMatrix = '/power-matrix';
 
   // ═══════ FAMILY ═══════
   static const family = '/family';

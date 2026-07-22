@@ -13,18 +13,12 @@ class EnvConfig {
 
   // ─── BASE URLS ──────────────────────────────────────────────────────
   //
-  // Abhi dono URLs same testing server pe point karti hain.
-  // Domain milne ke baad:
-  //   1. prodBaseUrl ko https://yourdomain.com se replace karo
-  //   2. android/app/src/main/res/xml/network_security_config.xml
-  //      se 222.167.207.78 ka exception hata do
-  //   3. ios/Runner/Info.plist se 222.167.207.78 ka
-  //      NSExceptionDomains entry hata do
+  // Production uses HTTPS with the arvindparty.com domain.
+  // Dev/Staging use the test server IP for local development.
   //
   static const String devBaseUrl = 'http://222.167.207.78:5000';
   static const String stagingBaseUrl = 'http://222.167.207.78:5000';
-  static const String prodBaseUrl = 'http://222.167.207.78:5000';
-  // TODO: Domain milne ke baad prodBaseUrl ko 'https://yourdomain.com' se replace karo
+  static const String prodBaseUrl = 'https://api.arvindparty.com';
 
   // ─── RESOLVED URL ───────────────────────────────────────────────────
   static String get currentEnv => isProduction ? 'production' : isStaging ? 'staging' : 'development';
