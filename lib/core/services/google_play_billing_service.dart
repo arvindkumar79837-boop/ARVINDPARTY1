@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'api_service.dart';
 
-class GooglePlayBillingService extends GetxController {
+class GooglePlayBillingService extends GetxService {
   final InAppPurchase _iap = InAppPurchase.instance;
   StreamSubscription<List<PurchaseDetails>>? _subscription;
   final isAvailable = false.obs;

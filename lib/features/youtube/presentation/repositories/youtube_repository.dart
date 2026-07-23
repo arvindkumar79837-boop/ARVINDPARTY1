@@ -15,12 +15,12 @@ class YouTubeRepository {
 
   Future<List<YouTubeVideo>> getPlaylist() async {
     try {
-      final response = await _api.get('/api/youtube/playlist');
-      if (response.statusCode == 200 && response.data != null) {
-        final List<dynamic> videos = response.data['videos'] ?? response.data;
+      final response = await _api.get('/api/youtube/playlist') as Map<String, dynamic>;
+      if (response['success'] == true && response['videos'] != null) {
+        final List<dynamic> videos = response['videos'];
         return videos.map((v) => YouTubeVideo.fromJson(v)).toList();
       }
-      throw Exception('Failed to load playlist');
+      throw Exception(response['message'] ?? 'Failed to load playlist');
     } catch (e) {
       Get.log('YouTubeRepository.getPlaylist error: $e');
       rethrow;
@@ -29,9 +29,9 @@ class YouTubeRepository {
 
   Future<List<YouTubeVideo>> searchVideos(String query) async {
     try {
-      final response = await _api.get('/api/youtube/search', query: {'q': query});
-      if (response.statusCode == 200 && response.data != null) {
-        final List<dynamic> videos = response.data['videos'] ?? response.data;
+      final response = await _api.get('/api/youtube/search', query: {'q': query}) as Map<String, dynamic>;
+      if (response['success'] == true && response['videos'] != null) {
+        final List<dynamic> videos = response['videos'];
         return videos.map((v) => YouTubeVideo.fromJson(v)).toList();
       }
       return [];
@@ -43,9 +43,9 @@ class YouTubeRepository {
 
   Future<YouTubeVideo?> getVideoDetails(String videoId) async {
     try {
-      final response = await _api.get('/api/youtube/video/$videoId');
-      if (response.statusCode == 200 && response.data != null) {
-        return YouTubeVideo.fromJson(response.data);
+      final response = await _api.get('/api/youtube/video/$videoId') as Map<String, dynamic>;
+      if (response['success'] == true && response['video'] != null) {
+        return YouTubeVideo.fromJson(response['video']);
       }
       return null;
     } catch (e) {
