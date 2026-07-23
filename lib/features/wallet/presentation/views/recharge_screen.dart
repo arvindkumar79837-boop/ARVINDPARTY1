@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════════════════════
 // FILE: lib/features/wallet/presentation/views/recharge_screen.dart
-// ARVIND PARTY - RECHARGE SCREEN (Buy Coins via Razorpay)
+// ARVIND PARTY - RECHARGE SCREEN (Buy Coins via Google Play Billing)
 // ═══════════════════════════════════════════════════════════════════════════
 
 import 'package:flutter/material.dart';

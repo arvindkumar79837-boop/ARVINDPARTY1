@@ -20,7 +20,6 @@ import 'core/services/livekit_service.dart';
 import 'core/socket/socket_service.dart';
 import 'core/utils/network_manager.dart';
 import 'features/auth/presentation/services/firebase_auth_service.dart';
-import 'features/wallet/services/payment_service.dart';
 import 'firebase_options.dart';
 import 'routes/app_pages.dart';
 import 'routes/app_routes.dart';
@@ -129,7 +128,6 @@ Future<void> initAsynchronousServices() async {
   Get.put<LocalizationService>(LocalizationService(), permanent: true);
   Get.put<FeatureFlagService>(FeatureFlagService(), permanent: true);
   Get.put<LiveKitService>(LiveKitService(), permanent: true);
-  Get.put<PaymentService>(PaymentService(), permanent: true);
 }
 
 class ArvindPartyApp extends StatelessWidget {

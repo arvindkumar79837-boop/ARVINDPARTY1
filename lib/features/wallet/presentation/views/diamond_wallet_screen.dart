@@ -262,7 +262,7 @@ class DiamondWalletScreen extends StatelessWidget {
       children: [
         const Text('Buy Diamonds', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
         const SizedBox(height: 4),
-        Text('Purchase diamonds via Razorpay', style: TextStyle(fontSize: 13, color: Colors.white.withValues(alpha: 0.5))),
+        Text('Purchase diamonds via Google Play Store', style: TextStyle(fontSize: 13, color: Colors.white.withValues(alpha: 0.5))),
         const SizedBox(height: 16),
         Obx(() {
           if (controller.packages.isEmpty) {

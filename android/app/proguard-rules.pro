@@ -10,10 +10,6 @@
 # Firebase Messaging
 -keep class com.google.firebase.messaging.** { *; }
 
-# Razorpay
--keep class com.razorpay.** { *; }
--dontwarn com.razorpay.**
-
 # MoEngage
 -keep class com.moengage.** { *; }
 -dontwarn com.moengage.**

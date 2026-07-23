@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../routes/app_routes.dart';
-import '../../services/payment_service.dart';
 import '../controllers/wallet_controller.dart';
 
 class CoinWalletScreen extends GetView<WalletController> {
@@ -353,7 +352,6 @@ class CoinWalletScreen extends GetView<WalletController> {
   }
 
   Widget _buildCoinPackagesSection(BuildContext context, WalletController controller) {
-    final paymentService = Get.find<PaymentService>();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -485,7 +483,10 @@ class CoinWalletScreen extends GetView<WalletController> {
                     ),
                     const SizedBox(width: 12),
                     ElevatedButton(
-                      onPressed: () => _handleBuyPackage(context, controller, paymentService, pkg),
+                      onPressed: () async {
+                        controller.selectedPackage.value = pkg;
+                        await controller.processRecharge();
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFFF6B35),
                         foregroundColor: Colors.white,
@@ -505,33 +506,4 @@ class CoinWalletScreen extends GetView<WalletController> {
     );
   }
 
-  Future<void> _handleBuyPackage(
-    BuildContext context,
-    WalletController controller,
-    PaymentService paymentService,
-    dynamic pkg,
-  ) async {
-    try {
-      await paymentService.initiatePayment(
-        amount: (pkg.price as double).round(),
-        packageName: pkg.name,
-        coins: pkg.coins,
-        userName: 'User',
-        userEmail: 'user@example.com',
-        userPhone: '9999999999',
-      );
-
-      // Refresh balance after successful payment
-      controller.loadAllData();
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Payment Error: ${e.toString()}'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
 }

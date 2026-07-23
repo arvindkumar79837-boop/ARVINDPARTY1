@@ -90,7 +90,6 @@ class WalletScreen extends GetView<WalletController> {
           const Text('Select Payment Method', style: TextStyle(fontWeight: FontWeight.w600)),
           Obx(() => Row(children: [
             _payChip('Google Play', 'google_play', controller.selectedPaymentMethod.value == 'google_play'),
-            _payChip('Razorpay', 'razorpay', controller.selectedPaymentMethod.value == 'razorpay'),
           ])),
           const SizedBox(height: 16),
           Obx(() => ElevatedButton(
