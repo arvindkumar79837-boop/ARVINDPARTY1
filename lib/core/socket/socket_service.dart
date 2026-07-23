@@ -5,6 +5,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
@@ -16,6 +17,7 @@ class SocketService extends GetxService {
   io.Socket? _socket;
   Timer? _heartbeatTimer;
   Timer? _reconnectTimer;
+  Worker? _authTokenWorker;
 
   final isConnected = false.obs;
   final connectionAttempts = 0.obs;
@@ -47,7 +49,7 @@ class SocketService extends GetxService {
       return;
     }
 
-    ever(authSession.token, (String? token) {
+    _authTokenWorker = ever(authSession.token, (String? token) {
       if (token != null && token.isNotEmpty) {
         connect(token: token);
       }
@@ -56,6 +58,7 @@ class SocketService extends GetxService {
 
   @override
   void onClose() {
+    _authTokenWorker?.dispose();
     _stopHeartbeat();
     _reconnectTimer?.cancel();
     disconnect();
@@ -109,6 +112,7 @@ class SocketService extends GetxService {
     });
 
     _socket!.onError((err) {
+      debugPrint('SocketService: onError: $err');
     });
 
     _socket!.connect();
@@ -154,6 +158,7 @@ class SocketService extends GetxService {
     if (_socket != null && _socket!.connected) {
       _socket!.emit(event, data);
     } else {
+      debugPrint('SocketService: emit($event) dropped — socket not connected');
     }
   }
 

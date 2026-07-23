@@ -28,8 +28,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Catch any uncaught Dart async exceptions so the app doesn't silently crash.
-  // Errors are logged to console for debugging; in production, replace with
-  // a crash reporting service (e.g. Sentry).
+  // In production: replace debugPrint with Firebase Crashlytics or Sentry:
+  //   FirebaseCrashlytics.instance.recordError(error, stackTrace);
+  //   or Sentry.captureException(error, stacktrace: stackTrace);
   runZoned(
     () => _bootstrap(),
     zoneSpecification: ZoneSpecification(
@@ -105,15 +106,18 @@ Future<void> initAsynchronousServices() async {
   // Firebase.initializeApp() internally triggers FirebaseInstallations which
   // throws 'SERVICE_NOT_AVAILABLE' on network failures. Must be try-caught
   // so the app can still boot and navigate to the login screen.
+  bool firebaseInitialized = false;
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
     // Register FirebaseAuthService after Firebase is initialized
     Get.put<FirebaseAuthService>(FirebaseAuthService(), permanent: true);
+    firebaseInitialized = true;
   } catch (e) {
-    // Non-fatal — the app continues without Firebase. FCM token registration
-    // will be retried later when network is available.
+    debugPrint('Firebase init failed: $e — will retry on next network event');
+    // Schedule a retry when network becomes available
+    _scheduleFirebaseRetry();
   }
 
   // GetStorage does not depend on Firebase, so initialize regardless.
@@ -128,6 +132,26 @@ Future<void> initAsynchronousServices() async {
   Get.put<LocalizationService>(LocalizationService(), permanent: true);
   Get.put<FeatureFlagService>(FeatureFlagService(), permanent: true);
   Get.put<LiveKitService>(LiveKitService(), permanent: true);
+}
+
+/// Retry Firebase initialization when network returns.
+/// Maximum 3 retries with exponential backoff (5s, 15s, 30s).
+void _scheduleFirebaseRetry() async {
+  const delays = [5, 15, 30];
+  for (final seconds in delays) {
+    await Future.delayed(Duration(seconds: seconds));
+    try {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+      Get.put<FirebaseAuthService>(FirebaseAuthService(), permanent: true);
+      debugPrint('Firebase retry succeeded after ${seconds}s');
+      return;
+    } catch (e) {
+      debugPrint('Firebase retry failed ($e), will try again...');
+    }
+  }
+  debugPrint('Firebase init failed after all retries — running without Firebase');
 }
 
 class ArvindPartyApp extends StatelessWidget {
