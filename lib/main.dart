@@ -6,11 +6,13 @@
 import 'dart:async';
 
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
+import 'core/constants/env_config.dart';
 import 'core/localization/localization_service.dart';
 import 'core/services/api_service.dart';
 import 'core/services/auth_session_manager.dart';
@@ -28,10 +30,8 @@ import 'routes/app_routes.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Catch any uncaught Dart async exceptions so the app doesn't silently crash.
-  // In production: replace debugPrint with Firebase Crashlytics or Sentry:
-  //   FirebaseCrashlytics.instance.recordError(error, stackTrace);
-  //   or Sentry.captureException(error, stacktrace: stackTrace);
+  // Catch any uncaught Dart async exceptions.
+  // In production: also reports to Firebase Crashlytics.
   runZoned(
     () => _bootstrap(),
     zoneSpecification: ZoneSpecification(
@@ -40,6 +40,9 @@ void main() async {
         debugPrint('$error');
         debugPrint('$stackTrace');
         debugPrint('══════════════════════════');
+        if (EnvConfig.enableCrashReporting) {
+          FirebaseCrashlytics.instance.recordError(error, stackTrace);
+        }
       },
     ),
   );
@@ -115,6 +118,13 @@ Future<void> initAsynchronousServices() async {
     );
     // Register FirebaseAuthService after Firebase is initialized
     Get.put<FirebaseAuthService>(FirebaseAuthService(), permanent: true);
+
+    // Initialize Crashlytics (only collects in release/production builds)
+    if (EnvConfig.enableCrashReporting) {
+      await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
+      FirebaseCrashlytics.instance.setCustomKey('env', EnvConfig.currentEnv);
+    }
+
     firebaseInitialized = true;
   } catch (e) {
     debugPrint('Firebase init failed: $e — will retry on next network event');

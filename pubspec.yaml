@@ -35,6 +35,9 @@ dependencies:
   # Push Notifications
   firebase_messaging: ^14.7.10
 
+  # Crash Reporting
+  firebase_crashlytics: ^3.5.7
+
   # Permissions, Connectivity, Sharing
   permission_handler: ^11.1.0
   connectivity_plus: ^6.0.3

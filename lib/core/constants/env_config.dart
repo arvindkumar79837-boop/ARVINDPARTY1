@@ -3,6 +3,8 @@
 // ARVIND PARTY - CENTRALIZED ENVIRONMENT CONFIGURATION
 // ═══════════════════════════════════════════════════════════════════════════
 
+import 'package:flutter/foundation.dart';
+
 class EnvConfig {
   EnvConfig._();
 
@@ -44,8 +46,8 @@ class EnvConfig {
 
   // ─── FEATURE FLAGS ──────────────────────────────────────────────────
   static const bool enableAnalytics = false;
-  static const bool enableCrashReporting = false;
-  static const bool enableDebugLogging = true;
+  static bool get enableCrashReporting => isProduction;
+  static bool get enableDebugLogging => kDebugMode;
   static const int maxRetryAttempts = 3;
 
   // ─── STORAGE KEYS ──────────────────────────────────────────────────
