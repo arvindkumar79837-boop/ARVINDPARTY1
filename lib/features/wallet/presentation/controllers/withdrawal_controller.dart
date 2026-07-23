@@ -27,7 +27,7 @@ class WithdrawalController extends GetxController {
   Future<void> fetchWithdrawalHistory() async {
     try {
       isLoading.value = true;
-      final response = await _api.get('/api/wallet/wallet/withdraw/history');
+      final response = await _api.get('/api/wallet/withdraw/history');
       if (response is Map && response['success'] == true) {
         withdrawalHistory.assignAll(List<Map<String, dynamic>>.from(response['data'] ?? []));
         _computeCounts();
@@ -51,7 +51,7 @@ class WithdrawalController extends GetxController {
   Future<void> cancelWithdrawal(String id) async {
     try {
       isProcessing.value = true;
-      final response = await _api.post('/api/wallet/wallet/withdraw/cancel/$id', body: {});
+      final response = await _api.post('/api/wallet/withdraw/cancel/$id', body: {});
       if (response is Map && response['success'] == true) {
         Get.snackbar('Cancelled', 'Withdrawal request cancelled',
             snackPosition: SnackPosition.BOTTOM,

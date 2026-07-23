@@ -34,7 +34,6 @@ class EventsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    Get.put<EventsController>(this, permanent: true);
     loadEvents();
   }
 

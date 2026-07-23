@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
@@ -7,6 +9,7 @@ class FeatureFlagService extends GetxService {
   final _box = GetStorage();
   final _flags = <String, bool>{};
   final _serverFlags = <String, Map<String, dynamic>>{};
+  Timer? _syncTimer;
   
   static const String _storageKey = 'feature_flags';
   static const String _serverFlagsKey = 'server_feature_flags';
@@ -16,7 +19,18 @@ class FeatureFlagService extends GetxService {
     super.onInit();
     await _loadLocalFlags();
     await _loadServerFlags();
-    await _startSyncTimer();
+    _syncTimer = Timer.periodic(const Duration(minutes: 5), (_) async {
+      if (Get.isRegistered<FeatureFlagService>()) {
+        await _loadServerFlags();
+        await _syncFlags();
+      }
+    });
+  }
+
+  @override
+  void onClose() {
+    _syncTimer?.cancel();
+    super.onClose();
   }
   
   Future<void> _loadLocalFlags() async {
@@ -59,16 +73,6 @@ class FeatureFlagService extends GetxService {
         }
       }
     }
-  }
-  
-  Future<void> _startSyncTimer() async {
-    Future.delayed(const Duration(minutes: 5), () async {
-      if (Get.isRegistered()) {
-        await _loadServerFlags();
-        await _syncFlags();
-      }
-      await _startSyncTimer();
-    });
   }
   
   Future<void> _syncFlags() async {

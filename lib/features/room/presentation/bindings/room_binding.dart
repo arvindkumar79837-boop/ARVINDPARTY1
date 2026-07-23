@@ -23,13 +23,6 @@ class RoomBinding extends Bindings {
     } else {
       Get.lazyPut<RoomController>(() => RoomController(roomId: roomId, roomOwnerId: roomOwnerId));
     }
-    
-    // Pre-bind both controllers to avoid runtime binding errors
-    Get.lazyPut<LiveRoomController>(() => LiveRoomController(
-      roomId: roomId,
-      roomOwnerId: roomOwnerId,
-    ));
-    Get.lazyPut<RoomController>(() => RoomController(roomId: roomId, roomOwnerId: roomOwnerId));
 
     // Room settings controller for room configuration widgets
     Get.lazyPut<RoomSettingsController>(() => RoomSettingsController());

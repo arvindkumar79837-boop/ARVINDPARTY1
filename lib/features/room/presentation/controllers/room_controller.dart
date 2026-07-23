@@ -130,7 +130,6 @@ class RoomController extends LiveRoomController {
 
   Future<void> leaveRoom() async {
     socket?.emit('leave_room', {'roomId': roomId, 'userId': currentUserId});
-    socket?.disconnect();
     Get.back();
   }
 

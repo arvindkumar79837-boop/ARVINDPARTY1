@@ -45,6 +45,7 @@ class LiveRoomController extends GetxController {
   static const int maxRetries = 3;
   Timer? _reconnectTimer;
   Timer? _giftAnimationTimer;
+  StreamSubscription? _connectionSubscription;
 
   // ─── Chat ───────────────────────────────────────────────────
   final chatMessages = <ChatMessage>[].obs;
@@ -129,7 +130,7 @@ class LiveRoomController extends GetxController {
       final socketService = Get.find<SocketService>();
       socket = socketService.socket;
       isConnected.value = socketService.isConnected.value;
-      socketService.isConnected.listen((connected) {
+      _connectionSubscription = socketService.isConnected.listen((connected) {
         isConnected.value = connected;
       });
 
@@ -727,6 +728,7 @@ class LiveRoomController extends GetxController {
   void onClose() {
     _reconnectTimer?.cancel();
     _giftAnimationTimer?.cancel();
+    _connectionSubscription?.cancel();
     if (socket != null) {
       for (final event in _socketEvents) {
         socket!.off(event);
