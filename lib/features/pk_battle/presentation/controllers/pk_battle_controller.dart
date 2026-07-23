@@ -35,25 +35,25 @@ class PkBattleController extends GetxController {
   }
 
   void _handlePkRequest(dynamic data) {
-    battleRequest.value = data as Map<String, dynamic>;
+    battleRequest.value = data is Map<String, dynamic> ? Map<String, dynamic>.from(data) : <String, dynamic>{};
   }
 
   void _handlePkStart(dynamic data) {
-    liveBattle.value = data as Map<String, dynamic>;
+    liveBattle.value = data is Map<String, dynamic> ? Map<String, dynamic>.from(data) : <String, dynamic>{};
     battleRequest.value = null; // Clear pending request
   }
 
   void _handlePkEnd(dynamic data) {
     liveBattle.value = null;
-    // You can show a dialog with the results
-    Get.snackbar('PK Battle Ended', 'Winner is ${data['winnerId']}');
+    final winnerId = data is Map ? data['winnerId'] ?? 'Unknown' : 'Unknown';
+    Get.snackbar('PK Battle Ended', 'Winner is $winnerId');
   }
 
   void _handlePkScoreUpdate(dynamic data) {
-    if (liveBattle.value != null) {
+    if (liveBattle.value != null && data is Map) {
       liveBattle.update((val) {
-        val!['hostScore'] = data['hostScore'];
-        val['opponentScore'] = data['opponentScore'];
+        val!['hostScore'] = data['hostScore'] ?? val['hostScore'];
+        val['opponentScore'] = data['opponentScore'] ?? val['opponentScore'];
       });
     }
   }

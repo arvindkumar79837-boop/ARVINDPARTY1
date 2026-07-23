@@ -52,6 +52,12 @@ class YouTubeController extends GetxController {
 
   @override
   void onClose() {
+    // Remove all socket listeners before leaving
+    _repo.removePlaybackSyncListener();
+    _repo.removePlaylistUpdateListener();
+    _repo.removeParticipantUpdateListener();
+    _repo.removeVideoChangeListener();
+    _repo.removeWatchPartyToggleListener();
     if (roomId != null && currentUserId != null) {
       _repo.emitLeaveRoom(roomId!, currentUserId!);
     }

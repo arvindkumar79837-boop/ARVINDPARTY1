@@ -5,9 +5,9 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import 'dart:async';
-import 'package:arvind_party/core/constants/env_config.dart';
 import 'package:arvind_party/core/services/api_service.dart';
 import 'package:arvind_party/core/services/livekit_service.dart';
+import 'package:arvind_party/core/socket/socket_service.dart';
 import 'package:arvind_party/features/room/models/room_models.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -126,17 +126,12 @@ class LiveRoomController extends GetxController {
         return;
       }
 
-      final serverUrl = EnvConfig.socketUrl;
-      final token = _authSession.token.value ?? '';
-      socket = io.io(
-        serverUrl,
-        io.OptionBuilder()
-            .setTransports(['websocket'])
-            .disableAutoConnect()
-            .setAuth(<String, dynamic>{'token': token})
-            .build(),
-      );
-      socket!.connect();
+      final socketService = Get.find<SocketService>();
+      socket = socketService.socket;
+      isConnected.value = socketService.isConnected.value;
+      socketService.isConnected.listen((connected) {
+        isConnected.value = connected;
+      });
 
       socket!.onConnect((_) {
         isConnected.value = true;
@@ -733,15 +728,12 @@ class LiveRoomController extends GetxController {
     _reconnectTimer?.cancel();
     _giftAnimationTimer?.cancel();
     if (socket != null) {
-      // Remove all registered listeners before disconnecting
       for (final event in _socketEvents) {
         socket!.off(event);
       }
       if (isConnected.value) {
         socket!.emit('leave_room', {'roomId': roomId, 'userId': currentUserId});
       }
-      socket!.disconnect();
-      socket!.dispose();
     }
     if (isLiveKitInitialized.value) {
       liveKitService.leaveRoom();

@@ -59,9 +59,11 @@ class FriendController extends GetxController {
 
   Future<void> acceptRequest(String requestId, String senderId) async {
     try {
+      // Find the sender name BEFORE removing from the list
+      final senderRequest = incomingRequests.firstWhereOrNull((r) => r.id == requestId);
+      final senderName = senderRequest?.senderName ?? 'Friend';
       await _repo.acceptFriendRequest(requestId);
       incomingRequests.removeWhere((r) => r.id == requestId);
-      final senderName = incomingRequests.firstWhereOrNull((r) => r.senderId == senderId)?.senderName ?? 'Friend';
       friends.add(FriendModel(id: senderId, username: senderName, status: FriendStatus.friends, isOnline: true));
       Get.snackbar('Accepted', 'Friend request accepted!');
     } catch (e) {

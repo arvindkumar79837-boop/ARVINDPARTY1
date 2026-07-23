@@ -8,6 +8,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'dart:io' show Platform;
 import '../repositories/auth_repository.dart';
 
 class DeviceBindingController extends GetxController {
@@ -43,15 +45,39 @@ class DeviceBindingController extends GetxController {
 
   Future<void> _initializeDeviceInfo() async {
     try {
-      deviceId.value = 'device_${DateTime.now().millisecondsSinceEpoch}';
+      // Read persisted device ID first
+      final savedDeviceId = storage.read('persistent_device_id');
+      if (savedDeviceId != null) {
+        deviceId.value = savedDeviceId;
+      } else {
+        // Generate a stable, persistent device ID
+        try {
+          final deviceInfo = DeviceInfoPlugin();
+          if (kIsWeb) {
+            deviceId.value = 'web_${DateTime.now().millisecondsSinceEpoch}';
+          } else if (Platform.isAndroid) {
+            final info = await deviceInfo.androidInfo;
+            deviceId.value = info.id;
+          } else if (Platform.isIOS) {
+            final info = await deviceInfo.iosInfo;
+            deviceId.value = info.identifierForVendor ?? 'ios_${DateTime.now().millisecondsSinceEpoch}';
+          } else {
+            deviceId.value = 'device_${DateTime.now().millisecondsSinceEpoch}';
+          }
+        } catch (_) {
+          deviceId.value = 'device_${DateTime.now().millisecondsSinceEpoch}';
+        }
+        await storage.write('persistent_device_id', deviceId.value);
+      }
+
       deviceName.value = 'Unknown Device';
       deviceModel.value = 'Unknown';
       devicePlatform.value = kIsWeb ? 'web' : 'mobile';
       deviceOsVersion.value = 'Unknown';
 
       // Check if device was previously bound
-      final savedDeviceId = storage.read('bound_device_id');
-      if (savedDeviceId != null && savedDeviceId == deviceId.value) {
+      final savedBoundId = storage.read('bound_device_id');
+      if (savedBoundId != null && savedBoundId == deviceId.value) {
         isCurrentDeviceBound.value = true;
       }
 
@@ -78,7 +104,21 @@ class DeviceBindingController extends GetxController {
       isLoading.value = true;
       errorMessage.value = '';
 
-      // Backend API pending
+      final authRepo = AuthRepository();
+      try {
+        final response = await authRepo.getBoundDevices();
+        if (response is Map && response['success'] == true) {
+          final devices = response['devices'];
+          if (devices is List) {
+            boundDevices.value = List<Map<String, dynamic>>.from(devices);
+            await _saveDevicesLocally(boundDevices);
+          }
+        }
+      } catch (_) {
+        // Backend API may not be available yet — fall back to local data
+        debugPrint('fetchBoundDevices: backend unavailable, using local cache');
+      }
+
       isLoading.value = false;
     } catch (e) {
       errorMessage.value = 'Failed to fetch devices: ${e.toString()}';

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../core/services/auth_session_manager.dart';
 import '../../models/dealer_model.dart';
 import '../../services/dealer_service.dart';
 
@@ -284,7 +285,7 @@ class DealerController extends GetxController {
   }
 
   Future<String?> _getCurrentDealerUid() async {
-    return null;
+    return Get.find<AuthSessionManager>().userId.value;
   }
 
   @override

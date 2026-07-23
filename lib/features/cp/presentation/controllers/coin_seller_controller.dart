@@ -21,8 +21,8 @@ class CoinSellerController extends GetxController {
   void onInit() {
     super.onInit();
     // Only load data if the user is a coin seller
-    // Coin seller check
-    if (true) {
+    if (_session.currentUser.value?['role'] == 'coinSeller' ||
+        _session.currentUser.value?['isDealer'] == true) {
       loadDealerData();
     }
   }
@@ -116,7 +116,7 @@ class CoinSellerController extends GetxController {
       });
 
        if (response['success'] == true) {
-        Get.snackbar('Success', 'Settlement request for \$$amount submitted successfully.', backgroundColor: Colors.green);
+        Get.snackbar('Success', 'Settlement request for ₹$amount submitted successfully.', backgroundColor: Colors.green);
         await loadDealerData();
       } else {
         Get.snackbar('Failed', response['message'] ?? 'Could not submit request.', backgroundColor: Colors.red, colorText: Colors.white);

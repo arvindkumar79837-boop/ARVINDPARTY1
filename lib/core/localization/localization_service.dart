@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -14,6 +15,7 @@ class LocalizationService extends GetxService {
   final GetStorage _storage = GetStorage();
   final ApiService _apiService = Get.find<ApiService>();
   final Connectivity _connectivity = Connectivity();
+  StreamSubscription? _connectivitySubscription;
 
   final RxString currentLanguage = 'en'.obs;
   final RxBool isLoading = false.obs;
@@ -25,6 +27,16 @@ class LocalizationService extends GetxService {
     await detectSystemLanguage();
     await loadSavedLanguage();
     await fetchRemoteTranslations();
+    _connectivitySubscription = _connectivity.onConnectivityChanged.listen((_) {
+      // Re-fetch translations when connectivity changes
+      fetchRemoteTranslations();
+    });
+  }
+
+  @override
+  void onClose() {
+    _connectivitySubscription?.cancel();
+    super.onClose();
   }
 
   Future<void> detectSystemLanguage() async {

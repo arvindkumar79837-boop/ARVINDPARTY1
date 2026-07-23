@@ -21,7 +21,11 @@ class DealerService extends GetxService {
         return DealerWalletModel.fromJson(response.data['data']['wallet']);
       }
       return null;
+    } on DioException catch (e) {
+      Get.log('getDealerWallet error: ${e.message}');
+      return null;
     } catch (e) {
+      Get.log('getDealerWallet unexpected error: $e');
       return null;
     }
   }
@@ -43,7 +47,11 @@ class DealerService extends GetxService {
         return DealerTransferResponse.fromJson(response.data['data']);
       }
       return null;
+    } on DioException catch (e) {
+      Get.log('transferCoinsToUser error: ${e.message}');
+      return null;
     } catch (e) {
+      Get.log('transferCoinsToUser unexpected error: $e');
       return null;
     }
   }
@@ -65,7 +73,11 @@ class DealerService extends GetxService {
         return DealerRefundModel.fromJson(response.data['data']);
       }
       return null;
+    } on DioException catch (e) {
+      Get.log('requestRefund error: ${e.message}');
+      return null;
     } catch (e) {
+      Get.log('requestRefund unexpected error: $e');
       return null;
     }
   }
@@ -80,7 +92,11 @@ class DealerService extends GetxService {
         return response.data['data']['transactions'] ?? [];
       }
       return [];
+    } on DioException catch (e) {
+      Get.log('getDealerTransactions error: ${e.message}');
+      return [];
     } catch (e) {
+      Get.log('getDealerTransactions unexpected error: $e');
       return [];
     }
   }
@@ -92,7 +108,11 @@ class DealerService extends GetxService {
         return DealerStats.fromJson(response.data);
       }
       return null;
+    } on DioException catch (e) {
+      Get.log('getDealerStats error: ${e.message}');
+      return null;
     } catch (e) {
+      Get.log('getDealerStats unexpected error: $e');
       return null;
     }
   }
@@ -111,7 +131,11 @@ class DealerService extends GetxService {
         return DealerListResponse.fromJson(response.data);
       }
       return null;
+    } on DioException catch (e) {
+      Get.log('getAllDealers error: ${e.message}');
+      return null;
     } catch (e) {
+      Get.log('getAllDealers unexpected error: $e');
       return null;
     }
   }
@@ -125,7 +149,11 @@ class DealerService extends GetxService {
         if (notes != null) 'notes': notes,
       });
       return response.data['success'] == true;
+    } on DioException catch (e) {
+      Get.log('updateDealerLevel error: ${e.message}');
+      return false;
     } catch (e) {
+      Get.log('updateDealerLevel unexpected error: $e');
       return false;
     }
   }
@@ -137,7 +165,11 @@ class DealerService extends GetxService {
         if (notes != null) 'notes': notes,
       });
       return response.data['success'] == true;
+    } on DioException catch (e) {
+      Get.log('toggleDealerStatus error: ${e.message}');
+      return false;
     } catch (e) {
+      Get.log('toggleDealerStatus unexpected error: $e');
       return false;
     }
   }
@@ -151,7 +183,11 @@ class DealerService extends GetxService {
         if (description != null) 'description': description,
       });
       return response.data['success'] == true;
+    } on DioException catch (e) {
+      Get.log('creditDealerWallet error: ${e.message}');
+      return false;
     } catch (e) {
+      Get.log('creditDealerWallet unexpected error: $e');
       return false;
     }
   }

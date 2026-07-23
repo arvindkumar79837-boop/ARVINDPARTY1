@@ -34,7 +34,8 @@ class EventsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    fetchAllData();
+    Get.put<EventsController>(this, permanent: true);
+    loadEvents();
   }
 
   Future<void> fetchAllData() async {
@@ -382,10 +383,9 @@ class EventsController extends GetxController {
   Future<void> fetchEventsDashboard() async {
     try {
       final dashboard = await _repo.getEventsDashboard();
-      Get.put<EventsController>(this, permanent: true);
       // Controller will expose these via observables in next iteration
     } catch (e) {
-      // Silently fail - non-critical data
+      debugPrint('fetchEventsDashboard error: $e');
     }
   }
 

@@ -23,11 +23,12 @@ class LiveRoomScreen extends StatelessWidget {
     final controller = Get.find<LiveRoomController>();
     final chatInputController = TextEditingController();
 
-    return WillPopScope(
-      onWillPop: () async {
-        // Ensure we gracefully leave the room and release resources.
-        controller.onClose();
-        return true;
+    return PopScope(
+      canPop: true,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) {
+          controller.onClose();
+        }
       },
       child: Scaffold(
         backgroundColor: Colors.black,

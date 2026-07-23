@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -429,19 +430,22 @@ class AdminController extends GetxController {
     }
     isLoading.value = true;
     try {
+      final tempPassword = _generateTempPassword();
       final response = await _apiService.post('/staff/create', body: {
         'loginId': staffEmail.value.split('@')[0],
-        'password': 'TempPass123!',
+        'password': tempPassword,
         'name': staffName.value,
         'email': staffEmail.value,
         'role': staffRole.value,
         'permissions': List<String>.from(staffPermissions),
+        'mustChangePassword': true,
       });
       if (response is Map && response['success'] == true) {
-        Get.snackbar('Staff Added', '${staffName.value} added successfully.',
+        Get.snackbar('Staff Added', '${staffName.value} added successfully.\nTemp password: $tempPassword',
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: const Color.fromRGBO(76, 175, 80, 1),
-            colorText: Colors.white);
+            colorText: Colors.white,
+            duration: const Duration(seconds: 8));
         staffName.value = '';
         staffEmail.value = '';
         staffRole.value = '';
@@ -762,6 +766,17 @@ class AdminController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  String _generateTempPassword() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#\$%';
+    final rng = Random.secure();
+    return List.generate(12, (_) => chars[rng.nextInt(chars.length)]).join();
+  }
+
+  @override
+  void onClose() {
+    super.onClose();
   }
 
 }

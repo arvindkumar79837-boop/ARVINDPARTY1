@@ -52,7 +52,13 @@ class SingingRoomController extends GetxController {
   void onClose() {
     _lyricsTimer?.cancel();
     _likeDebounceTimer?.cancel();
-    _socket?.disconnect();
+    // Remove listeners from global socket without disconnecting it
+    _socket?.off('singing:next-performer');
+    _socket?.off('singing:performance-ended');
+    _socket?.off('singing:like-count');
+    _socket?.off('singing:queue-updated');
+    _socket?.off('singing:queue-joined');
+    _socket?.off('singing:sync-response');
     super.onClose();
   }
 
@@ -130,7 +136,9 @@ class SingingRoomController extends GetxController {
         currentSong.value = songs[0];
         _startLyricsSync();
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('SingingRoom: _fetchSongDetails failed: $e');
+    }
   }
 
   void _requestSync() {
@@ -145,7 +153,9 @@ class SingingRoomController extends GetxController {
       final resp = await _api.dio.get('/singing/songs', queryParameters: {'search': query, 'limit': 30});
       final songs = (resp.data['data']?['songs'] ?? []).cast<Map<String, dynamic>>();
       searchResults.assignAll(songs);
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('SingingRoom: searchSongs failed: $e');
+    }
     isSearching.value = false;
   }
 
@@ -167,7 +177,9 @@ class SingingRoomController extends GetxController {
       await _api.dio.post('/singing/queue/leave', data: {'roomId': roomId.value});
       myQueuePosition.value = -1;
       micQueue.removeWhere((e) => e['isMe'] == true);
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('SingingRoom: leaveQueue failed: $e');
+    }
   }
 
   Future<void> startPerformance() async {
@@ -193,7 +205,9 @@ class SingingRoomController extends GetxController {
       currentSong.value = null;
       performanceStartedAt.value = null;
       _lyricsTimer?.cancel();
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('SingingRoom: endPerformance failed: $e');
+    }
   }
 
   void sendLike() {
@@ -219,9 +233,37 @@ class SingingRoomController extends GetxController {
 
   void _parseLRC(String url) {
     // LRC format: [mm:ss.xx] text
-    // This will be parsed when lyrics content is fetched
     lyricsLines.clear();
     currentLyricIndex.value = 0;
+
+    // Attempt to fetch LRC content from the URL
+    _api.dio.get(url).then((resp) {
+      final content = resp.data?.toString() ?? '';
+      if (content.isEmpty) return;
+
+      final lines = content.split('\n');
+      final parsed = <Map<String, dynamic>>[];
+      final regex = RegExp(r'\[(\d+):(\d+\.?\d*)\]\s*(.*)');
+
+      for (final line in lines) {
+        final match = regex.firstMatch(line);
+        if (match != null) {
+          final minutes = int.parse(match.group(1)!);
+          final seconds = double.parse(match.group(2)!);
+          final text = match.group(3) ?? '';
+          parsed.add({
+            'timestamp': ((minutes * 60) + seconds) * 1000,
+            'text': text,
+          });
+        }
+      }
+
+      if (parsed.isNotEmpty) {
+        lyricsLines.assignAll(parsed);
+      }
+    }).catchError((e) {
+      debugPrint('Failed to fetch LRC lyrics: $e');
+    });
   }
 
   void _updateLyricIndex() {

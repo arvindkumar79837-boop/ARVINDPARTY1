@@ -122,6 +122,12 @@ class YouTubeRepository {
     });
   }
 
+  void removePlaybackSyncListener() => _socket.off('youtube:sync_update');
+  void removePlaylistUpdateListener() => _socket.off('youtube:playlist_updated');
+  void removeParticipantUpdateListener() => _socket.off('youtube:participants_updated');
+  void removeVideoChangeListener() => _socket.off('youtube:video_changed');
+  void removeWatchPartyToggleListener() => _socket.off('youtube:watch_party_toggled');
+
   void emitJoinRoom(String roomId, String userId) {
     _socket.emit('youtube:join_room', {'roomId': roomId, 'userId': userId});
   }

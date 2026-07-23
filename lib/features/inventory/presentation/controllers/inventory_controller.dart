@@ -148,6 +148,21 @@ class InventoryController extends GetxController {
     if (index != -1) {
       allItems[index] = item.copyWith(isEquipped: equipped);
     }
+    // Also sync category-specific lists
+    switch (item.category) {
+      case 'frame':
+        final fi = frames.indexWhere((i) => i.id == item.id);
+        if (fi != -1) frames[fi] = item.copyWith(isEquipped: equipped);
+        break;
+      case 'badge':
+        final bi = badges.indexWhere((i) => i.id == item.id);
+        if (bi != -1) badges[bi] = item.copyWith(isEquipped: equipped);
+        break;
+      case 'entryEffect':
+        final ei = entryEffects.indexWhere((i) => i.id == item.id);
+        if (ei != -1) entryEffects[ei] = item.copyWith(isEquipped: equipped);
+        break;
+    }
   }
 
   Future<void> unequipItem(InventoryItem item) async {

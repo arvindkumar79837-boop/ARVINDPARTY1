@@ -96,30 +96,31 @@ class FamilyController extends GetxController {
 
   void _setupSocketListeners() {
     _socket.on('family:new_message', (data) {
-      chatMessages.insert(0, Map<String, dynamic>.from(data));
+      if (data is Map) chatMessages.insert(0, Map<String, dynamic>.from(data));
     });
 
     _socket.on('family:invitation_received', (data) {
-      myInvitations.insert(0, Map<String, dynamic>.from(data));
-      Get.snackbar('Family Invitation!', data['message'] ?? 'You received a family invitation');
+      if (data is Map) myInvitations.insert(0, Map<String, dynamic>.from(data));
+      Get.snackbar('Family Invitation!', (data is Map ? data['message'] : null) ?? 'You received a family invitation');
     });
 
     _socket.on('family:member_joined', (data) {
-      Get.snackbar('New Member!', '${data['username'] ?? 'Someone'} joined the family');
+      Get.snackbar('New Member!', '${(data is Map ? data['username'] : null) ?? 'Someone'} joined the family');
     });
 
     _socket.on('family:level_up', (data) {
-      final newLevel = data['newLevel'] ?? 0;
+      final newLevel = (data is Map ? data['newLevel'] : null) ?? 0;
       Get.snackbar('🎉 Family Level Up!', 'Your family is now Level $newLevel!');
     });
 
     _socket.on('family:stay:reward', (data) {
-      final coins = data['coinsEarned'] ?? 0;
-      final xp = data['xpEarned'] ?? 0;
+      final coins = (data is Map ? data['coinsEarned'] : null) ?? 0;
+      final xp = (data is Map ? data['xpEarned'] : null) ?? 0;
       Get.snackbar('Stay Reward!', '+$coins coins & +$xp XP');
     });
 
     _socket.on('family:stay:status', (data) {
+      if (data is! Map) return;
       final active = data['active'] ?? false;
       isStayActive.value = active;
       if (active) {
@@ -129,20 +130,19 @@ class FamilyController extends GetxController {
     });
 
     _socket.on('family:pk_update', (data) {
+      if (data is! Map) return;
       final pk = Map<String, dynamic>.from(data);
-      if (activePK.value != null) {
-        activePK.value = pk;
-      }
+      if (activePK.value != null) activePK.value = pk;
     });
 
     _socket.on('family:pk_ended', (data) {
+      if (data is! Map) return;
       final pk = Map<String, dynamic>.from(data);
-      if (activePK.value != null) {
-        activePK.value = pk;
-      }
+      if (activePK.value != null) activePK.value = pk;
     });
 
     _socket.on('family:war_update', (data) {
+      if (data is! Map) return;
       final war = Map<String, dynamic>.from(data);
       final index = activeWars.indexWhere((w) => w['_id'] == war['_id']);
       if (index != -1) {

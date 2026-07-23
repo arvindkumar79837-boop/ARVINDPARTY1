@@ -130,12 +130,42 @@ class SettingsController extends GetxController {
   void toggleSound(bool value) => soundEnabled.value = value;
   void toggleVibration(bool value) => vibrationEnabled.value = value;
 
-  void saveAllSettings() {
+  void saveAllSettings() async {
     try {
-      Get.snackbar('Settings', 'All settings saved successfully',
-          snackPosition: SnackPosition.BOTTOM, backgroundColor: const Color(0xFFFF9800), colorText: Colors.white);
+      isLoading.value = true;
+      final api = Get.find<ApiService>();
+      final response = await api.post('/support/settings', body: {
+        'privacy': {
+          'showOnlineStatus': showOnlineStatus.value,
+          'showLastSeen': showLastSeen.value,
+          'showGallery': showGallery.value,
+          'showFollowers': showFollowers.value,
+          'showFollowing': showFollowing.value,
+          'showVisitorHistory': showVisitorHistory.value,
+          'allowFriendRequests': allowFriendRequests.value,
+          'allowPrivateMessages': allowPrivateMessages.value,
+          'allowGifts': allowGifts.value,
+          'showWalletBalance': showWalletBalance.value,
+          'showInSearch': showInSearch.value,
+          'allowDataCollection': allowDataCollection.value,
+        },
+        'notifications': {
+          'pushEnabled': pushEnabled.value,
+          'soundEnabled': soundEnabled.value,
+          'vibrationEnabled': vibrationEnabled.value,
+        },
+      });
+
+      if (response is Map && response['success'] == true) {
+        Get.snackbar('Settings', 'All settings saved successfully',
+            snackPosition: SnackPosition.BOTTOM, backgroundColor: const Color(0xFFFF9800), colorText: Colors.white);
+      } else {
+        Get.snackbar('Error', 'Failed to save settings', snackPosition: SnackPosition.BOTTOM);
+      }
     } catch (e) {
       errorMessage.value = 'Failed to save settings: $e';
+    } finally {
+      isLoading.value = false;
     }
   }
 
@@ -176,6 +206,7 @@ class SettingsController extends GetxController {
       final api = Get.find<ApiService>();
       final response = await api.post('/legal/request-deletion', body: {
         'reason': 'User requested account deletion',
+        'password': password,
       });
 
       if (response['success'] == true) {

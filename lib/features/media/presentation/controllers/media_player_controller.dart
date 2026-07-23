@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../domain/entities/media_item.dart';
+import '../../../../core/services/api_service.dart';
 
 class MediaPlayerController extends GetxController {
   // Reactive state
@@ -42,57 +43,29 @@ class MediaPlayerController extends GetxController {
     loadSoundEffects();
   }
 
-  void loadPlaylist() {
+  void loadPlaylist() async {
     try {
       isLoading.value = true;
       errorMessage.value = null;
-      playlist.value = [
-        const MediaItem(
-          id: 'track_001',
-          title: 'Party Anthem',
-          artist: 'Arvind Official',
-          audioUrl: 'https://example.com/track1.mp3',
-          duration: Duration(minutes: 3, seconds: 45),
-          playCount: 15420,
-        ),
-        const MediaItem(
-          id: 'track_002',
-          title: 'Summer Vibes',
-          artist: 'DJ Arvind',
-          audioUrl: 'https://example.com/track2.mp3',
-          duration: Duration(minutes: 4, seconds: 12),
-          playCount: 23100,
-        ),
-        const MediaItem(
-          id: 'track_003',
-          title: 'Night Session',
-          artist: 'Party Mix',
-          audioUrl: 'https://example.com/track3.mp3',
-          duration: Duration(minutes: 5, seconds: 30),
-          playCount: 8700,
-        ),
-        const MediaItem(
-          id: 'track_004',
-          title: 'Chill Morning',
-          artist: 'Ambient Sounds',
-          audioUrl: 'https://example.com/track4.mp3',
-          duration: Duration(minutes: 6, seconds: 15),
-          category: 'ambient',
-          playCount: 4200,
-        ),
-        const MediaItem(
-          id: 'track_005',
-          title: 'Beat Drop',
-          artist: 'Electronic',
-          audioUrl: 'https://example.com/track5.mp3',
-          duration: Duration(minutes: 3, seconds: 22),
-          playCount: 18900,
-        ),
-      ];
-      if (playlist.isNotEmpty && currentMedia.value == null) {
-        currentMedia.value = playlist.first;
-        totalDuration.value = playlist.first.duration;
+      try {
+        final api = Get.find<ApiService>();
+        final response = await api.get('/media/playlist');
+        if (response is Map && response['success'] == true) {
+          final items = response['data']?['items'] ?? [];
+          if (items is List && items.isNotEmpty) {
+            playlist.assignAll(items.map((e) => MediaItem.fromJson(e)).toList());
+            if (playlist.isNotEmpty && currentMedia.value == null) {
+              currentMedia.value = playlist.first;
+              totalDuration.value = playlist.first.duration;
+            }
+            return;
+          }
+        }
+      } catch (_) {
+        // API unavailable, use empty state
       }
+      // Fallback: empty playlist
+      playlist.clear();
     } catch (e) {
       errorMessage.value = 'Failed to load playlist: ${e.toString()}';
     } finally {
