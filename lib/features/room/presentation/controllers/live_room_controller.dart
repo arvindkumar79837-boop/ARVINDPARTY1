@@ -136,7 +136,7 @@ class LiveRoomController extends GetxController {
 
       socket!.onConnect((_) {
         isConnected.value = true;
-        socket!.emit('join_room', {
+        socket!.emit('room:join', {
           'roomId': roomId,
           'userId': userId,
           'userProfile': {'name': currentUserName, 'avatar': currentUserAvatar},

@@ -307,7 +307,7 @@ class WithdrawalManagementView extends StatelessWidget {
           Get.back();
           try {
             final api = Get.find<ApiService>();
-            await api.post('/api/wallet/wallet/withdraw/approve/$id', body: {});
+            await api.put('/api/wallet/admin/withdrawals/$id/approve', body: {});
             Get.snackbar('Approved', 'Withdrawal approved successfully',
                 snackPosition: SnackPosition.BOTTOM,
                 backgroundColor: Colors.green.withValues(alpha: 0.8),
@@ -343,7 +343,7 @@ class WithdrawalManagementView extends StatelessWidget {
           Get.back();
           try {
             final api = Get.find<ApiService>();
-            await api.post('/api/wallet/wallet/withdraw/reject/$id', body: {});
+            await api.put('/api/wallet/admin/withdrawals/$id/reject', body: {});
             Get.snackbar('Rejected', 'Withdrawal rejected',
                 snackPosition: SnackPosition.BOTTOM,
                 backgroundColor: Colors.red.withValues(alpha: 0.8),
